@@ -2,7 +2,7 @@ name: FB Marketplace 撿漏自動掃描
 
 on:
   schedule:
-    - cron: '0 */4 * * *'   # 每 4 小時執行（台灣時間 00/04/08/12/16/20）
+    - cron: '*/30 * * * *'   # 每 30 分鐘執行
   workflow_dispatch:
 
 jobs:

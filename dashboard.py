@@ -1973,6 +1973,114 @@ render_crypto_dashboard(cry_q, _exrate)
 st.divider()
 render_research_notes()
 
+# ── 轉賣追蹤 ─────────────────────────────────────────
+st.divider()
+_RESALE_FILE = os.path.join(os.path.dirname(__file__), "data", "resale_items.json")
+
+def _load_resale():
+    try:
+        with open(_RESALE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
+def _save_resale(items):
+    os.makedirs(os.path.dirname(_RESALE_FILE), exist_ok=True)
+    with open(_RESALE_FILE, "w", encoding="utf-8") as f:
+        json.dump(items, f, ensure_ascii=False, indent=2)
+
+_resale_items = _load_resale()
+
+st.header("🧴 撿漏轉賣追蹤")
+
+if _resale_items:
+    _ri_df = pd.DataFrame(_resale_items)
+
+    # ── 總覽指標 ────────────────────────────────────
+    _total_cost    = sum(i["cost"] for i in _resale_items)
+    _total_market  = sum(i["market_price"] for i in _resale_items)
+    _total_suggest = sum(i["suggest_price"] for i in _resale_items)
+    _sold_items    = [i for i in _resale_items if i["status"] == "已售出"]
+    _total_sold    = sum(i["sold_price"] for i in _sold_items)
+    _total_profit_if_sold = _total_suggest - _total_cost
+    _realized_profit = _total_sold - sum(i["cost"] for i in _sold_items)
+
+    _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+    _mc1.metric("總入手成本",   f"NT${_total_cost:,}")
+    _mc2.metric("市場行情總值", f"NT${_total_market:,}", f"+{(_total_market/_total_cost-1)*100:.0f}%")
+    _mc3.metric("建議售價總計", f"NT${_total_suggest:,}")
+    _mc4.metric("預估利潤",     f"NT${_total_profit_if_sold:,}",
+                delta_color="normal" if _total_profit_if_sold > 0 else "inverse")
+    _mc5.metric("已實現利潤",   f"NT${_realized_profit:,}" if _sold_items else "—")
+
+    st.divider()
+
+    # ── 每品項卡片 ───────────────────────────────────
+    STATUS_COLOR = {"待售":"#f59e0b","上架中":"#3b82f6","已售出":"#22c55e","自留":"#94a3b8"}
+    _resale_changed = False
+
+    for _ri in _resale_items:
+        _margin_pct = (_ri["suggest_price"] - _ri["cost"]) / _ri["cost"] * 100
+        _vs_market  = (1 - _ri["suggest_price"] / _ri["market_price"]) * 100
+        _sc = STATUS_COLOR.get(_ri["status"], "#94a3b8")
+        _sold_flag = _ri["status"] == "已售出"
+
+        _card_col, _ctrl_col = st.columns([3, 2])
+        with _card_col:
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:8px;padding:12px 16px;border-left:4px solid {_sc}">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+    <div>
+      <span style="font-weight:bold;font-size:15px">{_ri['name']}</span>
+      <span style="background:{_sc}22;color:{_sc};padding:2px 8px;border-radius:4px;
+            font-size:12px;margin-left:8px">{_ri['status']}</span>
+    </div>
+    <span style="color:#22c55e;font-size:13px">利潤空間 +{_margin_pct:.0f}%</span>
+  </div>
+  <div style="display:flex;gap:20px;margin-top:8px;font-size:13px;flex-wrap:wrap">
+    <span>入手 <b style="color:#ef4444">NT${_ri['cost']:,}</b></span>
+    <span>行情 <b>NT${_ri['market_price']:,}</b></span>
+    <span>建議售價 <b style="color:#22c55e">NT${_ri['suggest_price']:,}</b></span>
+    <span style="color:#64748b">比行情低 {_vs_market:.0f}%</span>
+  </div>
+  <div style="color:#94a3b8;font-size:12px;margin-top:6px">{_ri['note']}</div>
+</div>""", unsafe_allow_html=True)
+
+        with _ctrl_col:
+            _new_status = st.selectbox(
+                "狀態", ["待售","上架中","已售出","自留"],
+                index=["待售","上架中","已售出","自留"].index(_ri.get("status","待售")),
+                key=f"rs_status_{_ri['id']}")
+            _new_platform = st.text_input("平台", value=_ri.get("platform",""),
+                                          placeholder="蝦皮/社團...",
+                                          key=f"rs_plat_{_ri['id']}")
+            _new_sold = st.number_input("實際售價", value=int(_ri.get("sold_price",0)),
+                                        step=100, key=f"rs_sold_{_ri['id']}")
+            if (_new_status != _ri["status"] or
+                _new_platform != _ri.get("platform","") or
+                _new_sold != _ri.get("sold_price",0)):
+                _ri["status"] = _new_status
+                _ri["platform"] = _new_platform
+                _ri["sold_price"] = _new_sold
+                _resale_changed = True
+
+    if _resale_changed:
+        _save_resale(_resale_items)
+        st.rerun()
+
+    # ── 打包建議 ────────────────────────────────────
+    _pending = [i for i in _resale_items if i["status"] in ("待售","上架中")]
+    if len(_pending) >= 2:
+        _bundle_cost   = sum(i["cost"] for i in _pending)
+        _bundle_min    = int(sum(i["suggest_price"] for i in _pending) * 0.88)
+        _bundle_max    = int(sum(i["suggest_price"] for i in _pending) * 0.95)
+        _bundle_profit = _bundle_min - _bundle_cost
+        st.info(f"💡 **打包銷售建議**：{len(_pending)} 件合售 NT${_bundle_min:,} ~ NT${_bundle_max:,}　"
+                f"（預估利潤 NT${_bundle_profit:,}，省去分開寄送麻煩）")
+
+else:
+    st.info("尚無轉賣追蹤項目")
+
 # ── 撿漏監控 ─────────────────────────────────────────
 st.divider()
 st.header("🛒 FB Marketplace 撿漏監控")

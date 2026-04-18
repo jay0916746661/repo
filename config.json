@@ -51,6 +51,36 @@
             "name": "DJI Mic 2",
             "market_price": 8500,
             "keywords": ["DJI Mic 2 無線麥克風", "DJI Mic 2 套組"]
+        },
+        {
+            "name": "LOEWE 蠟燭",
+            "market_price": 3350,
+            "keywords": ["LOEWE 蠟燭", "Loewe candle", "loewe小黃瓜", "LOEWE 香氛蠟燭"]
+        },
+        {
+            "name": "Diptyque 蠟燭",
+            "market_price": 2800,
+            "keywords": ["Diptyque 蠟燭", "diptyque candle", "diptyque 冷杉", "diptyque Sapin"]
+        },
+        {
+            "name": "Diptyque 香水",
+            "market_price": 8000,
+            "keywords": ["Diptyque 香水", "Diptyque 淡香水", "diptyque perfume", "Diptyque 天堂花園"]
+        },
+        {
+            "name": "BYREDO 蠟燭",
+            "market_price": 2600,
+            "keywords": ["BYREDO 蠟燭", "Byredo candle", "byredo woods", "BYREDO 香氛"]
+        },
+        {
+            "name": "Jo Malone 蠟燭/香水",
+            "market_price": 4500,
+            "keywords": ["Jo Malone 蠟燭", "Jo Malone 香水", "Jo Malone candle"]
+        },
+        {
+            "name": "Maison Margiela 香水",
+            "market_price": 5500,
+            "keywords": ["Maison Margiela 香水", "Replica 香水", "Margiela perfume"]
         }
     ]
 }

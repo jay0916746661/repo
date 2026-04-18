@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "LOEWE 小黃瓜蠟燭 170g",
+    "brand": "LOEWE",
+    "category": "香氛蠟燭",
+    "cost": 1750,
+    "market_price": 3350,
+    "suggest_price": 2500,
+    "status": "待售",
+    "platform": "",
+    "sold_price": 0,
+    "note": "熱門款，香氛社團秒殺，全新有盒",
+    "acquired_date": "2026-04-18"
+  },
+  {
+    "id": 2,
+    "name": "Diptyque 天堂花園之水 75ml",
+    "brand": "Diptyque",
+    "category": "香水",
+    "cost": 4500,
+    "market_price": 8000,
+    "suggest_price": 5800,
+    "status": "待售",
+    "platform": "",
+    "sold_price": 0,
+    "note": "流金尋旅系列，限量款，轉手較慢，定價吸引力強",
+    "acquired_date": "2026-04-18"
+  },
+  {
+    "id": 3,
+    "name": "Diptyque 冷杉迷你蠟燭 35g",
+    "brand": "Diptyque",
+    "category": "香氛蠟燭",
+    "cost": 500,
+    "market_price": 725,
+    "suggest_price": 625,
+    "status": "待售",
+    "platform": "",
+    "sold_price": 0,
+    "note": "聖誕限量款，適合當湊單品或搭配銷售",
+    "acquired_date": "2026-04-18"
+  },
+  {
+    "id": 4,
+    "name": "BYREDO 漫步林間蠟燭 240g",
+    "brand": "BYREDO",
+    "category": "香氛蠟燭",
+    "cost": 1400,
+    "market_price": 2600,
+    "suggest_price": 1900,
+    "status": "待售",
+    "platform": "",
+    "sold_price": 0,
+    "note": "經典文青香，全新有盒，低於兩千元極具競爭力",
+    "acquired_date": "2026-04-18"
+  }
+]

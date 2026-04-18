@@ -5,6 +5,7 @@ holdings.json
 portfolio_history.csv
 deals.json
 data/
+!data/resale_items.json
 *.log
 
 # Python
