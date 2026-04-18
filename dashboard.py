@@ -383,6 +383,16 @@ with st.sidebar:
     st.caption("修改後按💾，自動刷新畫面")
 
     st.divider()
+    # ── Pionex 連線狀態 ──────────────────────────────
+    st.caption("🔌 派網 API 狀態")
+    _pio_test = fetch_pionex_bal()
+    if _pio_test.get("_ok"):
+        _pio_coins = [k for k in _pio_test if not k.startswith("_")]
+        st.success(f"✅ 已連線　持倉 {len(_pio_coins)} 種　USDT: {_pio_test.get('USDT',0):.2f}")
+    else:
+        st.error(f"❌ 連線失敗：{_pio_test.get('_error','未知錯誤')}")
+
+    st.divider()
     st.caption("⚙️ 匯率設定")
     _sidebar_live = fetch_usdtwd_rate()
     st.caption(f"即時匯率：**{_sidebar_live}**　（Yahoo Finance USDTWD=X）")
@@ -633,22 +643,53 @@ def fetch_crypto() -> dict:
     return result
 
 @st.cache_data(ttl=300)
+def _pionex_get(path: str, params: dict = {}) -> dict:
+    """Pionex HMAC-SHA256 GET helper, returns raw JSON dict"""
+    ts = str(int(time.time() * 1000))
+    p  = {**params, "timestamp": ts}
+    q  = urllib.parse.urlencode(sorted(p.items()))
+    sig = hmac.new(PIONEX_SECRET.encode("utf-8"),
+                   f"GET{path}?{q}".encode("utf-8"),
+                   hashlib.sha256).hexdigest()
+    req = urllib.request.Request(
+        f"https://api.pionex.com{path}?{q}",
+        headers={"PIONEX-KEY": PIONEX_KEY,
+                 "PIONEX-SIGNATURE": sig,
+                 "PIONEX-TIMESTAMP": ts,
+                 "User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        return json.loads(r.read())
+
+
+@st.cache_data(ttl=60)
 def fetch_pionex_bal() -> dict:
-    ts = str(int(time.time()*1000))
-    path = "/api/v1/account/balances"
-    q = urllib.parse.urlencode(sorted({"timestamp":ts}.items()))
-    sig = hmac.new(PIONEX_SECRET.encode(), f"GET{path}?{q}".encode(), hashlib.sha256).hexdigest()
-    req = urllib.request.Request(f"https://api.pionex.com{path}?{q}",
-        headers={"PIONEX-KEY":PIONEX_KEY,"PIONEX-SIGNATURE":sig,
-                 "PIONEX-TIMESTAMP":ts,"User-Agent":"Mozilla/5.0"})
+    """Returns coin→qty dict + "_ok" bool + "_error" str + "_prices" coin→USD price"""
     try:
-        with urllib.request.urlopen(req, timeout=10) as r:
-            data = json.loads(r.read())
-        bals = data.get("data",{}).get("balances",[])
-        return {b["coin"]:float(b.get("free",0))+float(b.get("frozen",0))
-                for b in bals if float(b.get("free",0))+float(b.get("frozen",0))>0.0001}
-    except:
-        return {}
+        data = _pionex_get("/api/v1/account/balances")
+        if not data.get("result"):
+            return {"_ok": False, "_error": data.get("message", "API 回傳 result=false")}
+        bals = data.get("data", {}).get("balances", [])
+        result = {b["coin"]: float(b.get("free", 0)) + float(b.get("frozen", 0))
+                  for b in bals
+                  if float(b.get("free", 0)) + float(b.get("frozen", 0)) > 0.0001}
+        result["_ok"] = True
+
+        # 抓各 Token 的 Pionex 市場價格（ORCLX_USDT, TSLAX_USDT 等）
+        prices = {}
+        for coin in list(result.keys()):
+            if coin.startswith("_") or coin == "USDT":
+                continue
+            try:
+                td = _pionex_get("/api/v1/market/tickers", {"symbol": f"{coin}_USDT"})
+                px = float(td["data"]["tickers"][0]["close"])
+                if px > 0:
+                    prices[coin] = px
+            except:
+                pass
+        result["_prices"] = prices
+        return result
+    except Exception as e:
+        return {"_ok": False, "_error": str(e), "_prices": {}}
 
 @st.cache_data(ttl=300)
 def fetch_technicals(sym: str) -> dict:
@@ -728,12 +769,17 @@ def build_portfolio(exrate: float = 32.5):
             "總損益(%)":  round(gain/cost_tot*100,2) if cost_tot else 0,
         })
 
+    _pio_prices = pio_bal.get("_prices", {})  # Pionex token 市場價（TSLAX→price）
+
     # ── 派網股票
     for sym,(cost,default_qty) in PIONEX_STOCKS.items():
         coin = COIN_MAP.get(sym,sym+"X")
         qty  = pio_bal.get(coin,default_qty)
-        q    = us_q.get(sym,{})
-        rows.append(us_row("派網",f"{coin}→{sym}",cost,qty,q.get("price",0),q.get("prev",0)))
+        yq   = us_q.get(sym,{})
+        # 優先用 Pionex token 市場價，fallback 到 Yahoo
+        price = _pio_prices.get(coin, yq.get("price",0))
+        prev  = yq.get("prev", price)
+        rows.append(us_row("派網",f"{coin}→{sym}",cost,qty,price,prev))
 
     # ── 派網加密貨幣
     for coin,(cg_id,default_qty,cost) in PIONEX_CRYPTO.items():
