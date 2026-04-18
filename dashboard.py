@@ -1998,21 +1998,63 @@ _deal_data = _load_deals()
 _scraper_cfg = _load_scraper_config()
 _threshold = _scraper_cfg.get("threshold_ratio", 0.6)
 
-# 狀態列
-_col_info1, _col_info2, _col_info3 = st.columns(3)
+# ── 狀態列 ────────────────────────────────────────────
+_col_info1, _col_info2, _col_info3, _col_info4 = st.columns(4)
+_scan_time_str = _deal_data.get("last_scan")
 with _col_info1:
-    _scan_time = _deal_data.get("last_scan")
-    if _scan_time:
-        st.metric("上次掃描", _scan_time[:16].replace("T", " "))
+    if _scan_time_str:
+        try:
+            from datetime import timezone as _tz
+            _st_dt = datetime.fromisoformat(_scan_time_str)
+            _now_tz = datetime.now(_st_dt.tzinfo) if _st_dt.tzinfo else datetime.now()
+            _hours_ago = (_now_tz - _st_dt).total_seconds() / 3600
+            _freshness = ("🟢 剛更新" if _hours_ago < 5 else
+                          "🟡 稍舊" if _hours_ago < 24 else "🔴 已過期")
+            st.metric("上次掃描", _scan_time_str[5:16].replace("T"," "))
+            st.caption(f"{_freshness}　{_hours_ago:.0f} 小時前")
+        except:
+            st.metric("上次掃描", _scan_time_str[:16].replace("T"," "))
     else:
         st.metric("上次掃描", "尚未執行")
+        st.caption("🔴 需要設定 FB_COOKIES")
 with _col_info2:
     st.metric("監控標的數", len(_scraper_cfg.get("targets", [])))
+    st.caption(f"門檻：行情 × {_threshold:.0%}")
 with _col_info3:
-    st.metric("本次發現好物", len(_deal_data.get("deals", [])))
+    _deals_total = len(_deal_data.get("deals", []))
+    st.metric("發現好物", _deals_total)
+with _col_info4:
+    st.metric("自動掃描", "每 4 小時")
+    st.caption("GitHub Actions 執行")
 
-# 手動執行掃描
-if st.button("🔍 立即執行掃描（需安裝 playwright）"):
+# ── 設定說明（可收合）────────────────────────────────
+with st.expander("⚙️ 自動掃描設定說明（第一次設定必看）"):
+    st.markdown("""
+**自動掃描需要 FB 登入 Cookie，步驟如下：**
+
+**Step 1 — 在本機執行一次，取得 Cookie**
+```bash
+cd /Users/jimlin/Downloads/claude
+python save_fb_cookies.py
+# 瀏覽器會開啟，登入 Facebook 後關閉即可
+# 會產生 fb_cookies.json
+```
+
+**Step 2 — 把 Cookie 轉成一行 JSON 字串**
+```bash
+cat fb_cookies.json | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)))"
+# 複製輸出的那一整行
+```
+
+**Step 3 — 存入 GitHub Secrets**
+前往 `https://github.com/jay0916746661/repo/settings/secrets/actions`
+→ New repository secret → Name: `FB_COOKIES` → 貼上 Step 2 的輸出
+
+**完成後** GitHub Actions 每 4 小時自動掃描 → deals.json 更新 → Streamlit 自動顯示新結果
+""")
+
+# ── 手動執行（本機用）────────────────────────────────
+if st.button("🔍 立即執行掃描（本機用，需安裝 playwright）"):
     with st.spinner("爬蟲執行中，請稍候..."):
         try:
             import subprocess, sys

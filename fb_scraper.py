@@ -63,6 +63,14 @@ def save_deals(deals: list, scan_time: str):
 
 
 def load_cookies() -> list | None:
+    # 優先從環境變數讀取（GitHub Actions 注入）
+    env_cookies = os.getenv("FB_COOKIES", "").strip()
+    if env_cookies:
+        try:
+            return json.loads(env_cookies)
+        except Exception:
+            pass
+    # 其次讀本機檔案
     if COOKIES_FILE.exists():
         with open(COOKIES_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -259,24 +267,38 @@ def run_scan() -> list[dict]:
 
 
 def notify_deals(deals: list, config: dict):
-    """組合 Line 通知訊息並發送"""
-    from line_notify import send_line, get_token
-
-    token = get_token()
+    """Line Notify 通知（無 token 時靜默跳過）"""
+    token = os.getenv("LINE_NOTIFY_TOKEN", "").strip()
+    if not token:
+        try:
+            from line_notify import get_token
+            token = get_token() or ""
+        except Exception:
+            pass
     if not token or token.startswith("PASTE_YOUR"):
         print("\n[Line Notify] Token 未設定，跳過通知")
         return
 
-    msg = f"\n🚨 Jim 2026 撿漏警報！發現 {len(deals)} 個 6 折好物"
-    for d in deals:
+    msg = f"\n🚨 Jim 撿漏警報！發現 {len(deals)} 個好物"
+    for d in deals[:5]:
         msg += (
-            f"\n\n🎸 {d['item']}"
+            f"\n\n📦 {d['item']}"
             f"\n💰 NT${d['price']:,}（省 {d['discount_pct']}%）"
             f"\n📝 {d['title'][:30]}"
             f"\n🔗 {d['link']}"
         )
 
-    send_line(msg, token)
+    try:
+        import urllib.request, urllib.parse
+        data = urllib.parse.urlencode({"message": msg}).encode()
+        req  = urllib.request.Request(
+            "https://notify-api.line.me/api/notify", data=data,
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        urllib.request.urlopen(req, timeout=10)
+        print("✅ Line 通知已發送")
+    except Exception as e:
+        print(f"⚠️  Line 通知失敗: {e}")
 
 
 if __name__ == "__main__":
