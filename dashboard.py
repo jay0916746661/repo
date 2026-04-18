@@ -1240,6 +1240,15 @@ def _save_todos(todos: list):
     with open(TODOS_FILE, "w") as f:
         json.dump(todos, f, ensure_ascii=False, indent=2)
 
+_config_file = os.path.join(os.path.dirname(__file__), "config.json")
+
+def _load_scraper_config():
+    try:
+        with open(_config_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
 
 def render_research_notes():
     st.header("📺 YouTube 研究筆記")
