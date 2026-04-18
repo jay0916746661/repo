@@ -1,0 +1,29 @@
+name: 全天候掃描代理
+
+on:
+  schedule:
+    # 每天台灣時間 06:30（UTC 22:30）自動執行
+    - cron: '30 22 * * *'
+  workflow_dispatch:
+    # 允許在 GitHub Actions 頁面手動觸發
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 代碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 執行全天候掃描代理
+        env:
+          GMAIL_USER:          ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          TO_EMAIL:            ${{ secrets.TO_EMAIL }}
+          LINE_NOTIFY_TOKEN:   ${{ secrets.LINE_NOTIFY_TOKEN }}
+        run: python market_agent.py
