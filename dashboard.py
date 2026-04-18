@@ -469,7 +469,7 @@ WATCHLIST = {
     "PLTR": {"entry_zone":[95,110],  "target":180.0,"stop":85.0,
              "theme":"AI/數據","reason":"政府+企業AI合約雙引擎，回$95~110可買","date":"2026-04-14"},
     "RKLB": {"entry_zone":[22,28],   "target":50.0, "stop":18.0,
-             "theme":"太空","reason":"商業火箭發射加速，NASA合約，跌到$22~28","date":"2026-04-13"},
+             "theme":"太空","reason":"商業火箭發射加速，NASA合約，不受SpaceX上市壓力；手頭14億現金，理想加倉價$75以下（Ace 2026-04-18）","date":"2026-04-18"},
     "NVDA": {"entry_zone":[90,105],  "target":160.0,"stop":80.0,
              "theme":"AI晶片","reason":"AI基建核心，等回$90~105支撐區","date":"2026-04-14"},
     "IONQ": {"entry_zone":[20,26],   "target":55.0, "stop":16.0,
@@ -479,11 +479,19 @@ WATCHLIST = {
     "CEG":  {"entry_zone":[220,250], "target":320.0,"stop":200.0,
              "theme":"核能","reason":"微軟TMI核電廠合約，核能股龍頭","date":"2026-04-12"},
     "VRT":  {"entry_zone":[90,100],  "target":140.0,"stop":80.0,
-             "theme":"AI基建","reason":"AI伺服器散熱龍頭，NVDA每賣一顆GPU就受益，Driehaus動能選股","date":"2026-04-15"},
+             "theme":"AI基建","reason":"AI伺服器散熱龍頭，NVDA每賣一顆GPU就受益","date":"2026-04-15"},
     "MRVL": {"entry_zone":[60,70],   "target":110.0,"stop":55.0,
              "theme":"AI晶片","reason":"客製化ASIC晶片，Google/Amazon指定，財報前AI收入預期翻倍","date":"2026-04-15"},
     "SOUN": {"entry_zone":[8,10],    "target":18.0, "stop":7.0,
              "theme":"AI語音","reason":"AI語音投機股，小倉5%以內，高波動高潛力","date":"2026-04-15"},
+    "IRDM": {"entry_zone":[29,35],   "target":60.0, "stop":25.0,
+             "theme":"太空/衛星","reason":"Iridium 衛星通訊，從底部大幅反轉，上方阻力小；Ace 成本$29，目標$60+（Ace 2026-04-18）","date":"2026-04-18"},
+    "INTC": {"entry_zone":[18,24],   "target":40.0, "stop":15.0,
+             "theme":"半導體/AI晶片","reason":"Ace 由空轉多：馬斯克潛在晶片製造合作 + 18A 製程良率提升，財報下週，長期看好（Ace 2026-04-18）","date":"2026-04-18"},
+    "MSTR": {"entry_zone":[150,220], "target":500.0,"stop":130.0,
+             "theme":"比特幣代理","reason":"MicroStrategy 持續定額買BTC，Ace 平均成本$200，等BTC多頭確認再加；適合BTC替代倉位","date":"2026-04-18"},
+    "ICHR": {"entry_zone":[25,35],   "target":55.0, "stop":20.0,
+             "theme":"半導體設備","reason":"半導體設備上游供應商，AI帶動晶圓廠資本支出上升直接受益，低調但有潛力（Ace 2026-04-18）","date":"2026-04-18"},
 }
 
 # ════════════════════════════════════════════════════
@@ -570,42 +578,49 @@ CRYPTO_WATCHLIST = {
              "theme":"模組化區塊鏈", "reason":"資料可用層（DA）龍頭，Rollup 擴展需求直接受益，低市值高潛力小倉"},
 }
 
+def _cg_fetch(ids: list) -> dict:
+    """CoinGecko simple/price，單次最多 10 個 ID，自動分批"""
+    result = {}
+    for i in range(0, len(ids), 10):
+        batch = ids[i:i+10]
+        url = ("https://api.coingecko.com/api/v3/simple/price?ids="
+               + ",".join(batch)
+               + "&vs_currencies=usd&include_24hr_change=true")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent":"portfolio/1.0",
+                                                        "Accept":"application/json"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                result.update(json.loads(r.read()))
+        except:
+            pass
+        if i + 10 < len(ids):
+            time.sleep(0.5)
+    return result
+
 @st.cache_data(ttl=60)
 def fetch_crypto() -> dict:
-    # 持倉幣種 + 觀察清單全部一次查
-    held_ids  = [v[0] for v in PIONEX_CRYPTO.values()]
+    held_ids  = list(dict.fromkeys(v[0] for v in PIONEX_CRYPTO.values()))
     watch_ids = [CG_ID_MAP[s] for s in CRYPTO_WATCHLIST if s in CG_ID_MAP]
-    all_ids   = list(dict.fromkeys(held_ids + watch_ids))
-    url = ("https://api.coingecko.com/api/v3/simple/price?ids="
-           + ",".join(all_ids)
-           + "&vs_currencies=usd&include_24hr_change=true&include_market_cap=true")
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent":"portfolio/1.0"})
-        with urllib.request.urlopen(req, timeout=12) as r:
-            d = json.loads(r.read())
-    except:
-        d = {}
+    extra_ids = [CG_ID_MAP["BTC"]]
+    all_ids   = list(dict.fromkeys(held_ids + watch_ids + extra_ids))
+    d = _cg_fetch(all_ids)
     result = {}
-    # symbol → coingecko_id 反查
-    id_to_sym = {v: k for k, v in CG_ID_MAP.items()}
-    # 持倉幣種（用 PIONEX_CRYPTO 的 symbol）
+    # 持倉幣種
     for sym, (cg_id, _, _) in PIONEX_CRYPTO.items():
-        rec = d.get(cg_id, {})
-        price = rec.get("usd", 0.0)
-        chg   = rec.get("usd_24h_change", 0.0) or 0.0
-        prev  = price / (1 + chg / 100) if chg != -100 else price
-        result[sym] = {"price": price, "prev": prev, "chg_pct": chg,
-                       "mcap": rec.get("usd_market_cap", 0)}
-    # 觀察清單幣種
+        rec   = d.get(cg_id, {})
+        price = float(rec.get("usd", 0) or 0)
+        chg   = float(rec.get("usd_24h_change", 0) or 0)
+        prev  = price / (1 + chg / 100) if chg != -100 and price else price
+        result[sym] = {"price": price, "prev": prev, "chg_pct": chg}
+    # 所有 CG_ID_MAP 幣種（觀察清單用）
     for sym, cg_id in CG_ID_MAP.items():
         if sym in result:
             continue
-        rec = d.get(cg_id, {})
-        price = rec.get("usd", 0.0)
-        chg   = rec.get("usd_24h_change", 0.0) or 0.0
-        prev  = price / (1 + chg / 100) if chg != -100 else price
-        result[sym] = {"price": price, "prev": prev, "chg_pct": chg,
-                       "mcap": rec.get("usd_market_cap", 0)}
+        rec   = d.get(cg_id, {})
+        price = float(rec.get("usd", 0) or 0)
+        chg   = float(rec.get("usd_24h_change", 0) or 0)
+        prev  = price / (1 + chg / 100) if chg != -100 and price else price
+        result[sym] = {"price": price, "prev": prev, "chg_pct": chg}
     return result
 
 @st.cache_data(ttl=300)
@@ -1102,6 +1117,169 @@ def render_insider_trading(held_syms):
         st.markdown(
             f'[🔗 {row["標的"]} SEC EDGAR]({row["連結"]})', unsafe_allow_html=False
         )
+
+
+# ════════════════════════════════════════════════════
+# YouTube 研究筆記
+# ════════════════════════════════════════════════════
+RESEARCH_NOTES = [
+    {
+        "date": "2026-04-18",
+        "channel": "Money or Life 美股頻道",
+        "author": "Ace (AS)",
+        "title": "本周赚够，下周减仓！週六複盤",
+        "url": "https://www.youtube.com/watch?v=ja-8fLQjTDI",
+        "perf": "本月回報 +36.4%　YTD +30%　融資倉位 -11% 現金",
+        "highlights": [
+            {"sym":"TSLA",  "action":"HOLD",  "note":"週五重回 $400+，等下週Q1財報，長期信心維持"},
+            {"sym":"RKLB",  "action":"WATCH", "note":"不受SpaceX上市壓力，關注14億現金用途，理想加倉 $75以下"},
+            {"sym":"IRDM",  "action":"BUY",   "note":"成本$29從底部大幅反轉，上方阻力小，目標$60+"},
+            {"sym":"HIMS",  "action":"BUY",   "note":"FDA對多肽小分子限制放寬，本週暴漲，GLP-1概念強勢"},
+            {"sym":"INTC",  "action":"WATCH", "note":"由空轉多！馬斯克潛在晶片製造合作 + 18A良率提升，財報下週"},
+            {"sym":"ICHR",  "action":"WATCH", "note":"半導體設備上游，AI帶動資本支出受益，低調潛力股"},
+            {"sym":"MSTR",  "action":"HOLD",  "note":"持續定額投資，平均成本$200，比特幣代理倉位"},
+            {"sym":"SATS",  "action":"HOLD",  "note":"趨於穩定創新高，Ace $132加倉，維持約10%倉位"},
+            {"sym":"EOSC",  "action":"WATCH", "note":"數據中心儲能概念，但需注意管理層誠信，不適長期"},
+        ],
+        "key_actions": [
+            "下週 TSLA Q1 財報 — 重要觀察點",
+            "下週 INTC Q1 財報 — 轉多後第一個觀察機會",
+            "Circle 已全數清倉，跌破 $100 或趨近 $90 考慮重新買入",
+            "建議保持平常心，適時調整融資水位確保安全",
+        ],
+    },
+]
+
+TODOS_FILE = os.path.join(os.path.dirname(__file__), "data", "todos.json")
+
+def _load_todos() -> list:
+    os.makedirs(os.path.dirname(TODOS_FILE), exist_ok=True)
+    if os.path.isfile(TODOS_FILE):
+        try:
+            with open(TODOS_FILE) as f:
+                return json.load(f)
+        except:
+            pass
+    # 預設待辦清單
+    defaults = [
+        {"id":1,  "done":False, "tag":"🔴緊急", "text":"觀察 TSLA Q1 財報（下週一）"},
+        {"id":2,  "done":False, "tag":"🔴緊急", "text":"觀察 INTC Q1 財報（下週）— Ace 由空轉多"},
+        {"id":3,  "done":False, "tag":"🟡持倉",  "text":"JOBY 考慮出場 — 內部人連續賣股，無獲利路徑"},
+        {"id":4,  "done":False, "tag":"🟡持倉",  "text":"NVDL 已獲利 +26%，趁漲鎖利出場換穩健標的"},
+        {"id":5,  "done":False, "tag":"🟡持倉",  "text":"PYPL / RUN 倉位極小，清掉換有動能標的"},
+        {"id":6,  "done":False, "tag":"🟡持倉",  "text":"ARKM 考慮認賠換 ORCL/MSFT"},
+        {"id":7,  "done":False, "tag":"🟢研究",  "text":"評估 IRDM 進場 — Ace 成本$29，目標$60+"},
+        {"id":8,  "done":False, "tag":"🟢研究",  "text":"評估 INTC 小倉佈局 — 等財報後確認方向"},
+        {"id":9,  "done":False, "tag":"🟢研究",  "text":"研究 ICHR — 半導體設備上游，AI受益"},
+        {"id":10, "done":False, "tag":"🟢研究",  "text":"考慮 MSTR 定額策略作為 BTC 替代倉位"},
+        {"id":11, "done":False, "tag":"⚙️系統",  "text":"設定 GitHub Secrets：GMAIL_USER + GMAIL_APP_PASSWORD（讓掃描代理可發 Email）"},
+        {"id":12, "done":False, "tag":"⚙️系統",  "text":"申請 Gmail App Password（二步驟驗證後在 Google 帳號設定）"},
+        {"id":13, "done":False, "tag":"⚙️系統",  "text":"確認 market_agent.yml 已在 GitHub Actions 頁面可手動觸發測試"},
+        {"id":14, "done":False, "tag":"🟡持倉",  "text":"HIMS — FDA 利好後評估是否加碼（現持倉：國泰3股 + 派網1.23股）"},
+        {"id":15, "done":False, "tag":"🟢研究",  "text":"Circle 跌破 $100 考慮重新買入（Ace 已清倉）"},
+    ]
+    with open(TODOS_FILE, "w") as f:
+        json.dump(defaults, f, ensure_ascii=False, indent=2)
+    return defaults
+
+def _save_todos(todos: list):
+    os.makedirs(os.path.dirname(TODOS_FILE), exist_ok=True)
+    with open(TODOS_FILE, "w") as f:
+        json.dump(todos, f, ensure_ascii=False, indent=2)
+
+
+def render_research_notes():
+    st.header("📺 YouTube 研究筆記")
+
+    for note in RESEARCH_NOTES:
+        tc = "#7c3aed"
+        st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid {tc}">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+    <div>
+      <span style="color:#7c3aed;font-weight:bold;font-size:16px">{note['title']}</span><br>
+      <span style="color:#64748b;font-size:13px">📅 {note['date']}　✍️ {note['author']} @ {note['channel']}</span>
+    </div>
+    <a href="{note['url']}" target="_blank"
+       style="background:#7c3aed;color:#fff;padding:4px 12px;border-radius:6px;font-size:13px;text-decoration:none">
+       ▶ 看影片
+    </a>
+  </div>
+  <div style="background:#0f172a;border-radius:6px;padding:8px 12px;margin-top:10px;font-size:13px;color:#94a3b8">
+    💹 {note['perf']}
+  </div>
+</div>""", unsafe_allow_html=True)
+
+        # 個股重點
+        st.markdown("**📌 個股重點**")
+        cols = st.columns(3)
+        action_color = {"BUY":"#22c55e","HOLD":"#94a3b8","WATCH":"#f59e0b","SELL":"#ef4444"}
+        for i, h in enumerate(note["highlights"]):
+            c = cols[i % 3]
+            ac = action_color.get(h["action"], "#94a3b8")
+            c.markdown(f"""
+<div style="background:#1e293b;border-radius:6px;padding:8px;margin:3px 0;border-left:3px solid {ac}">
+  <b>{h['sym']}</b> <span style="color:{ac};font-size:12px">[{h['action']}]</span><br>
+  <span style="color:#94a3b8;font-size:12px">{h['note']}</span>
+</div>""", unsafe_allow_html=True)
+
+        # 關鍵行動
+        st.markdown("**⚡ 關鍵行動**")
+        for ka in note["key_actions"]:
+            st.markdown(f"- {ka}")
+
+    st.divider()
+
+    # ── 待辦事項 ──────────────────────────────────────
+    st.subheader("✅ 待辦事項")
+    todos = _load_todos()
+    tag_order = {"🔴緊急":0,"🟡持倉":1,"🟢研究":2,"⚙️系統":3}
+    todos_sorted = sorted(todos, key=lambda x: (x.get("done",False), tag_order.get(x.get("tag",""),9)))
+
+    pending   = [t for t in todos_sorted if not t.get("done")]
+    completed = [t for t in todos_sorted if t.get("done")]
+
+    changed = False
+    for t in pending:
+        col_chk, col_txt, col_tag = st.columns([0.5, 7, 1.5])
+        with col_chk:
+            if st.checkbox("", key=f"todo_{t['id']}", value=False):
+                t["done"] = True; changed = True
+        with col_txt:
+            st.markdown(f"{t['text']}")
+        with col_tag:
+            st.caption(t.get("tag",""))
+
+    if completed:
+        with st.expander(f"✓ 已完成 ({len(completed)})"):
+            for t in completed:
+                col_chk, col_txt = st.columns([0.5, 9])
+                with col_chk:
+                    if st.checkbox("", key=f"todo_done_{t['id']}", value=True):
+                        pass
+                    else:
+                        t["done"] = False; changed = True
+                with col_txt:
+                    st.markdown(f"~~{t['text']}~~")
+
+    # 新增待辦
+    new_col, tag_col, btn_col = st.columns([5, 2, 1])
+    with new_col:
+        new_text = st.text_input("新增待辦", placeholder="輸入新任務...", key="todo_new_text", label_visibility="collapsed")
+    with tag_col:
+        new_tag = st.selectbox("", ["🔴緊急","🟡持倉","🟢研究","⚙️系統"], key="todo_new_tag", label_visibility="collapsed")
+    with btn_col:
+        if st.button("＋ 新增", key="todo_add"):
+            if new_text.strip():
+                new_id = max((t["id"] for t in todos), default=0) + 1
+                todos.append({"id": new_id, "done": False, "tag": new_tag, "text": new_text.strip()})
+                changed = True
+
+    if changed:
+        _save_todos(todos)
+        st.rerun()
+
+    st.caption(f"待辦 {len(pending)} 項 · 已完成 {len(completed)} 項")
 
 
 # ════════════════════════════════════════════════════
@@ -1674,6 +1852,10 @@ render_insider_trading(_held_syms)
 # ── 加密貨幣追蹤 + 觀察清單 ───────────────────────────
 st.divider()
 render_crypto_dashboard(cry_q, _exrate)
+
+# ── YouTube 研究筆記 + 待辦事項 ───────────────────────
+st.divider()
+render_research_notes()
 
 # ── 撿漏監控 ─────────────────────────────────────────
 st.divider()
