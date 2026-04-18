@@ -560,22 +560,31 @@ CG_ID_MAP = {
 
 # 加密貨幣觀察清單
 CRYPTO_WATCHLIST = {
-    "BTC":  {"entry_zone":[78000, 92000], "target":130000, "stop":72000,
-             "theme":"數位黃金", "reason":"ETF 機構資金持續流入，減半後供應收緊，長期多頭結構，回 $78k~92k 可分批建倉"},
-    "SOL":  {"entry_zone":[120, 155],  "target":280,  "stop":100,
-             "theme":"高速公鏈", "reason":"DEX 交易量超越以太坊，手續費收入爆炸，Firedancer 升級在即，是以太坊最強挑戰者"},
-    "LINK": {"entry_zone":[12, 16],    "target":32,   "stop":10,
-             "theme":"預言機", "reason":"DeFi 基礎設施龍頭，與傳統金融（Swift、DTCC）合作，跨鏈互操作需求持續增長"},
-    "AVAX": {"entry_zone":[22, 30],    "target":55,   "stop":18,
-             "theme":"L1/企業鏈", "reason":"Avalanche9000 升級大幅降低 L1 建鏈成本，機構與遊戲生態快速擴展"},
-    "INJ":  {"entry_zone":[15, 22],    "target":50,   "stop":12,
-             "theme":"DeFi/衍生品", "reason":"鏈上衍生品龍頭，TVL 持續成長，機構級 DeFi 首選，回調到 $15~22 可布局"},
-    "SUI":  {"entry_zone":[2.5, 3.5],  "target":8,    "stop":2.0,
-             "theme":"新興L1", "reason":"Move 語言生態，三星 Galaxy 預裝錢包，用戶增速最快的 L1 之一，高風險高潛力"},
-    "DOGE": {"entry_zone":[0.15, 0.22],"target":0.45, "stop":0.12,
-             "theme":"迷因/馬斯克", "reason":"X 支付整合預期，馬斯克效應，迷因幣龍頭；純投機，嚴控倉位 5% 以內"},
-    "TIA":  {"entry_zone":[3.5, 5.0],  "target":12,   "stop":2.8,
-             "theme":"模組化區塊鏈", "reason":"資料可用層（DA）龍頭，Rollup 擴展需求直接受益，低市值高潛力小倉"},
+    # priority: 1=最優先 8=最低  rr=風險報酬比（以現價中間估算）
+    "BTC":  {"entry_zone":[70000, 82000], "target":105000, "stop":63000,
+             "theme":"數位黃金", "priority":1,
+             "reason":"ETF 機構資金持續流入，減半後供應收緊；$70k~82k 是本輪修正關鍵支撐區，最安全分批建倉"},
+    "SOL":  {"entry_zone":[75, 105],  "target":185,  "stop":60,
+             "theme":"高速公鏈", "priority":2,
+             "reason":"DEX 交易量超越以太坊，Firedancer 升級在即；$75~105 是歷史強支撐，基本面最強 L1"},
+    "LINK": {"entry_zone":[8, 13],    "target":25,   "stop":6,
+             "theme":"預言機", "priority":3,
+             "reason":"DeFi+TradFi 基礎設施龍頭（Swift/DTCC）；相對其他 L1 跌最深、最被低估，R:R 極佳"},
+    "AVAX": {"entry_zone":[8, 13],    "target":30,   "stop":6,
+             "theme":"L1/企業鏈", "priority":4,
+             "reason":"Avalanche9000 升級降低建鏈成本，機構與遊戲生態擴展；$8~13 為強支撐，中等風險"},
+    "DOGE": {"entry_zone":[0.07, 0.13],"target":0.35, "stop":0.05,
+             "theme":"迷因/馬斯克", "priority":5,
+             "reason":"X 支付整合預期、馬斯克效應；純投機但流動性最高，嚴控倉位 ≤5%，適合短線"},
+    "INJ":  {"entry_zone":[2.5, 5.0], "target":18,   "stop":1.8,
+             "theme":"DeFi/衍生品", "priority":6,
+             "reason":"鏈上衍生品龍頭，TVL 持續成長；跌幅大但基本面完整，高風險高報酬"},
+    "SUI":  {"entry_zone":[0.75, 1.30],"target":4.5,  "stop":0.55,
+             "theme":"新興L1", "priority":7,
+             "reason":"Move 語言生態，三星 Galaxy 預裝錢包；高風險新興 L1，小倉試水"},
+    "TIA":  {"entry_zone":[0.30, 0.60],"target":2.5,  "stop":0.20,
+             "theme":"模組化區塊鏈", "priority":8,
+             "reason":"DA 層龍頭，Rollup 擴展直接受益；超高風險小市值，最小倉位佈局"},
 }
 
 def _cg_fetch(ids: list) -> dict:
@@ -1430,8 +1439,10 @@ def render_crypto_dashboard(cry_q: dict, exrate: float):
 
     st.divider()
 
-    # ── 觀察清單 ──────────────────────────────────────
-    st.subheader("👀 幣種觀察清單")
+    # ── 優先排名 + 觀察清單 ──────────────────────────────
+    st.subheader("🏆 入場優先排名")
+
+    # 計算 R:R 和狀態
     wl_rows = []
     for sym, info in CRYPTO_WATCHLIST.items():
         q     = cry_q.get(sym, {})
@@ -1439,68 +1450,145 @@ def render_crypto_dashboard(cry_q: dict, exrate: float):
         chg   = q.get("chg_pct", 0)
         lo, hi = info["entry_zone"]
         target = info["target"]
+        stop   = info["stop"]
 
-        if price == 0:    status = "❓"
-        elif price <= lo: status = "🟢 進場！"
-        elif price <= hi: status = "🟡 接近"
-        elif (price - hi) / hi * 100 <= 15: status = "🔵 觀察"
-        else:             status = "⚪ 等待"
+        if price == 0:
+            status = "❓"
+        elif price < lo:
+            # 已低於進場區下界：判斷超跌程度
+            pct_below = (lo - price) / lo * 100
+            if pct_below > 30:
+                status = "🔵 超跌觀察"   # 跌太深，需等反彈確認
+            else:
+                status = "🟢 進場區！"
+        elif price <= hi:
+            status = "🟢 進場區！"
+        elif (price - hi) / hi * 100 <= 20:
+            status = "🟡 接近進場"
+        else:
+            status = "⚪ 等待"
 
         upside = (target - price) / price * 100 if price else 0
-        pct_away = f"+{(price-hi)/hi*100:.0f}%" if price > hi else "✓進場區"
-        price_fmt = f"${price:,.4f}" if price < 1 else f"${price:,.2f}"
+        downside = (price - stop) / price * 100 if price else 0
+        rr = upside / downside if downside > 0 else 0
+
+        pct_vs_lo = (price - lo) / lo * 100  # 正=高於進場區下界, 負=低於
+        price_fmt  = f"${price:,.4f}" if price < 1 else f"${price:,.2f}"
         target_fmt = f"${target:,.4f}" if target < 1 else f"${target:,.0f}"
         lo_fmt = f"${lo:,.4f}" if lo < 1 else f"${lo:,.0f}"
         hi_fmt = f"${hi:,.4f}" if hi < 1 else f"${hi:,.0f}"
+        stop_fmt   = f"${stop:,.0f}" if stop >= 1 else f"${stop:.4f}"
 
         wl_rows.append({
+            "_priority": info.get("priority", 9),
+            "_rr":       rr,
+            "_price":    price,
+            "_pct_vs_lo": pct_vs_lo,
+            "優先": f"#{info.get('priority',9)}",
             "狀態":   status,
             "幣種":   sym,
             "主題":   info["theme"],
             "現價":   price_fmt,
             "今日":   f"{chg:+.1f}%",
             "進場區": f"{lo_fmt}~{hi_fmt}",
-            "距進場": pct_away,
             "目標":   target_fmt,
             "潛力":   f"+{upside:.0f}%",
-            "停損":   f"${info['stop']:,.0f}" if info['stop'] >= 1 else f"${info['stop']:.4f}",
+            "R:R":    f"{rr:.1f}x",
+            "停損":   stop_fmt,
             "邏輯":   info["reason"],
         })
 
     wl_df = pd.DataFrame(wl_rows)
-    ready = wl_df[wl_df["狀態"].str.contains("進場！", na=False)]
-    near  = wl_df[wl_df["狀態"].str.contains("接近",  na=False)]
-    if not ready.empty: st.success(f"🟢 已進場區：{', '.join(ready['幣種'])}")
-    if not near.empty:  st.warning(f"🟡 接近進場：{', '.join(near['幣種'])}")
+    wl_df_sorted = wl_df.sort_values("_priority")
+
+    # ── 首選推薦卡片 ──────────────────────────────────
+    top3 = wl_df_sorted.head(3)
+    cols3 = st.columns(3)
+    rank_labels = ["🥇 首選", "🥈 次選", "🥉 第三"]
+    rank_colors = ["#f59e0b", "#94a3b8", "#cd7c2f"]
+    for i, (_, r) in enumerate(top3.iterrows()):
+        with cols3[i]:
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:10px;padding:14px;border:2px solid {rank_colors[i]};text-align:center">
+  <div style="color:{rank_colors[i]};font-size:13px;font-weight:bold">{rank_labels[i]}</div>
+  <div style="font-size:22px;font-weight:bold;margin:4px 0">{r['幣種']}</div>
+  <div style="color:#94a3b8;font-size:12px">{r['主題']}</div>
+  <div style="font-size:16px;margin:6px 0">{r['現價']} <span style="color:#64748b;font-size:12px">{r['今日']}</span></div>
+  <div style="display:flex;justify-content:center;gap:12px;font-size:12px;margin-top:6px">
+    <span>目標 <b style="color:#22c55e">{r['目標']}</b></span>
+    <span>潛力 <b style="color:#22c55e">{r['潛力']}</b></span>
+    <span>R:R <b style="color:#7c3aed">{r['R:R']}</b></span>
+  </div>
+</div>""", unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── 完整觀察清單表格（按優先排序）────────────────
+    st.subheader("👀 完整觀察清單（優先排序）")
+
+    in_zone = wl_df_sorted[wl_df_sorted["狀態"].str.contains("進場區！", na=False)]
+    overshot = wl_df_sorted[wl_df_sorted["狀態"].str.contains("超跌", na=False)]
+    near_df  = wl_df_sorted[wl_df_sorted["狀態"].str.contains("接近", na=False)]
+
+    if not in_zone.empty:
+        st.success(f"🟢 進場區內：{', '.join(in_zone['幣種'])}　← 可開始分批布局")
+    if not overshot.empty:
+        st.info(f"🔵 超跌觀察（等反彈確認再入）：{', '.join(overshot['幣種'])}")
+    if not near_df.empty:
+        st.warning(f"🟡 接近進場：{', '.join(near_df['幣種'])}")
+
+    display_cols = ["優先","狀態","幣種","主題","現價","今日","進場區","目標","潛力","R:R","停損","邏輯"]
+    show_df = wl_df_sorted[display_cols]
 
     def _color_crypto(val):
-        if "進場！" in str(val): return "background:#14532d;color:#86efac"
-        if "接近"   in str(val): return "background:#713f12;color:#fde68a"
+        if "進場區！" in str(val): return "background:#14532d;color:#86efac"
+        if "超跌"    in str(val): return "background:#1e3a5f;color:#93c5fd"
+        if "接近"    in str(val): return "background:#713f12;color:#fde68a"
         return ""
 
-    st.dataframe(wl_df.style.map(_color_crypto, subset=["狀態"]),
+    st.dataframe(show_df.style.map(_color_crypto, subset=["狀態"]),
                  use_container_width=True, hide_index=True)
 
     # ── 詳細卡片（展開） ──────────────────────────────
-    with st.expander("📋 觀察清單詳細分析"):
-        for sym, info in CRYPTO_WATCHLIST.items():
+    with st.expander("📋 觀察清單詳細分析（按優先排序）"):
+        sorted_wl = sorted(CRYPTO_WATCHLIST.items(), key=lambda x: x[1].get("priority", 9))
+        for sym, info in sorted_wl:
             q     = cry_q.get(sym, {})
             price = q.get("price", 0)
             chg   = q.get("chg_pct", 0)
             lo, hi = info["entry_zone"]
             target = info["target"]
-            upside = (target - price) / price * 100 if price else 0
+            stop   = info["stop"]
+            upside   = (target - price) / price * 100 if price else 0
+            downside = (price - stop)  / price * 100 if price else 0
+            rr = upside / downside if downside > 0 else 0
             tc = "#22c55e" if chg >= 0 else "#ef4444"
             price_fmt = f"${price:,.4f}" if price < 1 else f"${price:,.2f}"
 
-            in_zone = price <= hi
-            border = "#22c55e" if price <= lo else ("#f59e0b" if price <= hi else "#334155")
-            badge = "🟢 已進場區" if price <= lo else ("🟡 接近進場" if price <= hi else "⚪ 等待")
+            if price == 0:
+                badge, border = "❓", "#334155"
+            elif price < lo:
+                pct_below = (lo - price) / lo * 100
+                if pct_below > 30:
+                    badge, border = "🔵 超跌觀察", "#3b82f6"
+                else:
+                    badge, border = "🟢 進場區！", "#22c55e"
+            elif price <= hi:
+                badge, border = "🟢 進場區！", "#22c55e"
+            elif (price - hi) / hi * 100 <= 20:
+                badge, border = "🟡 接近進場", "#f59e0b"
+            else:
+                badge, border = "⚪ 等待", "#334155"
+
+            priority = info.get("priority", 9)
+            rank_star = "★" * max(0, 5 - priority // 2)
+
             st.markdown(f"""
 <div style="background:#1e1e2e;border-radius:8px;padding:14px;margin:6px 0;border-left:4px solid {border}">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
     <div>
-      <span style="font-size:17px;font-weight:bold">{sym}</span>
+      <span style="color:#64748b;font-size:12px">#{priority}</span>
+      <span style="font-size:17px;font-weight:bold;margin-left:6px">{sym}</span>
       <span style="background:#1e293b;color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:8px">{info['theme']}</span>
       <span style="margin-left:8px;font-size:12px">{badge}</span>
     </div>
@@ -1509,11 +1597,12 @@ def render_crypto_dashboard(cry_q: dict, exrate: float):
       <span style="color:{tc};margin-left:8px">{chg:+.2f}%</span>
     </div>
   </div>
-  <div style="display:flex;gap:24px;margin-top:8px;font-size:13px;flex-wrap:wrap">
+  <div style="display:flex;gap:20px;margin-top:8px;font-size:13px;flex-wrap:wrap">
     <span>進場區 <b>${lo:g} ~ ${hi:g}</b></span>
     <span>目標 <b style="color:#22c55e">${target:g}</b></span>
     <span>潛力 <b style="color:#22c55e">+{upside:.0f}%</b></span>
-    <span>停損 <b style="color:#ef4444">${info['stop']:g}</b></span>
+    <span>R:R <b style="color:#7c3aed">{rr:.1f}x</b></span>
+    <span>停損 <b style="color:#ef4444">${stop:g}</b></span>
   </div>
   <p style="color:#94a3b8;font-size:13px;margin:8px 0 0">{info['reason']}</p>
 </div>""", unsafe_allow_html=True)
