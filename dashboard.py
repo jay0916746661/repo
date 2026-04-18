@@ -1980,7 +1980,10 @@ render_crypto_dashboard(cry_q, _exrate)
 
 # ── YouTube 研究筆記 + 待辦事項 ───────────────────────
 st.divider()
-render_research_notes()
+try:
+    render_research_notes()
+except Exception as _rr_err:
+    st.error(f"研究筆記載入失敗：{_rr_err}")
 
 # ── 轉賣追蹤 ─────────────────────────────────────────
 st.divider()
