@@ -7,7 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import urllib.request, json, time, hmac, hashlib, urllib.parse, os, csv
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 HOLDINGS_FILE  = os.path.join(os.path.dirname(__file__), "holdings.json")
 HISTORY_FILE   = os.path.join(os.path.dirname(__file__), "portfolio_history.csv")
@@ -1051,6 +1051,201 @@ def render_daily_system():
             st.dataframe(_disp, use_container_width=True, hide_index=True)
 
 # ════════════════════════════════════════════════════
+# 每日升級計畫
+# ════════════════════════════════════════════════════
+_UPGRADE_FILE = os.path.join(os.path.dirname(__file__), "data", "upgrade_log.csv")
+
+DAILY_THEMES = {
+    0: {"icon":"📈", "name":"投資體能",  "color":"#3b82f6",
+        "desc":"深挖一個持倉的基本面，讓你知道自己買的是什麼"},
+    1: {"icon":"🎓", "name":"技術升級",  "color":"#8b5cf6",
+        "desc":"學一個新概念或看研究影片，寫下 3 個可執行結論"},
+    2: {"icon":"🛡️", "name":"風險管理",  "color":"#ef4444",
+        "desc":"審查停損設定、部位大小，確保沒有不可承受的風險"},
+    3: {"icon":"🔍", "name":"撿漏掃描",  "color":"#f59e0b",
+        "desc":"主動找市場低估機會，更新觀察清單與轉賣追蹤"},
+    4: {"icon":"📊", "name":"週複盤",    "color":"#22c55e",
+        "desc":"計算本週 P&L，寫下一個下週要改變的決策"},
+    5: {"icon":"💪", "name":"身體升級",  "color":"#06b6d4",
+        "desc":"30 分鐘運動 + 冷水澡 + 閱讀 20 頁，遠離螢幕"},
+    6: {"icon":"🗓️", "name":"計畫下週",  "color":"#a855f7",
+        "desc":"設定下週 MIT，整理待辦，更新持倉成本"},
+}
+
+def _get_upgrade_tasks(weekday: int, df, cry_q: dict) -> list:
+    """根據星期幾 + 實際持倉狀況，生成 3 個具體可執行任務"""
+    tasks = []
+
+    if weekday == 0:  # 投資體能
+        # 找虧損最深的標的
+        if df is not None and not df.empty:
+            worst = df.nsmallest(1, "總損益(%)").iloc[0]
+            sym = worst["標的"]; pct = worst["總損益(%)"]
+            tasks.append(f"**{sym}** 目前虧損 {pct:.1f}%，花 15 分鐘搜尋最新季報或新聞，判斷是否停損或補倉")
+        tasks.append("列出你持有這檔股票/幣的「3 個買入理由」，今天還成立幾個？")
+        tasks.append("設定一個具體的「出場條件」：若發生 ___ 就賣出")
+
+    elif weekday == 1:  # 技術升級
+        tasks.append("從 YouTube 研究筆記區打開一支影片，邊看邊記下 3 個可執行結論")
+        tasks.append("研究一個你不懂的投資術語，用自己的話寫一行解釋")
+        tasks.append("在待辦清單新增一個「本週要研究」的標的或概念")
+
+    elif weekday == 2:  # 風險管理
+        # 找離停損最近的部位
+        tasks.append("打開持倉卡片，逐一確認每個標的的「停損價」是否還合理")
+        # Check crypto stop distances
+        in_danger = []
+        for sym, info in CRYPTO_WATCHLIST.items():
+            q = cry_q.get(sym, {})
+            price = q.get("price", 0)
+            stop = info["stop"]
+            if price > 0 and (price - stop) / price < 0.15:
+                in_danger.append(f"{sym}（現價 ${price:.2f}，停損 ${stop}，距停損 {(price-stop)/price*100:.0f}%）")
+        if in_danger:
+            tasks.append(f"⚠️ 以下標的距停損不足 15%，今天決定要不要調整：{', '.join(in_danger)}")
+        else:
+            tasks.append("計算你目前所有部位的總風險：如果全部觸停損，最大虧損多少台幣？")
+        tasks.append("檢查派網帳戶是否有設定止盈止損訂單，沒有的補上")
+
+    elif weekday == 3:  # 撿漏掃描
+        tasks.append("打開 FB Marketplace 撿漏區，看看今天有無新標的，手動搜尋一次")
+        tasks.append("更新轉賣追蹤：有沒有已賣出的品項要記錄？有沒有新品要加入？")
+        # 找觀察清單在進場區的幣
+        in_zone = [s for s, info in CRYPTO_WATCHLIST.items()
+                   if cry_q.get(s,{}).get("price",0) > 0 and
+                      cry_q.get(s,{}).get("price",0) <= info["entry_zone"][1]]
+        if in_zone:
+            tasks.append(f"🟢 {', '.join(in_zone)} 在進場區，今天評估是否要小倉試單（10% 倉位）")
+        else:
+            tasks.append("翻一翻蝦皮/PTT 二手版，找有沒有比 FB 更好的轉賣機會")
+
+    elif weekday == 4:  # 週複盤
+        if df is not None and not df.empty:
+            total_today = df["今日(TWD)"].sum()
+            sign = "+" if total_today >= 0 else ""
+            tasks.append(f"今日帳面損益 {sign}{total_today:,.0f} TWD，思考：這個結果是運氣還是判斷力？")
+        tasks.append("寫下本週「做對的一件事」和「如果重來要改變的一件事」")
+        tasks.append("下週是否有財報、Fed 發言、重要數據？先排入日曆，避免被突發消息嚇到")
+
+    elif weekday == 5:  # 身體升級
+        tasks.append("30 分鐘運動（慢跑/重訓/游泳任一），完成後在復盤表單打卡")
+        tasks.append("今天完全不看盤，讓大腦休息；只有早上 09:30 看一次開盤")
+        tasks.append("閱讀 20 頁實體書（非投資相關），在睡前寫一行最大收穫")
+
+    else:  # 週日 計畫下週
+        tasks.append("設定下週唯一 MIT（Most Important Task），寫進表單的「明天第一任務」")
+        tasks.append("整理待辦清單：刪掉超過 2 週未動的任務，保持清單不超過 10 項")
+        if df is not None and not df.empty:
+            tasks.append(f"更新持倉成本：側欄「持倉編輯」確認 {len(df)} 個部位的成本是否正確")
+
+    return tasks[:3]
+
+
+def _log_upgrade_done(weekday: int):
+    os.makedirs(os.path.dirname(_UPGRADE_FILE), exist_ok=True)
+    today = date.today().isoformat()
+    try:
+        with open(_UPGRADE_FILE, "a", encoding="utf-8", newline="") as f:
+            import csv as _csv
+            w = _csv.writer(f)
+            w.writerow([today, weekday, DAILY_THEMES[weekday]["name"]])
+    except:
+        pass
+
+
+def _upgrade_done_today() -> bool:
+    today = date.today().isoformat()
+    try:
+        with open(_UPGRADE_FILE, "r", encoding="utf-8") as f:
+            return any(today in line for line in f)
+    except:
+        return False
+
+
+def render_daily_upgrade(df=None, cry_q: dict = {}):
+    st.header("⚡ 每日升級計畫")
+
+    today_wd = date.today().weekday()  # 0=Mon … 6=Sun
+    theme    = DAILY_THEMES[today_wd]
+    done     = _upgrade_done_today()
+
+    # ── 7天週曆 ──────────────────────────────────────
+    day_names = ["一","二","三","四","五","六","日"]
+    cols7 = st.columns(7)
+    for i, c in enumerate(cols7):
+        t = DAILY_THEMES[i]
+        is_today = (i == today_wd)
+        bg = t["color"] if is_today else "#1e1e2e"
+        border = f"border:2px solid {t['color']}" if is_today else "border:1px solid #334155"
+        c.markdown(f"""
+<div style="background:{bg};{border};border-radius:8px;padding:8px 4px;text-align:center">
+  <div style="font-size:16px">{t['icon']}</div>
+  <div style="font-size:11px;color:{'#fff' if is_today else '#94a3b8'}">週{day_names[i]}</div>
+  <div style="font-size:10px;color:{'#fff' if is_today else '#64748b'}">{t['name']}</div>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("")
+
+    # ── 今日主題卡 ────────────────────────────────────
+    done_badge = "✅ 今日已完成" if done else "⬜ 尚未完成"
+    st.markdown(f"""
+<div style="background:linear-gradient(135deg,{theme['color']}22,#1e1e2e);
+     border-left:5px solid {theme['color']};border-radius:10px;padding:16px 20px;margin:8px 0">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <span style="font-size:28px">{theme['icon']}</span>
+      <span style="font-size:20px;font-weight:bold;margin-left:10px">今日主題：{theme['name']}</span>
+      <span style="background:{theme['color']}33;color:{theme['color']};
+            padding:2px 10px;border-radius:12px;font-size:12px;margin-left:12px">{done_badge}</span>
+    </div>
+  </div>
+  <div style="color:#94a3b8;margin-top:6px;font-size:14px">{theme['desc']}</div>
+</div>""", unsafe_allow_html=True)
+
+    # ── 今日任務清單 ──────────────────────────────────
+    st.markdown("#### 📋 今日 3 項任務")
+    tasks = _get_upgrade_tasks(today_wd, df, cry_q)
+    for i, task in enumerate(tasks, 1):
+        key = f"upgrade_task_{i}"
+        checked = st.session_state.get(key, False)
+        col_chk, col_txt = st.columns([0.5, 9.5])
+        with col_chk:
+            if st.checkbox("", key=key, value=checked):
+                st.session_state[key] = True
+        with col_txt:
+            prefix = f"~~任務 {i}：~~" if st.session_state.get(key) else f"**任務 {i}：**"
+            st.markdown(f"{prefix} {task}")
+
+    # ── 完成按鈕 ──────────────────────────────────────
+    if not done:
+        if st.button(f"🏆 完成今日升級：{theme['name']}", type="primary", key="upgrade_done_btn"):
+            _log_upgrade_done(today_wd)
+            st.success(f"🎉 太棒了！今日「{theme['name']}」升級完成！")
+            st.balloons()
+            st.rerun()
+    else:
+        st.success(f"✅ 今日升級已完成！繼續保持連勝！")
+
+    # ── 連續升級天數 ──────────────────────────────────
+    try:
+        with open(_UPGRADE_FILE, "r", encoding="utf-8") as f:
+            import csv as _csv_r
+            rows = list(_csv_r.reader(f))
+        if rows:
+            streak = 0
+            check_date = date.today()
+            dates_done = {r[0] for r in rows if r}
+            while check_date.isoformat() in dates_done:
+                streak += 1
+                check_date -= timedelta(days=1)
+            if streak > 0:
+                st.metric("🔥 連續升級天數", f"{streak} 天",
+                          delta="繼續保持！" if streak >= 3 else None)
+    except:
+        pass
+
+
+# ════════════════════════════════════════════════════
 # 今日狀態列（手癢指數 + VIX + 儲蓄目標）
 # ════════════════════════════════════════════════════
 def render_status_bar(df, exrate):
@@ -1686,6 +1881,7 @@ st.divider()
 
 # ── Market Insights ───────────────────────────────────
 render_market_insights(us_q)
+render_daily_upgrade(df, cry_q)
 render_daily_system()
 st.divider()
 
