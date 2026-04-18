@@ -21,6 +21,14 @@ st.markdown("""
 .stTabs [data-baseweb="tab"]{font-size:15px}
 .alert-danger{background:#3b0000;border-left:4px solid #ef4444;padding:10px;border-radius:6px;margin:4px 0}
 .alert-entry{background:#0f2c0f;border-left:4px solid #22c55e;padding:10px;border-radius:6px;margin:4px 0}
+.insider-buy{background:#0f2c0f;border-left:3px solid #22c55e;padding:8px;border-radius:4px;margin:3px 0;font-size:13px}
+.insider-sell{background:#3b0000;border-left:3px solid #ef4444;padding:8px;border-radius:4px;margin:3px 0;font-size:13px}
+@media(max-width:768px){
+  [data-testid="metric-container"]{padding:8px}
+  .block-container{padding:0.5rem 0.5rem}
+  h1{font-size:1.4rem!important}
+  h2{font-size:1.1rem!important}
+}
 </style>""", unsafe_allow_html=True)
 
 # ════════════════════════════════════════════════════
@@ -30,13 +38,15 @@ EXCHANGE_RATE = 32.5
 
 # 國泰美股複委託 (成本USD, 股數)
 CATHAY_US = {
-    'JOBY': (8.570909,  11.0),
-    'LULU': (164.895457, 0.60693),
-    'MSFT': (390.342837, 0.25639),
-    'NKE':  (43.320000,  1.0),
-    'ONDS': (9.296667,   3.0),
-    'RXRX': (3.351667,  30.0),
-    'TSLA': (352.183552, 0.28417),
+    'HIMS': (27.660000,   3.0),      # 新增 2026-04-18
+    'JOBY': (8.570909,   11.0),
+    'LULU': (164.895457,  0.60693),
+    'MSFT': (390.342837,  0.25639),
+    'NKE':  (45.469707,   1.0),      # 成本更新
+    'ONDS': (9.296667,    3.0),
+    'ORCL': (172.201383,  0.58118),  # 新增 2026-04-18
+    'RXRX': (3.484783,   46.0),      # 加碼至 46 股
+    'TSLA': (352.183552,  0.28417),
 }
 
 # 國泰台股零股 (名稱, 股數, 成本TWD)
@@ -51,30 +61,29 @@ CATHAY_TW = {
     "6148":   ("正文科技", 34,  33.63),
 }
 
-# 派網代幣化股票 (成本USD, 預設股數)
+# 派網代幣化股票 (成本USD, 預設股數) — 更新：2026-04-18
 PIONEX_STOCKS = {
-    'ADBE': (239.70, 0.2477),
-    'APLD': (28.50,  1.3486),
-    'HIMS': (24.29,  1.2327),
-    'META': (560.00, 0.04587),
-    'MSFT': (390.00, 0.1128),
-    'NVO':  (40.81,  1.2517),
-    'OKLO': (47.00,  0.2947),
-    'ORCL': (135.25, 0.2507),
-    'SMCI': (22.16,  1.1997),
-    'SOFI': (18.79,  2.1528),
+    'ADBE': (239.70, 0.247),
+    'HIMS': (24.29,  1.23),
+    'IONQ': (25.00,  0.507),   # 新增
+    'META': (560.00, 0.0458),
+    'MSFT': (390.00, 0.112),
+    'NVO':  (40.81,  1.25),
+    'ORCL': (135.25, 0.25),
+    'SMCI': (22.16,  2.07),    # 加碼
+    'TSLA': (240.00, 0.138),   # 新增
 }
-COIN_MAP = {"ADBE":"ADBEX","APLD":"APLDX","HIMS":"HIMSX",
+COIN_MAP = {"ADBE":"ADBEX","HIMS":"HIMSX","IONQ":"IONQX",
             "META":"METAX","MSFT":"MSFTX","NVO":"NVOX",
-            "OKLO":"OKLOX","ORCL":"ORCLX","SMCI":"SMCIX","SOFI":"SOFIX"}
+            "ORCL":"ORCLX","SMCI":"SMCIX","TSLA":"TSLAX"}
 
-# 派網加密貨幣 (coingecko_id, 預設數量, 成本USD)
+# 派網加密貨幣 (coingecko_id, 預設數量, 成本USD) — 更新：2026-04-18
 PIONEX_CRYPTO = {
-    'ETH':  ('ethereum', 0.009275, 2200.0),
-    'ADA':  ('cardano',  0.0002,   0.35),
-    'ARKM': ('arkham',   270.86,   0.097),
+    'ETH':  ('ethereum', 0.00927,  2200.0),
+    'ADA':  ('cardano',  54.21,    0.35),   # 大幅增加
+    'ARKM': ('arkham',   48.77,    0.097),  # 減少
 }
-PIONEX_USDT = 71.9263  # 更新：2026-04-16 截圖實際餘額
+PIONEX_USDT = 24.51  # 更新：2026-04-18
 
 # Firstrade (成本USD, 股數)
 FIRSTRADE = {
@@ -143,16 +152,69 @@ def fetch_usdtwd_rate() -> float:
         return EXCHANGE_RATE
 
 # ════════════════════════════════════════════════════
+# VIX + Insider Trading API
+# ════════════════════════════════════════════════════
+@st.cache_data(ttl=300)
+def fetch_vix() -> dict:
+    try:
+        url = "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1d&range=5d"
+        req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = json.loads(r.read())
+        closes = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+        valid = [c for c in closes if c is not None]
+        vix  = round(valid[-1], 2) if valid else 20.0
+        prev = valid[-2] if len(valid) >= 2 else vix
+        return {"vix": vix, "chg": round(vix - prev, 2)}
+    except:
+        return {"vix": 20.0, "chg": 0.0}
+
+
+@st.cache_data(ttl=1800)
+def fetch_insider_trades(symbols: tuple) -> list:
+    """SEC EDGAR Form 4 近 60 天內部人交易"""
+    from datetime import timedelta
+    start = (datetime.now() - timedelta(days=60)).strftime("%Y-%m-%d")
+    end   = datetime.now().strftime("%Y-%m-%d")
+    results = []
+    for sym in symbols[:8]:
+        try:
+            url = (f"https://efts.sec.gov/LATEST/search-index?q=%22{sym}%22"
+                   f"&forms=4&dateRange=custom&startdt={start}&enddt={end}")
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "Mozilla/5.0 portfolio-dashboard"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                data = json.loads(r.read())
+            for hit in data.get("hits", {}).get("hits", [])[:4]:
+                s = hit.get("_source", {})
+                names = s.get("display_names") or ["—"]
+                results.append({
+                    "標的": sym,
+                    "申報人": names[0][:25],
+                    "日期": s.get("file_date", "")[:10],
+                    "公司": (s.get("entity_name") or "")[:20],
+                    "連結": f"https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK={sym}&type=4&dateb=&owner=include&count=5",
+                })
+        except:
+            pass
+        time.sleep(0.3)
+    return results
+
+
+# ════════════════════════════════════════════════════
 # 持倉 JSON 讀寫
 # ════════════════════════════════════════════════════
 def _defaults():
     return {
-        "cathay_us":      {k: list(v) for k,v in CATHAY_US.items()},
-        "cathay_tw":      {k: list(v) for k,v in CATHAY_TW.items()},
-        "pionex_stocks":  {k: list(v) for k,v in PIONEX_STOCKS.items()},
-        "pionex_crypto":  {k: list(v) for k,v in PIONEX_CRYPTO.items()},
-        "pionex_usdt":    PIONEX_USDT,
-        "firstrade":      {k: list(v) for k,v in FIRSTRADE.items()},
+        "cathay_us":       {k: list(v) for k,v in CATHAY_US.items()},
+        "cathay_tw":       {k: list(v) for k,v in CATHAY_TW.items()},
+        "pionex_stocks":   {k: list(v) for k,v in PIONEX_STOCKS.items()},
+        "pionex_crypto":   {k: list(v) for k,v in PIONEX_CRYPTO.items()},
+        "pionex_usdt":     PIONEX_USDT,
+        "firstrade":       {k: list(v) for k,v in FIRSTRADE.items()},
+        "savings_current": 0,
+        "savings_target":  150000,
+        "savings_deadline": "2026-05-31",
     }
 
 def load_holdings():
@@ -304,6 +366,18 @@ with st.sidebar:
             _h["firstrade"] = df_to_dict_us(edited)
             save_holdings(_h)
             st.cache_data.clear(); st.success("已儲存！"); st.rerun()
+
+    st.divider()
+    st.caption("💰 儲蓄目標設定")
+    _sv_cur  = st.number_input("目前現金儲蓄 (TWD)", value=float(_h.get("savings_current", 0)), step=1000.0, format="%.0f")
+    _sv_tgt  = st.number_input("目標金額 (TWD)",     value=float(_h.get("savings_target", 150000)), step=1000.0, format="%.0f")
+    _sv_dead = st.text_input("截止日期",             value=_h.get("savings_deadline", "2026-05-31"))
+    if st.button("💾 儲存目標"):
+        _h["savings_current"]  = _sv_cur
+        _h["savings_target"]   = _sv_tgt
+        _h["savings_deadline"] = _sv_dead
+        save_holdings(_h)
+        st.cache_data.clear(); st.success("已儲存！"); st.rerun()
 
     st.divider()
     st.caption("修改後按💾，自動刷新畫面")
@@ -844,6 +918,131 @@ def render_daily_system():
             st.dataframe(_disp, use_container_width=True, hide_index=True)
 
 # ════════════════════════════════════════════════════
+# 今日狀態列（手癢指數 + VIX + 儲蓄目標）
+# ════════════════════════════════════════════════════
+def render_status_bar(df, exrate):
+    st.subheader("📊 今日狀態")
+    vix_d  = fetch_vix()
+    vix    = vix_d["vix"]
+    vix_chg= vix_d["chg"]
+
+    # VIX 市場情緒
+    if vix >= 30:
+        mkt_label, mkt_color = "🔴 市場恐慌", "#ef4444"
+        mkt_note = "極度恐慌，非理性拋售可能出現機會，嚴控部位"
+    elif vix >= 22:
+        mkt_label, mkt_color = "🟠 市場緊張", "#f97316"
+        mkt_note = "波動升高，觀察方向確立再入場，避免追跌"
+    elif vix <= 14:
+        mkt_label, mkt_color = "🟠 市場自滿", "#f97316"
+        mkt_note = "VIX 極低，市場過度樂觀，留意潛在反轉風險"
+    else:
+        mkt_label, mkt_color = "🟢 市場正常", "#22c55e"
+        mkt_note = "正常波動區間，可按計劃執行"
+
+    # 手癢指數
+    total_val   = df["現值(TWD)"].sum()
+    today_total = df["今日(TWD)"].sum()
+    today_pct   = abs(today_total) / (total_val - today_total) * 100 if total_val > 0 else 0
+    heat = min(int(
+        (max(vix - 15, 0) / 20 * 40) +   # VIX 貢獻
+        (min(today_pct / 5 * 40, 40)) +   # 今日波動貢獻
+        (20 if vix >= 28 or vix <= 13 else 0)  # 極端值加成
+    ), 100)
+    if heat >= 70:
+        hand_label = "🔴 高度警戒 — 先深呼吸再決策"
+        hand_color = "#ef4444"
+    elif heat >= 40:
+        hand_label = "🟡 適度注意 — 避免衝動操作"
+        hand_color = "#eab308"
+    else:
+        hand_label = "🟢 冷靜狀態 — 按計劃執行"
+        hand_color = "#22c55e"
+
+    # 儲蓄目標
+    sv_cur  = float(_h.get("savings_current", 0))
+    sv_tgt  = float(_h.get("savings_target", 150000))
+    sv_dead = _h.get("savings_deadline", "2026-05-31")
+    sv_pct  = min(sv_cur / sv_tgt, 1.0) if sv_tgt else 0
+    try:
+        days_left = (datetime.strptime(sv_dead, "%Y-%m-%d").date() - datetime.now().date()).days
+    except:
+        days_left = 0
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("😱 VIX 恐慌指數", f"{vix:.1f}", f"{vix_chg:+.2f}")
+        st.markdown(f'<span style="color:{mkt_color};font-size:13px">{mkt_label}</span>', unsafe_allow_html=True)
+        st.caption(mkt_note)
+    with c2:
+        st.markdown(f"**🌡️ 手癢指數　{heat}/100**")
+        st.progress(heat / 100)
+        st.markdown(f'<span style="color:{hand_color};font-size:13px">{hand_label}</span>', unsafe_allow_html=True)
+    with c3:
+        st.markdown(f"**💰 儲蓄目標　{sv_pct*100:.0f}%**")
+        st.progress(sv_pct)
+        st.caption(f"NT${sv_cur:,.0f} / NT${sv_tgt:,.0f}　剩 {days_left} 天")
+        if days_left > 0 and sv_cur < sv_tgt:
+            need_per_day = (sv_tgt - sv_cur) / days_left
+            st.caption(f"每天需存 NT${need_per_day:,.0f}")
+    with c4:
+        total_assets = total_val + sv_cur
+        st.metric("📦 總資產（投資+現金）", f"NT${total_assets:,.0f}")
+        st.caption(f"投資 {total_val:,.0f} + 現金 {sv_cur:,.0f}")
+
+
+# ════════════════════════════════════════════════════
+# 投資組合歷史走勢
+# ════════════════════════════════════════════════════
+def render_portfolio_history():
+    df_h = load_history()
+    if df_h.empty or len(df_h) < 2:
+        return
+    st.subheader("📈 總市值歷史走勢")
+    fig = go.Figure(go.Scatter(
+        x=df_h["時間"], y=df_h["總市值(TWD)"],
+        mode="lines", fill="tozeroy",
+        line=dict(color="#7c3aed", width=2),
+        fillcolor="rgba(124,58,237,0.15)",
+        hovertemplate="%{x|%m/%d %H:%M}<br>NT$%{y:,.0f}<extra></extra>",
+    ))
+    first, last = df_h["總市值(TWD)"].iloc[0], df_h["總市值(TWD)"].iloc[-1]
+    chg = last - first
+    fig.update_layout(
+        height=220, margin=dict(l=0,r=0,t=30,b=0),
+        title=f"近期走勢　{'▲' if chg>=0 else '▼'} NT${abs(chg):,.0f}　({chg/first*100:+.2f}%)",
+        yaxis=dict(tickformat=",.0f"),
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# ════════════════════════════════════════════════════
+# Insider Trading 監控
+# ════════════════════════════════════════════════════
+def render_insider_trading(held_syms):
+    st.subheader("🕵️ Insider Trading 監控")
+    st.caption("SEC EDGAR Form 4　近 60 天美股內部人交易申報（按需載入）")
+    if st.button("🔍 載入最新內部人交易", key="btn_insider"):
+        st.session_state["insider_loaded"] = True
+    if not st.session_state.get("insider_loaded"):
+        return
+    us_syms = tuple(s for s in held_syms
+                    if s not in ("USDT","ETH","ADA","ARKM","BTC","BNB") and "X" not in s)[:8]
+    with st.spinner(f"查詢 {len(us_syms)} 支標的的 SEC Form 4..."):
+        trades = fetch_insider_trades(us_syms)
+    if not trades:
+        st.info("近 60 天無查詢到 Form 4 申報，或 SEC 網路暫時無法連線。")
+        return
+    df_ins = pd.DataFrame(trades)
+    st.dataframe(df_ins[["標的","申報人","日期","公司"]], use_container_width=True, hide_index=True)
+    st.caption("點擊連結查看完整申報內容 → 搜尋對應標的的 Form 4")
+    for _, row in df_ins.iterrows():
+        st.markdown(
+            f'[🔗 {row["標的"]} SEC EDGAR]({row["連結"]})', unsafe_allow_html=False
+        )
+
+
+# ════════════════════════════════════════════════════
 # 主畫面
 # ════════════════════════════════════════════════════
 st.title("📊 Jim 投資全視界")
@@ -868,6 +1067,10 @@ if danger_list or entry_list:
             for a in danger_list:
                 st.markdown(f'<div class="alert-danger">{a}</div>', unsafe_allow_html=True)
     st.divider()
+
+# ── 今日狀態列 ───────────────────────────────────────
+render_status_bar(df, _exrate)
+st.divider()
 
 # ── Market Insights ───────────────────────────────────
 render_market_insights(us_q)
@@ -1190,6 +1393,10 @@ with st.expander("📈 個股深度分析"):
 
 st.divider()
 
+# ── 投資組合歷史走勢 ──────────────────────────────────
+render_portfolio_history()
+st.divider()
+
 # ── 4 帳戶詳細持倉 ────────────────────────────────────
 st.subheader("📋 持倉明細")
 DISP=["標的","現價","成本","股數","現值(TWD)","損益(TWD)","今日(TWD)","漲跌幅(%)","總損益(%)"]
@@ -1231,6 +1438,11 @@ TV_HEATMAP = """
   </script>
 </div>"""
 components.html(TV_HEATMAP, height=420)
+
+# ── Insider Trading ──────────────────────────────────
+st.divider()
+_held_syms = list(set(df["標的"].str.split("→").str[-1].tolist()))
+render_insider_trading(_held_syms)
 
 # ── 撿漏監控 ─────────────────────────────────────────
 st.divider()
@@ -1340,4 +1552,17 @@ with c1:
 with c2:
     st.caption(f"更新：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}　每60秒自動刷新")
 # 自動刷新（60秒）
-components.html('<script>setTimeout(()=>window.parent.location.reload(),60000)</script>',height=0)
+components.html("""<script>
+// 只有在使用者沒有在填表單時才自動刷新（5分鐘）
+let hasInput = false;
+document.addEventListener('focusin', e => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') hasInput = true;
+});
+document.addEventListener('focusout', e => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')
+    setTimeout(()=>{ hasInput = false; }, 3000);
+});
+setTimeout(()=>{
+  if(!hasInput) window.parent.location.reload();
+}, 300000);
+</script>""", height=0)
