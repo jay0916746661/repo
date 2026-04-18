@@ -1122,33 +1122,86 @@ def render_insider_trading(held_syms):
 # ════════════════════════════════════════════════════
 # YouTube 研究筆記
 # ════════════════════════════════════════════════════
-RESEARCH_NOTES = [
-    {
-        "date": "2026-04-18",
-        "channel": "Money or Life 美股頻道",
-        "author": "Ace (AS)",
-        "title": "本周赚够，下周减仓！週六複盤",
-        "url": "https://www.youtube.com/watch?v=ja-8fLQjTDI",
-        "perf": "本月回報 +36.4%　YTD +30%　融資倉位 -11% 現金",
-        "highlights": [
-            {"sym":"TSLA",  "action":"HOLD",  "note":"週五重回 $400+，等下週Q1財報，長期信心維持"},
-            {"sym":"RKLB",  "action":"WATCH", "note":"不受SpaceX上市壓力，關注14億現金用途，理想加倉 $75以下"},
-            {"sym":"IRDM",  "action":"BUY",   "note":"成本$29從底部大幅反轉，上方阻力小，目標$60+"},
-            {"sym":"HIMS",  "action":"BUY",   "note":"FDA對多肽小分子限制放寬，本週暴漲，GLP-1概念強勢"},
-            {"sym":"INTC",  "action":"WATCH", "note":"由空轉多！馬斯克潛在晶片製造合作 + 18A良率提升，財報下週"},
-            {"sym":"ICHR",  "action":"WATCH", "note":"半導體設備上游，AI帶動資本支出受益，低調潛力股"},
-            {"sym":"MSTR",  "action":"HOLD",  "note":"持續定額投資，平均成本$200，比特幣代理倉位"},
-            {"sym":"SATS",  "action":"HOLD",  "note":"趨於穩定創新高，Ace $132加倉，維持約10%倉位"},
-            {"sym":"EOSC",  "action":"WATCH", "note":"數據中心儲能概念，但需注意管理層誠信，不適長期"},
-        ],
-        "key_actions": [
-            "下週 TSLA Q1 財報 — 重要觀察點",
-            "下週 INTC Q1 財報 — 轉多後第一個觀察機會",
-            "Circle 已全數清倉，跌破 $100 或趨近 $90 考慮重新買入",
-            "建議保持平常心，適時調整融資水位確保安全",
-        ],
-    },
+
+# 頻道設定（channel_id 可在 config.json 的 "youtube_channels" 欄位覆蓋）
+DEFAULT_YT_CHANNELS = [
+    {"name": "Money or Life 美股頻道", "channel_id": "UCcd3BOzMqZR0AK1wMmMz81Q"},
+    {"name": "3%財富覺醒 Arthur",      "channel_id": "UCxPdMPRixCXvdWLqf0EVBFQ"},
+    {"name": "股癌 Gooaye",            "channel_id": "UCN0OPGTqgWFBDkDgyFbZ4IA"},
 ]
+
+# 股票代碼正則（英文大寫2~5字母，排除常見縮寫）
+import re as _re
+_TICKER_SKIP = {"AI","US","CEO","CFO","EPS","IPO","ETF","GDP","FED","USA","NYSE","AND","THE","FOR","NOT","ARE","BUT","YOU","ALL","NEW","CAN","HAS","OR"}
+_TICKER_RE   = _re.compile(r'\b([A-Z]{2,5})\b')
+
+def _extract_tickers(text: str) -> list:
+    found = _TICKER_RE.findall(text)
+    return list(dict.fromkeys(t for t in found if t not in _TICKER_SKIP))[:12]
+
+
+@st.cache_data(ttl=1800)
+def fetch_yt_channel_videos(channel_id: str, max_items: int = 6) -> list:
+    """YouTube RSS → 最新影片列表"""
+    import xml.etree.ElementTree as _ET
+    url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            root = _ET.fromstring(r.read())
+        ns = {"atom":"http://www.w3.org/2005/Atom",
+              "yt":  "http://www.youtube.com/xml/schemas/2015",
+              "media":"http://search.yahoo.com/mrss/"}
+        videos = []
+        for entry in root.findall("atom:entry", ns)[:max_items]:
+            vid_id = entry.findtext("yt:videoId", "", ns)
+            title  = entry.findtext("atom:title", "", ns)
+            pub    = (entry.findtext("atom:published", "", ns) or "")[:10]
+            desc_el= entry.find(".//media:description", ns)
+            desc   = (desc_el.text or "").strip()[:600] if desc_el is not None else ""
+            videos.append({
+                "id": vid_id, "title": title, "date": pub,
+                "desc": desc,
+                "url":  f"https://www.youtube.com/watch?v={vid_id}",
+                "thumb":f"https://img.youtube.com/vi/{vid_id}/mqdefault.jpg",
+            })
+        return videos
+    except:
+        return []
+
+
+@st.cache_data(ttl=3600)
+def fetch_yt_transcript(video_id: str) -> str:
+    """嘗試抓取 YouTube 自動字幕，回傳前 3000 字"""
+    try:
+        from youtube_transcript_api import YouTubeTranscriptApi
+        segs = YouTubeTranscriptApi.get_transcript(
+            video_id, languages=["zh-TW","zh-CN","zh","en"])
+        return " ".join(s["text"] for s in segs)[:3000]
+    except:
+        return ""
+
+
+def _summarise_transcript(text: str, title: str) -> dict:
+    """從逐字稿粗提要點：找股票代碼、百分比數字、關鍵句"""
+    tickers = _extract_tickers(text + " " + title)
+    # 找所有包含百分比的句子
+    pct_sents = []
+    for sent in _re.split(r'[。！？\n]', text):
+        if _re.search(r'\d+\.?\d*%', sent) and len(sent) > 8:
+            pct_sents.append(sent.strip()[:80])
+    # 找包含關鍵投資詞的句子
+    kw = ["目標","停損","加倉","減倉","看好","看空","買入","賣出","財報","利多","利空",
+          "support","target","buy","sell","hold","earnings","breakout"]
+    key_sents = []
+    for sent in _re.split(r'[。！？\n]', text):
+        if any(k in sent.lower() for k in kw) and 10 < len(sent) < 120:
+            key_sents.append(sent.strip())
+    return {
+        "tickers":   tickers[:8],
+        "pct_sents": pct_sents[:5],
+        "key_sents": list(dict.fromkeys(key_sents))[:6],
+    }
 
 TODOS_FILE = os.path.join(os.path.dirname(__file__), "data", "todos.json")
 
@@ -1191,42 +1244,105 @@ def _save_todos(todos: list):
 def render_research_notes():
     st.header("📺 YouTube 研究筆記")
 
-    for note in RESEARCH_NOTES:
-        tc = "#7c3aed"
-        st.markdown(f"""
-<div style="background:#1e1e2e;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid {tc}">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-    <div>
-      <span style="color:#7c3aed;font-weight:bold;font-size:16px">{note['title']}</span><br>
-      <span style="color:#64748b;font-size:13px">📅 {note['date']}　✍️ {note['author']} @ {note['channel']}</span>
+    # ── 頻道設定（讀 config.json 覆蓋）──────────────────
+    cfg_channels = _load_scraper_config().get("youtube_channels", DEFAULT_YT_CHANNELS)
+
+    # ── 頻道影片卡牆 ──────────────────────────────────
+    for ch in cfg_channels:
+        ch_name = ch.get("name", "頻道")
+        ch_id   = ch.get("channel_id", "")
+        if not ch_id:
+            continue
+        with st.expander(f"📡 {ch_name}", expanded=(ch == cfg_channels[0])):
+            with st.spinner(f"抓取 {ch_name} 最新影片..."):
+                videos = fetch_yt_channel_videos(ch_id, max_items=5)
+            if not videos:
+                st.warning("無法連線或頻道 ID 錯誤，請至 config.json 確認 youtube_channels 設定")
+                st.code(f'{{ "name": "{ch_name}", "channel_id": "UCxxxxxxx" }}')
+                continue
+
+            for v in videos:
+                tickers_from_title = _extract_tickers(v["title"])
+                v_col, btn_col = st.columns([8, 1])
+                with v_col:
+                    ticker_badges = " ".join(
+                        f'<span style="background:#1e293b;color:#7c3aed;padding:1px 6px;border-radius:4px;font-size:11px">{t}</span>'
+                        for t in tickers_from_title
+                    )
+                    st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:8px;padding:10px 14px;margin:4px 0">
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <img src="{v['thumb']}" style="width:120px;border-radius:6px;flex-shrink:0" onerror="this.style.display='none'">
+    <div style="flex:1;min-width:0">
+      <a href="{v['url']}" target="_blank"
+         style="color:#e2e8f0;font-weight:bold;text-decoration:none;font-size:14px">{v['title']}</a>
+      <div style="color:#64748b;font-size:12px;margin:3px 0">{v['date']}</div>
+      <div style="margin:4px 0">{ticker_badges}</div>
+      <div style="color:#94a3b8;font-size:12px;margin-top:4px;white-space:pre-wrap">{v['desc'][:220] + ('…' if len(v['desc'])>220 else '')}</div>
     </div>
-    <a href="{note['url']}" target="_blank"
-       style="background:#7c3aed;color:#fff;padding:4px 12px;border-radius:6px;font-size:13px;text-decoration:none">
-       ▶ 看影片
-    </a>
-  </div>
-  <div style="background:#0f172a;border-radius:6px;padding:8px 12px;margin-top:10px;font-size:13px;color:#94a3b8">
-    💹 {note['perf']}
   </div>
 </div>""", unsafe_allow_html=True)
+                with btn_col:
+                    if st.button("分析", key=f"yt_analyse_{v['id']}"):
+                        st.session_state[f"yt_show_{v['id']}"] = True
 
-        # 個股重點
-        st.markdown("**📌 個股重點**")
-        cols = st.columns(3)
-        action_color = {"BUY":"#22c55e","HOLD":"#94a3b8","WATCH":"#f59e0b","SELL":"#ef4444"}
-        for i, h in enumerate(note["highlights"]):
-            c = cols[i % 3]
-            ac = action_color.get(h["action"], "#94a3b8")
-            c.markdown(f"""
-<div style="background:#1e293b;border-radius:6px;padding:8px;margin:3px 0;border-left:3px solid {ac}">
-  <b>{h['sym']}</b> <span style="color:{ac};font-size:12px">[{h['action']}]</span><br>
-  <span style="color:#94a3b8;font-size:12px">{h['note']}</span>
-</div>""", unsafe_allow_html=True)
+                # 逐字稿摘要（按需展開）
+                if st.session_state.get(f"yt_show_{v['id']}"):
+                    with st.spinner("抓取逐字稿並分析..."):
+                        transcript = fetch_yt_transcript(v["id"])
+                    if transcript:
+                        summary = _summarise_transcript(transcript, v["title"])
+                        st.markdown(f"**🎯 提到的標的：** " +
+                            "".join(f'`{t}` ' for t in summary["tickers"]))
+                        if summary["pct_sents"]:
+                            st.markdown("**📊 重要數字：**")
+                            for s in summary["pct_sents"]:
+                                st.markdown(f"- {s}")
+                        if summary["key_sents"]:
+                            st.markdown("**💡 關鍵觀點：**")
+                            for s in summary["key_sents"]:
+                                st.markdown(f"- {s}")
+                        with st.expander("📜 完整逐字稿"):
+                            st.text(transcript)
+                    else:
+                        st.info("此影片沒有可用的字幕（需頻道開啟自動字幕）")
 
-        # 關鍵行動
-        st.markdown("**⚡ 關鍵行動**")
-        for ka in note["key_actions"]:
-            st.markdown(f"- {ka}")
+    # ── 手動輸入影片 URL 分析 ─────────────────────────
+    st.divider()
+    st.subheader("🔍 分析任意影片")
+    manual_url = st.text_input("貼上 YouTube 影片連結",
+                               placeholder="https://www.youtube.com/watch?v=...",
+                               key="yt_manual_url")
+    if st.button("📥 載入並分析", key="yt_manual_btn") and manual_url.strip():
+        m = _re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_\-]{11})', manual_url)
+        if m:
+            vid_id = m.group(1)
+            st.session_state["yt_manual_id"] = vid_id
+        else:
+            st.error("無法解析影片 ID，請確認連結格式")
+
+    if st.session_state.get("yt_manual_id"):
+        vid_id = st.session_state["yt_manual_id"]
+        with st.spinner("抓取逐字稿..."):
+            transcript = fetch_yt_transcript(vid_id)
+        if transcript:
+            summary = _summarise_transcript(transcript, "")
+            c1, c2 = st.columns(2)
+            with c1:
+                st.markdown("**🎯 提到的標的**")
+                st.write("  ".join(f"`{t}`" for t in summary["tickers"]) or "—")
+                if summary["pct_sents"]:
+                    st.markdown("**📊 重要數字**")
+                    for s in summary["pct_sents"]: st.markdown(f"- {s}")
+            with c2:
+                if summary["key_sents"]:
+                    st.markdown("**💡 關鍵觀點**")
+                    for s in summary["key_sents"]: st.markdown(f"- {s}")
+            with st.expander("📜 完整逐字稿"):
+                st.text_area("", transcript, height=300, key="yt_manual_transcript")
+        else:
+            st.warning("無可用字幕。這支影片可能未開啟自動字幕，或為私人影片。")
+        st.caption(f"影片 ID: {vid_id}　[在 YouTube 開啟](https://www.youtube.com/watch?v={vid_id})")
 
     st.divider()
 
