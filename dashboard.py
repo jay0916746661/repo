@@ -1079,25 +1079,30 @@ st.divider()
 
 # ── 頂部 4 帳戶數據看板 ───────────────────────────────
 platforms = ["國泰美股","國泰台股","派網","Firstrade"]
-cols = st.columns(5)
 
 total_val  = df["現值(TWD)"].sum()
 total_pnl  = df["損益(TWD)"].sum()
 total_today= df["今日(TWD)"].sum()
 
-pnl_color = "normal" if total_pnl >= 0 else "inverse"
-cols[0].metric("💰 總市值", f"NT$ {total_val:,}",
-               delta=f"今日 {total_today:+,}　累積 {total_pnl:+,}")
+def _pnl_html(today, pnl):
+    tc = "#22c55e" if today >= 0 else "#ef4444"
+    pc = "#22c55e" if pnl   >= 0 else "#ef4444"
+    return (f'<div style="font-size:13px;margin-top:4px">'
+            f'<span style="color:{tc}">今日 NT${today:+,}</span>'
+            f'<span style="color:#475569">　｜　</span>'
+            f'<span style="color:{pc}">累積 NT${pnl:+,}</span>'
+            f'</div>')
+
+cols = st.columns(5)
+cols[0].metric("💰 總市值", f"NT$ {total_val:,}")
+cols[0].markdown(_pnl_html(total_today, total_pnl), unsafe_allow_html=True)
 for i,plat in enumerate(platforms):
-    sub = df[df["平台"]==plat]
+    sub   = df[df["平台"]==plat]
     val   = sub["現值(TWD)"].sum()
     today = sub["今日(TWD)"].sum()
     pnl   = sub["損益(TWD)"].sum()
-    cols[i+1].metric(
-        plat,
-        f"NT$ {val:,}",
-        delta=f"今日 {today:+,}　損益 {pnl:+,}"
-    )
+    cols[i+1].metric(plat, f"NT$ {val:,}")
+    cols[i+1].markdown(_pnl_html(today, pnl), unsafe_allow_html=True)
 
 st.divider()
 
@@ -1399,20 +1404,69 @@ st.divider()
 
 # ── 4 帳戶詳細持倉 ────────────────────────────────────
 st.subheader("📋 持倉明細")
-DISP=["標的","現價","成本","股數","現值(TWD)","損益(TWD)","今日(TWD)","漲跌幅(%)","總損益(%)"]
 
-def style_t(d):
-    return d.style.map(
-        lambda v:"color:#22c55e" if isinstance(v,(int,float)) and v>0
-             else "color:#ef4444" if isinstance(v,(int,float)) and v<0 else "",
-        subset=["損益(TWD)","今日(TWD)","漲跌幅(%)","總損益(%)"])
+def render_platform_detail(df, platform):
+    sub = df[df["平台"] == platform].copy()
+    sub = sub.sort_values("今日(TWD)", ascending=False)
+    v = sub["現值(TWD)"].sum()
+    p = sub["損益(TWD)"].sum()
+    t = sub["今日(TWD)"].sum()
+    t_color = "🟢" if t >= 0 else "🔴"
+    p_color = "🟢" if p >= 0 else "🔴"
+    label = (f"{t_color} {platform}　市值 NT${v:,}　"
+             f"今日 {'▲' if t>=0 else '▼'} NT${abs(t):,}　"
+             f"累積 {'▲' if p>=0 else '▼'} NT${abs(p):,}")
+    with st.expander(label):
+        # 平台匯總指標
+        mc1, mc2, mc3 = st.columns(3)
+        mc1.metric("總市值", f"NT${v:,}")
+        mc2.metric("今日損益", f"NT${t:+,}", delta_color="normal" if t >= 0 else "inverse")
+        mc3.metric("累積損益", f"NT${p:+,}", delta_color="normal" if p >= 0 else "inverse")
+        st.divider()
+
+        # 今日漲最多的標的標示
+        if not sub.empty:
+            top_sym = sub.iloc[0]["標的"]
+            top_today = sub.iloc[0]["今日(TWD)"]
+            if top_today > 0:
+                st.success(f"🏆 今日最強：**{top_sym}**　今日 NT${top_today:+,}")
+            elif top_today < 0:
+                st.error(f"📉 今日最弱：**{top_sym}**　今日 NT${top_today:+,}")
+
+        # 每檔排名卡片
+        max_abs = sub["今日(TWD)"].abs().max() or 1
+        for rank_i, (_, row) in enumerate(sub.iterrows()):
+            sym      = row["標的"]
+            price    = row["現價"]
+            value    = row["現值(TWD)"]
+            today_v  = int(row["今日(TWD)"])
+            total_v  = int(row["損益(TWD)"])
+            today_pct= row["漲跌幅(%)"]
+            total_pct= row["總損益(%)"]
+            bar_w    = int(abs(today_v) / max_abs * 100)
+            tc = "#22c55e" if today_v >= 0 else "#ef4444"
+            pc = "#22c55e" if total_v >= 0 else "#ef4444"
+            medal = ("🥇" if rank_i == 0 else
+                     "🥈" if rank_i == 1 else
+                     "🥉" if rank_i == 2 else f"&nbsp;&nbsp;{rank_i+1}.")
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:8px;padding:10px 14px;margin:5px 0;border-left:4px solid {tc}">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+    <span style="font-size:15px">{medal} <b>{sym}</b>
+      <span style="color:#64748b;font-size:12px;margin-left:6px">${price:.2f}　NT${value:,}</span>
+    </span>
+    <div style="text-align:right;min-width:200px">
+      <span style="color:{tc};font-weight:bold;font-size:15px">今日&nbsp;NT${today_v:+,}&nbsp;({today_pct:+.1f}%)</span><br>
+      <span style="color:{pc};font-size:12px">累積&nbsp;NT${total_v:+,}&nbsp;({total_pct:+.1f}%)</span>
+    </div>
+  </div>
+  <div style="background:#334155;border-radius:3px;height:5px;margin-top:8px">
+    <div style="background:{tc};width:{bar_w}%;height:5px;border-radius:3px;transition:width 0.3s"></div>
+  </div>
+</div>""", unsafe_allow_html=True)
 
 for plat in ["國泰美股","國泰台股","派網","Firstrade"]:
-    sub=df[df["平台"]==plat][DISP].sort_values("今日(TWD)",ascending=False)
-    v=sub["現值(TWD)"].sum(); p=sub["損益(TWD)"].sum(); t=sub["今日(TWD)"].sum()
-    pcolor="🟢" if p>=0 else "🔴"
-    with st.expander(f"{pcolor} {plat}　市值 NT${v:,}　今日 {t:+,}　累積損益 {p:+,}"):
-        st.dataframe(style_t(sub),use_container_width=True,hide_index=True)
+    render_platform_detail(df, plat)
 
 # ── Finviz + 個股圖 ───────────────────────────────────
 st.divider()
