@@ -1,6 +1,5 @@
 streamlit
-playwright
-requests
 pandas
-yfinance
-pycoingecko
+plotly
+openpyxl
+requests
