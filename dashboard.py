@@ -530,21 +530,83 @@ def fetch_tw_quotes() -> dict:
         time.sleep(0.2)
     return result
 
+# CoinGecko ID 對照表（symbol → coingecko_id）
+CG_ID_MAP = {
+    "BTC":  "bitcoin",
+    "ETH":  "ethereum",
+    "BNB":  "binancecoin",
+    "SOL":  "solana",
+    "DOGE": "dogecoin",
+    "ADA":  "cardano",
+    "AVAX": "avalanche-2",
+    "LINK": "chainlink",
+    "DOT":  "polkadot",
+    "MATIC":"matic-network",
+    "UNI":  "uniswap",
+    "ARKM": "arkham",
+    "SUI":  "sui",
+    "INJ":  "injective-protocol",
+    "TIA":  "celestia",
+    "SEI":  "sei-network",
+}
+
+# 加密貨幣觀察清單
+CRYPTO_WATCHLIST = {
+    "BTC":  {"entry_zone":[78000, 92000], "target":130000, "stop":72000,
+             "theme":"數位黃金", "reason":"ETF 機構資金持續流入，減半後供應收緊，長期多頭結構，回 $78k~92k 可分批建倉"},
+    "SOL":  {"entry_zone":[120, 155],  "target":280,  "stop":100,
+             "theme":"高速公鏈", "reason":"DEX 交易量超越以太坊，手續費收入爆炸，Firedancer 升級在即，是以太坊最強挑戰者"},
+    "LINK": {"entry_zone":[12, 16],    "target":32,   "stop":10,
+             "theme":"預言機", "reason":"DeFi 基礎設施龍頭，與傳統金融（Swift、DTCC）合作，跨鏈互操作需求持續增長"},
+    "AVAX": {"entry_zone":[22, 30],    "target":55,   "stop":18,
+             "theme":"L1/企業鏈", "reason":"Avalanche9000 升級大幅降低 L1 建鏈成本，機構與遊戲生態快速擴展"},
+    "INJ":  {"entry_zone":[15, 22],    "target":50,   "stop":12,
+             "theme":"DeFi/衍生品", "reason":"鏈上衍生品龍頭，TVL 持續成長，機構級 DeFi 首選，回調到 $15~22 可布局"},
+    "SUI":  {"entry_zone":[2.5, 3.5],  "target":8,    "stop":2.0,
+             "theme":"新興L1", "reason":"Move 語言生態，三星 Galaxy 預裝錢包，用戶增速最快的 L1 之一，高風險高潛力"},
+    "DOGE": {"entry_zone":[0.15, 0.22],"target":0.45, "stop":0.12,
+             "theme":"迷因/馬斯克", "reason":"X 支付整合預期，馬斯克效應，迷因幣龍頭；純投機，嚴控倉位 5% 以內"},
+    "TIA":  {"entry_zone":[3.5, 5.0],  "target":12,   "stop":2.8,
+             "theme":"模組化區塊鏈", "reason":"資料可用層（DA）龍頭，Rollup 擴展需求直接受益，低市值高潛力小倉"},
+}
+
 @st.cache_data(ttl=60)
 def fetch_crypto() -> dict:
-    url = ("https://api.coingecko.com/api/v3/simple/price"
-           "?ids=ethereum,cardano,arkham&vs_currencies=usd&include_24hr_change=true")
+    # 持倉幣種 + 觀察清單全部一次查
+    held_ids  = [v[0] for v in PIONEX_CRYPTO.values()]
+    watch_ids = [CG_ID_MAP[s] for s in CRYPTO_WATCHLIST if s in CG_ID_MAP]
+    all_ids   = list(dict.fromkeys(held_ids + watch_ids))
+    url = ("https://api.coingecko.com/api/v3/simple/price?ids="
+           + ",".join(all_ids)
+           + "&vs_currencies=usd&include_24hr_change=true&include_market_cap=true")
     try:
         req = urllib.request.Request(url, headers={"User-Agent":"portfolio/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as r:
+        with urllib.request.urlopen(req, timeout=12) as r:
             d = json.loads(r.read())
-        return {
-            "ETH":  {"price":d["ethereum"]["usd"],"chg_pct":d["ethereum"].get("usd_24h_change",0),"prev":d["ethereum"]["usd"]/(1+d["ethereum"].get("usd_24h_change",0)/100)},
-            "ADA":  {"price":d["cardano"]["usd"],  "chg_pct":d["cardano"].get("usd_24h_change",0), "prev":d["cardano"]["usd"]/(1+d["cardano"].get("usd_24h_change",0)/100)},
-            "ARKM": {"price":d["arkham"]["usd"],   "chg_pct":d["arkham"].get("usd_24h_change",0),  "prev":d["arkham"]["usd"]/(1+d["arkham"].get("usd_24h_change",0)/100)},
-        }
     except:
-        return {k:{"price":0.0,"prev":0.0,"chg_pct":0.0} for k in ["ETH","ADA","ARKM"]}
+        d = {}
+    result = {}
+    # symbol → coingecko_id 反查
+    id_to_sym = {v: k for k, v in CG_ID_MAP.items()}
+    # 持倉幣種（用 PIONEX_CRYPTO 的 symbol）
+    for sym, (cg_id, _, _) in PIONEX_CRYPTO.items():
+        rec = d.get(cg_id, {})
+        price = rec.get("usd", 0.0)
+        chg   = rec.get("usd_24h_change", 0.0) or 0.0
+        prev  = price / (1 + chg / 100) if chg != -100 else price
+        result[sym] = {"price": price, "prev": prev, "chg_pct": chg,
+                       "mcap": rec.get("usd_market_cap", 0)}
+    # 觀察清單幣種
+    for sym, cg_id in CG_ID_MAP.items():
+        if sym in result:
+            continue
+        rec = d.get(cg_id, {})
+        price = rec.get("usd", 0.0)
+        chg   = rec.get("usd_24h_change", 0.0) or 0.0
+        prev  = price / (1 + chg / 100) if chg != -100 else price
+        result[sym] = {"price": price, "prev": prev, "chg_pct": chg,
+                       "mcap": rec.get("usd_market_cap", 0)}
+    return result
 
 @st.cache_data(ttl=300)
 def fetch_pionex_bal() -> dict:
@@ -1043,6 +1105,117 @@ def render_insider_trading(held_syms):
 
 
 # ════════════════════════════════════════════════════
+# 加密貨幣追蹤 + 觀察清單
+# ════════════════════════════════════════════════════
+def render_crypto_dashboard(cry_q: dict, exrate: float):
+    st.header("🪙 加密貨幣追蹤")
+
+    # ── 持倉幣種即時行情 ──────────────────────────────
+    st.subheader("📡 持倉幣種行情")
+    held_coins = list(PIONEX_CRYPTO.keys()) + ["BTC"]
+    n = len(held_coins)
+    cols = st.columns(min(n, 4))
+    for i, sym in enumerate(held_coins):
+        q = cry_q.get(sym, {})
+        price = q.get("price", 0)
+        chg   = q.get("chg_pct", 0)
+        mcap  = q.get("mcap", 0)
+        c = cols[i % 4]
+        c.metric(sym, f"${price:,.4f}" if price < 1 else f"${price:,.2f}", f"{chg:+.2f}%")
+        if mcap:
+            c.caption(f"市值 ${mcap/1e9:.1f}B")
+
+    st.divider()
+
+    # ── 觀察清單 ──────────────────────────────────────
+    st.subheader("👀 幣種觀察清單")
+    wl_rows = []
+    for sym, info in CRYPTO_WATCHLIST.items():
+        q     = cry_q.get(sym, {})
+        price = q.get("price", 0)
+        chg   = q.get("chg_pct", 0)
+        lo, hi = info["entry_zone"]
+        target = info["target"]
+
+        if price == 0:    status = "❓"
+        elif price <= lo: status = "🟢 進場！"
+        elif price <= hi: status = "🟡 接近"
+        elif (price - hi) / hi * 100 <= 15: status = "🔵 觀察"
+        else:             status = "⚪ 等待"
+
+        upside = (target - price) / price * 100 if price else 0
+        pct_away = f"+{(price-hi)/hi*100:.0f}%" if price > hi else "✓進場區"
+        price_fmt = f"${price:,.4f}" if price < 1 else f"${price:,.2f}"
+        target_fmt = f"${target:,.4f}" if target < 1 else f"${target:,.0f}"
+        lo_fmt = f"${lo:,.4f}" if lo < 1 else f"${lo:,.0f}"
+        hi_fmt = f"${hi:,.4f}" if hi < 1 else f"${hi:,.0f}"
+
+        wl_rows.append({
+            "狀態":   status,
+            "幣種":   sym,
+            "主題":   info["theme"],
+            "現價":   price_fmt,
+            "今日":   f"{chg:+.1f}%",
+            "進場區": f"{lo_fmt}~{hi_fmt}",
+            "距進場": pct_away,
+            "目標":   target_fmt,
+            "潛力":   f"+{upside:.0f}%",
+            "停損":   f"${info['stop']:,.0f}" if info['stop'] >= 1 else f"${info['stop']:.4f}",
+            "邏輯":   info["reason"],
+        })
+
+    wl_df = pd.DataFrame(wl_rows)
+    ready = wl_df[wl_df["狀態"].str.contains("進場！", na=False)]
+    near  = wl_df[wl_df["狀態"].str.contains("接近",  na=False)]
+    if not ready.empty: st.success(f"🟢 已進場區：{', '.join(ready['幣種'])}")
+    if not near.empty:  st.warning(f"🟡 接近進場：{', '.join(near['幣種'])}")
+
+    def _color_crypto(val):
+        if "進場！" in str(val): return "background:#14532d;color:#86efac"
+        if "接近"   in str(val): return "background:#713f12;color:#fde68a"
+        return ""
+
+    st.dataframe(wl_df.style.map(_color_crypto, subset=["狀態"]),
+                 use_container_width=True, hide_index=True)
+
+    # ── 詳細卡片（展開） ──────────────────────────────
+    with st.expander("📋 觀察清單詳細分析"):
+        for sym, info in CRYPTO_WATCHLIST.items():
+            q     = cry_q.get(sym, {})
+            price = q.get("price", 0)
+            chg   = q.get("chg_pct", 0)
+            lo, hi = info["entry_zone"]
+            target = info["target"]
+            upside = (target - price) / price * 100 if price else 0
+            tc = "#22c55e" if chg >= 0 else "#ef4444"
+            price_fmt = f"${price:,.4f}" if price < 1 else f"${price:,.2f}"
+
+            in_zone = price <= hi
+            border = "#22c55e" if price <= lo else ("#f59e0b" if price <= hi else "#334155")
+            badge = "🟢 已進場區" if price <= lo else ("🟡 接近進場" if price <= hi else "⚪ 等待")
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-radius:8px;padding:14px;margin:6px 0;border-left:4px solid {border}">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+    <div>
+      <span style="font-size:17px;font-weight:bold">{sym}</span>
+      <span style="background:#1e293b;color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:12px;margin-left:8px">{info['theme']}</span>
+      <span style="margin-left:8px;font-size:12px">{badge}</span>
+    </div>
+    <div style="text-align:right">
+      <span style="font-size:18px;font-weight:bold">{price_fmt}</span>
+      <span style="color:{tc};margin-left:8px">{chg:+.2f}%</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:24px;margin-top:8px;font-size:13px;flex-wrap:wrap">
+    <span>進場區 <b>${lo:g} ~ ${hi:g}</b></span>
+    <span>目標 <b style="color:#22c55e">${target:g}</b></span>
+    <span>潛力 <b style="color:#22c55e">+{upside:.0f}%</b></span>
+    <span>停損 <b style="color:#ef4444">${info['stop']:g}</b></span>
+  </div>
+  <p style="color:#94a3b8;font-size:13px;margin:8px 0 0">{info['reason']}</p>
+</div>""", unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════
 # 主畫面
 # ════════════════════════════════════════════════════
 st.title("📊 Jim 投資全視界")
@@ -1497,6 +1670,10 @@ components.html(TV_HEATMAP, height=420)
 st.divider()
 _held_syms = list(set(df["標的"].str.split("→").str[-1].tolist()))
 render_insider_trading(_held_syms)
+
+# ── 加密貨幣追蹤 + 觀察清單 ───────────────────────────
+st.divider()
+render_crypto_dashboard(cry_q, _exrate)
 
 # ── 撿漏監控 ─────────────────────────────────────────
 st.divider()
