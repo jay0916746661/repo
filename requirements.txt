@@ -1,0 +1,6 @@
+streamlit
+playwright
+requests
+pandas
+yfinance
+pycoingecko

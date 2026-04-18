@@ -1,0 +1,22 @@
+# 敏感 / 個人資料
+.env
+fb_cookies.json
+holdings.json
+portfolio_history.csv
+deals.json
+data/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Claude / 工具
+.claude/
+.clawhub/

@@ -1,0 +1,62 @@
+name: FB Marketplace 撿漏自動掃描
+
+on:
+  schedule:
+    # 每 30 分鐘執行一次（UTC 時間）
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    # 允許在 GitHub Actions 頁面手動點擊執行
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 允許 commit deals.json 回 repo
+
+    steps:
+      - name: Checkout 代碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 安裝 Python 套件
+        run: pip install playwright requests
+
+      - name: 安裝 Playwright 瀏覽器
+        run: playwright install chromium --with-deps
+
+      - name: 寫入 FB Cookies（從 GitHub Secrets）
+        # 若尚未設定 FB_COOKIES，此步驟會被跳過
+        if: ${{ secrets.FB_COOKIES != '' }}
+        run: echo '${{ secrets.FB_COOKIES }}' > fb_cookies.json
+
+      - name: 寫入 Line Notify Token（從 GitHub Secrets）
+        env:
+          LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+        run: echo "LINE_NOTIFY_TOKEN 已設定"
+
+      - name: 執行撿漏爬蟲
+        env:
+          LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+        run: python fb_scraper.py
+
+      - name: 刪除 Cookies 暫存檔
+        if: always()
+        run: rm -f fb_cookies.json
+
+      - name: Commit 掃描結果到 repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add deals.json
+          # 只有在 deals.json 有變動時才 commit
+          if git diff --staged --quiet; then
+            echo "deals.json 無變動，跳過 commit"
+          else
+            git commit -m "chore: update deals.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+            git push
+          fi
