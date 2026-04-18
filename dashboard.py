@@ -135,6 +135,56 @@ def load_firstrade_from_excel() -> dict:
         return FIRSTRADE
 
 # ════════════════════════════════════════════════════
+# 派網 API helper（需在 sidebar 前定義）
+# ════════════════════════════════════════════════════
+@st.cache_data(ttl=300)
+def _pionex_get(path: str, params: dict = {}) -> dict:
+    """Pionex HMAC-SHA256 GET helper, returns raw JSON dict"""
+    ts = str(int(time.time() * 1000))
+    p  = {**params, "timestamp": ts}
+    q  = urllib.parse.urlencode(sorted(p.items()))
+    sig = hmac.new(PIONEX_SECRET.encode("utf-8"),
+                   f"GET{path}?{q}".encode("utf-8"),
+                   hashlib.sha256).hexdigest()
+    req = urllib.request.Request(
+        f"https://api.pionex.com{path}?{q}",
+        headers={"PIONEX-KEY": PIONEX_KEY,
+                 "PIONEX-SIGNATURE": sig,
+                 "PIONEX-TIMESTAMP": ts,
+                 "User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        return json.loads(r.read())
+
+
+@st.cache_data(ttl=60)
+def fetch_pionex_bal() -> dict:
+    """Returns coin→qty dict + "_ok" bool + "_error" str + "_prices" coin→USD price"""
+    try:
+        data = _pionex_get("/api/v1/account/balances")
+        if not data.get("result"):
+            return {"_ok": False, "_error": data.get("message", "API 回傳 result=false")}
+        bals = data.get("data", {}).get("balances", [])
+        result = {b["coin"]: float(b.get("free", 0)) + float(b.get("frozen", 0))
+                  for b in bals
+                  if float(b.get("free", 0)) + float(b.get("frozen", 0)) > 0.0001}
+        result["_ok"] = True
+        prices = {}
+        for coin in list(result.keys()):
+            if coin.startswith("_") or coin == "USDT":
+                continue
+            try:
+                td = _pionex_get("/api/v1/market/tickers", {"symbol": f"{coin}_USDT"})
+                px = float(td["data"]["tickers"][0]["close"])
+                if px > 0:
+                    prices[coin] = px
+            except:
+                pass
+        result["_prices"] = prices
+        return result
+    except Exception as e:
+        return {"_ok": False, "_error": str(e), "_prices": {}}
+
+# ════════════════════════════════════════════════════
 # 即時匯率（需在 sidebar 前定義）
 # ════════════════════════════════════════════════════
 @st.cache_data(ttl=300)
@@ -641,55 +691,6 @@ def fetch_crypto() -> dict:
         prev  = price / (1 + chg / 100) if chg != -100 and price else price
         result[sym] = {"price": price, "prev": prev, "chg_pct": chg}
     return result
-
-@st.cache_data(ttl=300)
-def _pionex_get(path: str, params: dict = {}) -> dict:
-    """Pionex HMAC-SHA256 GET helper, returns raw JSON dict"""
-    ts = str(int(time.time() * 1000))
-    p  = {**params, "timestamp": ts}
-    q  = urllib.parse.urlencode(sorted(p.items()))
-    sig = hmac.new(PIONEX_SECRET.encode("utf-8"),
-                   f"GET{path}?{q}".encode("utf-8"),
-                   hashlib.sha256).hexdigest()
-    req = urllib.request.Request(
-        f"https://api.pionex.com{path}?{q}",
-        headers={"PIONEX-KEY": PIONEX_KEY,
-                 "PIONEX-SIGNATURE": sig,
-                 "PIONEX-TIMESTAMP": ts,
-                 "User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read())
-
-
-@st.cache_data(ttl=60)
-def fetch_pionex_bal() -> dict:
-    """Returns coin→qty dict + "_ok" bool + "_error" str + "_prices" coin→USD price"""
-    try:
-        data = _pionex_get("/api/v1/account/balances")
-        if not data.get("result"):
-            return {"_ok": False, "_error": data.get("message", "API 回傳 result=false")}
-        bals = data.get("data", {}).get("balances", [])
-        result = {b["coin"]: float(b.get("free", 0)) + float(b.get("frozen", 0))
-                  for b in bals
-                  if float(b.get("free", 0)) + float(b.get("frozen", 0)) > 0.0001}
-        result["_ok"] = True
-
-        # 抓各 Token 的 Pionex 市場價格（ORCLX_USDT, TSLAX_USDT 等）
-        prices = {}
-        for coin in list(result.keys()):
-            if coin.startswith("_") or coin == "USDT":
-                continue
-            try:
-                td = _pionex_get("/api/v1/market/tickers", {"symbol": f"{coin}_USDT"})
-                px = float(td["data"]["tickers"][0]["close"])
-                if px > 0:
-                    prices[coin] = px
-            except:
-                pass
-        result["_prices"] = prices
-        return result
-    except Exception as e:
-        return {"_ok": False, "_error": str(e), "_prices": {}}
 
 @st.cache_data(ttl=300)
 def fetch_technicals(sym: str) -> dict:
