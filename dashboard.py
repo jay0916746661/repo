@@ -2338,7 +2338,45 @@ def _save_resale(items):
 
 _resale_items = _load_resale()
 st.divider()
-st.header("🧴 撿漏轉賣追蹤")
+_rc1, _rc2 = st.columns([4,1])
+_rc1.header("🧴 撿漏轉賣追蹤")
+
+# ── 新增品項表單 ───────────────────────────────────────
+with st.expander("➕ 新增品項", expanded=(len(_resale_items) == 0)):
+    _nc1, _nc2, _nc3 = st.columns(3)
+    with _nc1:
+        _n_name     = st.text_input("品名", placeholder="LOEWE 小黃瓜蠟燭 170g", key="rn_name")
+        _n_brand    = st.text_input("品牌", placeholder="LOEWE / Diptyque...", key="rn_brand")
+        _n_category = st.selectbox("類別", ["香氛蠟燭","香水","保養品","包包","其他"], key="rn_cat")
+    with _nc2:
+        _n_cost     = st.number_input("入手成本 NT$", min_value=0, step=100, key="rn_cost")
+        _n_market   = st.number_input("市場行情 NT$（專櫃/市價）", min_value=0, step=100, key="rn_market")
+        _n_suggest  = st.number_input("建議售價 NT$", min_value=0, step=100, key="rn_suggest")
+    with _nc3:
+        _n_note     = st.text_area("備註", placeholder="限量款、全新有盒...", height=80, key="rn_note")
+        _n_date     = st.date_input("入手日期", value=date.today(), key="rn_date")
+        if st.button("✅ 新增", type="primary", key="rn_add"):
+            if _n_name.strip():
+                _new_id = max((i["id"] for i in _resale_items), default=0) + 1
+                _resale_items.append({
+                    "id": _new_id,
+                    "name": _n_name.strip(),
+                    "brand": _n_brand.strip(),
+                    "category": _n_category,
+                    "cost": int(_n_cost),
+                    "market_price": int(_n_market),
+                    "suggest_price": int(_n_suggest),
+                    "status": "待售",
+                    "platform": "",
+                    "sold_price": 0,
+                    "note": _n_note.strip(),
+                    "acquired_date": _n_date.isoformat(),
+                })
+                _save_resale(_resale_items)
+                st.success(f"✅ 已新增：{_n_name.strip()}")
+                st.rerun()
+            else:
+                st.warning("請填寫品名")
 
 if _resale_items:
     _ri_df = pd.DataFrame(_resale_items)
@@ -2401,14 +2439,30 @@ if _resale_items:
             _new_platform = st.text_input("平台", value=_ri.get("platform",""),
                                           placeholder="蝦皮/社團...",
                                           key=f"rs_plat_{_ri['id']}")
-            _new_sold = st.number_input("實際售價", value=int(_ri.get("sold_price",0)),
-                                        step=100, key=f"rs_sold_{_ri['id']}")
+            _ce1, _ce2 = st.columns(2)
+            _new_cost    = _ce1.number_input("成本", value=int(_ri.get("cost",0)),    step=100, key=f"rs_cost_{_ri['id']}")
+            _new_market  = _ce2.number_input("行情", value=int(_ri.get("market_price",0)), step=100, key=f"rs_mkt_{_ri['id']}")
+            _new_suggest = _ce1.number_input("售價", value=int(_ri.get("suggest_price",0)), step=100, key=f"rs_sug_{_ri['id']}")
+            _new_sold    = _ce2.number_input("實售", value=int(_ri.get("sold_price",0)),   step=100, key=f"rs_sold_{_ri['id']}")
+            _del_btn = st.button("🗑️ 刪除", key=f"rs_del_{_ri['id']}", type="secondary")
+
+            if _del_btn:
+                _resale_items = [i for i in _resale_items if i["id"] != _ri["id"]]
+                _save_resale(_resale_items)
+                st.rerun()
+
             if (_new_status != _ri["status"] or
                 _new_platform != _ri.get("platform","") or
-                _new_sold != _ri.get("sold_price",0)):
-                _ri["status"] = _new_status
-                _ri["platform"] = _new_platform
-                _ri["sold_price"] = _new_sold
+                _new_cost    != _ri.get("cost", 0) or
+                _new_market  != _ri.get("market_price", 0) or
+                _new_suggest != _ri.get("suggest_price", 0) or
+                _new_sold    != _ri.get("sold_price", 0)):
+                _ri["status"]        = _new_status
+                _ri["platform"]      = _new_platform
+                _ri["cost"]          = int(_new_cost)
+                _ri["market_price"]  = int(_new_market)
+                _ri["suggest_price"] = int(_new_suggest)
+                _ri["sold_price"]    = int(_new_sold)
                 _resale_changed = True
 
     if _resale_changed:
