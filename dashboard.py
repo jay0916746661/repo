@@ -944,6 +944,7 @@ def _load_review_history() -> pd.DataFrame:
     return df.sort_values("date", ascending=False)
 
 
+@st.fragment
 def render_daily_system():
     st.header("🔄 24H 人生重啟系統")
     st.caption("核心：改變人生不靠意志力，靠修復大腦「反饋迴路」，讓大腦重新體驗「我贏了」的感覺")
@@ -1162,6 +1163,7 @@ def _upgrade_done_today() -> bool:
         return False
 
 
+@st.fragment
 def render_daily_upgrade(df=None, cry_q: dict = {}):
     st.header("⚡ 每日升級計畫")
 
@@ -1501,6 +1503,7 @@ def _load_scraper_config():
         return {}
 
 
+@st.fragment
 def render_research_notes():
     st.header("📺 YouTube 研究筆記")
 
@@ -1661,6 +1664,7 @@ def render_research_notes():
 # ════════════════════════════════════════════════════
 # 加密貨幣追蹤 + 觀察清單
 # ════════════════════════════════════════════════════
+@st.fragment
 def render_crypto_dashboard(cry_q: dict, exrate: float):
     st.header("🪙 加密貨幣追蹤")
 
@@ -2318,7 +2322,6 @@ except Exception as _rr_err:
     st.error(f"研究筆記載入失敗：{_rr_err}")
 
 # ── 轉賣追蹤 ─────────────────────────────────────────
-st.divider()
 _RESALE_FILE = os.path.join(os.path.dirname(__file__), "data", "resale_items.json")
 
 def _load_resale():
@@ -2334,7 +2337,7 @@ def _save_resale(items):
         json.dump(items, f, ensure_ascii=False, indent=2)
 
 _resale_items = _load_resale()
-
+st.divider()
 st.header("🧴 撿漏轉賣追蹤")
 
 if _resale_items:
