@@ -3236,17 +3236,39 @@ with tab6:
     os.makedirs(_covers_dir, exist_ok=True)
 
     # ── 載入書單（Drive + 本機合併）────────
+    import hashlib as _hl
+    def _stable_key(b):
+        """從 title 產生穩定 8 碼 hex，作為 Streamlit widget key"""
+        return _hl.md5(b.get("title","").encode()).hexdigest()[:8]
+
+    def _normalize_book(b, source="drive"):
+        """統一 books.json / local_books.json 的欄位格式"""
+        title = b.get("title","")
+        return {
+            "id":          b.get("id") or _stable_key(b),
+            "title":       title,
+            "author":      b.get("author",""),
+            "category":    b.get("category","其他"),
+            "drive_id":    b.get("drive_id",""),
+            "local_path":  b.get("local_path",""),
+            "cover_path":  b.get("cover_path",""),
+            "status":      b.get("status","待讀"),
+            "tags":        b.get("tags",[]),
+            "added_date":  b.get("added_date",""),
+            "folder":      b.get("folder") or b.get("shelf",""),
+            "_source":     source,
+        }
+
     def _load_all_books():
-        drive_books = []
-        local_books = []
+        drive_books, local_books = [], []
         try:
-            with open(_books_file, encoding="utf-8") as _f:
-                drive_books = json.load(_f)
+            raw = json.load(open(_books_file, encoding="utf-8"))
+            drive_books = [_normalize_book(b, "drive") for b in raw]
         except Exception:
             pass
         try:
-            with open(_local_file, encoding="utf-8") as _f:
-                local_books = json.load(_f)
+            raw = json.load(open(_local_file, encoding="utf-8"))
+            local_books = [_normalize_book(b, "local") for b in raw]
         except Exception:
             pass
         # 合併：以書名去重，Drive 版優先
@@ -3255,7 +3277,7 @@ with tab6:
             if b["title"] not in seen:
                 seen[b["title"]] = b
         merged = list(seen.values())
-        merged.sort(key=lambda b: b.get("added_date", ""), reverse=True)
+        merged.sort(key=lambda b: b.get("added_date",""), reverse=True)
         return merged, drive_books, local_books
 
     _books, _drive_books, _local_books_list = _load_all_books()
@@ -3417,9 +3439,10 @@ with tab6:
     import base64 as _b64
 
     _sq_v   = _sq.strip().lower() if _sq else ""
+    _sf_val = _sf if _sf else "全部"
     _fbooks = [b for b in _books
-               if (_sf == "全部" or b.get("status") == _sf)
-               and (_cf == "全部分類" or b.get("category") == _cf)
+               if (_sf_val == "全部" or b.get("status","待讀") == _sf_val)
+               and (_cf == "全部分類" or b.get("category","其他") == _cf)
                and (not _sq_v or _sq_v in b.get("title","").lower()
                     or _sq_v in (b.get("author","") or "").lower())]
 
@@ -3498,7 +3521,7 @@ with tab6:
                            f'<span class="bk-src">{_open_lbl}</span>')
 
                 with _rcols[_ci]:
-                    _bid_key = str(_b.get('id',''))
+                    _bid_key = _stable_key(_b)   # 穩定 8碼 hex，不會重複
                     st.markdown(f"""
 <div class="bk-card">
   {_cov_html}
@@ -3520,15 +3543,15 @@ with tab6:
                                          key=f"bst_{_bid_key}", label_visibility="collapsed")
                     if _nst != _bst:
                         _b["status"] = _nst
-                        # 更新對應的 json
-                        if _is_drive:
+                        # 更新對應的 json（用 title 比對，因 Drive 書可能無 id）
+                        if _b.get("_source") == "drive":
                             _tgt_file = _books_file
                             _tgt_list = _drive_books
                         else:
                             _tgt_file = _local_file
                             _tgt_list = _local_books_list
                         for _tb in _tgt_list:
-                            if str(_tb.get("id","")) == _bid_key:
+                            if _tb.get("title") == _b["title"]:
                                 _tb["status"] = _nst
                                 break
                         with open(_tgt_file,"w",encoding="utf-8") as _bw:
