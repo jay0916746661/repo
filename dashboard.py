@@ -2477,15 +2477,30 @@ Jim 的目標：2026年底存到 20 萬 TWD 可投資資金，目前專注美股
             st.rerun()
 
 # ════════════════════════════════════════════════════
-# 4 個分頁
+# 4 個核心分頁
 # ════════════════════════════════════════════════════
-tab1, tab2, tab3, tab4, tab_fincept, tab5, tab6, tab_dispatch = st.tabs(["📈 投資", "🧠 生活系統", "🛍️ 撿漏轉賣", "🔬 研究", "🖥️ 市場研究", "🗺️ AI學習地圖", "📚 書庫", "🧭 派遣台"])
+tab_home, tab_ai, tab_invest, tab_biz = st.tabs(["🌅 今日總覽", "🧠 AI 練功場", "📈 投資", "💼 業務"])
 
 # ══════════════════════════════════════════
-# TAB 1 — 投資
+# TAB — 今日總覽
 # ══════════════════════════════════════════
-with tab1:
-    # ── 警報區 ────────────────────────────
+_CRM_FILE = os.path.join(os.path.dirname(__file__), "data", "clients.json")
+
+def _load_clients():
+    try:
+        if os.path.exists(_CRM_FILE):
+            return json.load(open(_CRM_FILE, encoding="utf-8"))
+    except Exception:
+        pass
+    return []
+
+def _save_clients(data):
+    os.makedirs(os.path.dirname(_CRM_FILE), exist_ok=True)
+    with open(_CRM_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+with tab_home:
+    # ── 警報 ──────────────────────────────
     if danger_list or entry_list:
         if entry_list:
             st.success("🚀 **急需入場警報**")
@@ -2497,6 +2512,46 @@ with tab1:
                 st.markdown(f'<div class="alert-danger">{a}</div>', unsafe_allow_html=True)
         st.divider()
 
+    # ── 投資組合快覽 ──────────────────────
+    render_status_bar(df, _exrate)
+    st.divider()
+
+    # ── 今日 AI 任務 ──────────────────────
+    render_daily_upgrade(df, cry_q)
+    st.divider()
+
+    # ── 客戶跟進提醒 ──────────────────────
+    _home_clients = _load_clients()
+    _today_str = date.today().isoformat()
+    _due = [c for c in _home_clients if c.get("next_date","") <= _today_str and not c.get("done_today")]
+    if _due:
+        st.subheader(f"📞 今日客戶跟進（{len(_due)} 筆）")
+        for _cl in _due:
+            _stage_color = {"待接觸":"#6c6c78","已聯繫":"#3b82f6","有興趣":"#22c55e","報價中":"#f59e0b","成交":"#8b5cf6","長期客戶":"#ec4899"}.get(_cl.get("stage",""),"#6c6c78")
+            st.markdown(
+                f"<div style='background:#1a1a20;border-radius:8px;padding:10px 14px;margin:4px 0;border-left:3px solid {_stage_color}'>"
+                f"<span style='font-weight:700'>{_cl['name']}</span> "
+                f"<span style='font-size:11px;background:{_stage_color}22;color:{_stage_color};padding:1px 7px;border-radius:99px'>{_cl.get('stage','')}</span> "
+                f"<span style='font-size:12px;color:#94a3b8'>→ {_cl.get('next_action','')}</span>"
+                f"</div>", unsafe_allow_html=True)
+    else:
+        st.info("✅ 今日無待跟進客戶")
+    st.divider()
+
+    # ── 快速 AI 派遣 ──────────────────────
+    st.subheader("🧭 快速派遣")
+    _hq_text = st.text_input("有問題？輸入後自動推薦用哪個 AI", placeholder="例如：為什麼 BTC 跌了？", key="home_quick_q")
+    if _hq_text:
+        _hq_ai, _hq_icon, _hq_reason = _route_question(_hq_text)
+        _hq_color = _AI_COLORS.get(_hq_ai, "#94a3b8")
+        st.markdown(f"<div style='background:#1a1a20;border-radius:8px;padding:12px 16px;border-left:4px solid {_hq_color}'>"
+                    f"<span style='font-size:15px;font-weight:700;color:{_hq_color}'>{_hq_icon} {_hq_ai}</span><br>"
+                    f"<span style='font-size:13px;color:#94a3b8'>{_hq_reason}</span></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# TAB — 投資
+# ══════════════════════════════════════════
+with tab_invest:
     # ── 今日狀態列 ────────────────────────
     render_status_bar(df, _exrate)
     st.divider()
@@ -2845,20 +2900,17 @@ with tab1:
     # ── 加密貨幣追蹤 ──────────────────────
     render_crypto_dashboard(cry_q, _exrate)
 
-# ══════════════════════════════════════════
-# TAB 2 — 生活系統
-# ══════════════════════════════════════════
-with tab2:
-    render_daily_upgrade(df, cry_q)
+with tab_invest:
     st.divider()
     render_daily_system()
 
 # ══════════════════════════════════════════
-# TAB 3 — 撿漏轉賣
+# 撿漏轉賣 → 移到 投資 expander
 # ══════════════════════════════════════════
-with tab3:
-    _resale_items = _load_resale()
-    st.header("🧴 撿漏轉賣追蹤")
+with tab_invest:
+    with st.expander("🛍️ 撿漏轉賣追蹤", expanded=False):
+        _resale_items = _load_resale()
+        st.subheader("🧴 撿漏轉賣追蹤")
 
     with st.expander("➕ 新增品項", expanded=(len(_resale_items) == 0)):
         _nc1, _nc2, _nc3 = st.columns(3)
@@ -3057,9 +3109,9 @@ with tab3:
             st.write("config.json 未找到監控清單")
 
 # ══════════════════════════════════════════
-# TAB 4 — 研究
+# TAB — AI 練功場（主要內容）
 # ══════════════════════════════════════════
-with tab4:
+with tab_ai:
     render_ai_chat(df, tw_q, cry_q, _exrate)
     st.divider()
     render_decision_journal()
@@ -3145,9 +3197,9 @@ def _fincept_news(topic: str, lang: str = "zh-Hant", country: str = "TW", n: int
     except Exception:
         return []
 
-with tab_fincept:
-    st.header("🖥️ 市場研究終端機")
-    st.caption("Powered by Fincept Terminal · 即時行情 + 加密幣 + 財經新聞")
+if False:  # 市場研究已移除
+    pass
+if False:
 
     _fc_sub = st.radio("選擇模組", ["🌍 全球指數", "📈 個股K線", "🪙 加密貨幣", "📰 財經新聞"],
                        horizontal=True, label_visibility="collapsed", key="fc_sub")
@@ -3286,9 +3338,10 @@ with tab_fincept:
         st.caption("資料來源：Google News · 每 10 分鐘更新")
 
 # ══════════════════════════════════════════
-# TAB 5 — AI 學習地圖
+# AI 練功場 — 學習地圖區塊
 # ══════════════════════════════════════════
-with tab5:
+with tab_ai:
+    st.divider()
     st.header("🗺️ Jim 的 AI 槓桿學習地圖")
     st.caption("目標：一年內透過 AI 開始盈利或槓桿 · 更新於 2026-04-22")
 
@@ -3441,10 +3494,9 @@ with tab5:
         with _tc2:
             st.markdown(f"<div style='padding-top:20px;text-align:center'>{_badge}</div>", unsafe_allow_html=True)
 
-# ══════════════════════════════════════════
-# TAB 6 — 書庫
-# ══════════════════════════════════════════
-with tab6:
+if False:  # 書庫已移除
+    _dummy_tab6 = None
+if False:
     _books_file   = os.path.join(os.path.dirname(__file__), "data", "books.json")
     _local_file   = os.path.join(os.path.dirname(__file__), "data", "local_books.json")
     _covers_dir   = os.path.join(os.path.dirname(__file__), "data", "covers")
@@ -3903,8 +3955,9 @@ def _dispatch_smart_feed(top_cats: list) -> dict:
         pass
     return feeds
 
-with tab_dispatch:
-    st.header("🧭 AI 派遣台")
+with tab_ai:
+    st.divider()
+    st.header("🧭 AI 派遣 & 工具管理")
 
     _dp_sub = st.radio("", ["📋 派遣 & 待辦", "🕓 歷史記錄", "📊 分析", "📡 智慧推送", "📌 速查表"],
                        horizontal=True, label_visibility="collapsed", key="dp_sub")
@@ -4141,6 +4194,127 @@ with tab_dispatch:
         ]
         for _task, _ai_rec, _color in _rules:
             st.markdown(f"<div style='display:flex;gap:12px;align-items:center;padding:6px 0'><span style='font-size:13px;color:#94a3b8;min-width:160px'>{_task}</span><span style='font-size:13px;font-weight:600;color:{_color}'>→ {_ai_rec}</span></div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# TAB — 業務
+# ══════════════════════════════════════════
+_STAGES      = ["待接觸", "已聯繫", "有興趣", "報價中", "成交", "長期客戶"]
+_STAGE_COLOR = {"待接觸":"#6c6c78","已聯繫":"#3b82f6","有興趣":"#22c55e","報價中":"#f59e0b","成交":"#8b5cf6","長期客戶":"#ec4899"}
+
+with tab_biz:
+    st.header("💼 業務管理")
+    st.caption("客戶清單 · 跟進提醒 · AI 開發訊息生成")
+
+    _biz_sub = st.radio("", ["👥 客戶清單", "➕ 新增客戶", "✉️ AI 訊息生成"], horizontal=True, label_visibility="collapsed", key="biz_sub")
+
+    _clients = _load_clients()
+
+    # ── 客戶清單 ──────────────────────────
+    if _biz_sub == "👥 客戶清單":
+        if not _clients:
+            st.info("還沒有客戶，去「新增客戶」加入第一筆。")
+        else:
+            _stage_filter = st.multiselect("篩選階段", _STAGES, default=_STAGES, key="biz_filter")
+            _filtered_cl  = [c for c in _clients if c.get("stage") in _stage_filter]
+            st.caption(f"共 {len(_filtered_cl)} 位客戶")
+
+            for _ci, _cl in enumerate(_filtered_cl):
+                _sc = _STAGE_COLOR.get(_cl.get("stage",""), "#6c6c78")
+                _overdue = _cl.get("next_date","") <= date.today().isoformat() if _cl.get("next_date") else False
+                _border = "#ef4444" if _overdue else _sc
+                with st.expander(f"{_cl['name']} ── {_cl.get('stage','')} {'⚠️' if _overdue else ''}", expanded=_overdue):
+                    _be1, _be2, _be3 = st.columns(3)
+                    with _be1:
+                        _new_stage = st.selectbox("階段", _STAGES, index=_STAGES.index(_cl.get("stage","待接觸")) if _cl.get("stage") in _STAGES else 0, key=f"biz_stage_{_ci}")
+                        _new_contact = st.text_input("聯繫方式", value=_cl.get("contact",""), key=f"biz_contact_{_ci}")
+                    with _be2:
+                        _new_last = st.date_input("上次聯繫", value=date.fromisoformat(_cl["last_date"]) if _cl.get("last_date") else date.today(), key=f"biz_last_{_ci}")
+                        _new_next = st.date_input("下次跟進", value=date.fromisoformat(_cl["next_date"]) if _cl.get("next_date") else date.today(), key=f"biz_next_{_ci}")
+                    with _be3:
+                        _new_action = st.text_input("下次行動", value=_cl.get("next_action",""), key=f"biz_action_{_ci}")
+                        _new_note   = st.text_area("備註", value=_cl.get("note",""), height=68, key=f"biz_note_{_ci}")
+
+                    _bb1, _bb2 = st.columns([1, 1])
+                    with _bb1:
+                        if st.button("💾 更新", key=f"biz_save_{_ci}"):
+                            idx = _clients.index(_cl)
+                            _clients[idx].update({"stage": _new_stage, "contact": _new_contact,
+                                "last_date": _new_last.isoformat(), "next_date": _new_next.isoformat(),
+                                "next_action": _new_action, "note": _new_note})
+                            _save_clients(_clients); st.success("已更新！"); st.rerun()
+                    with _bb2:
+                        if st.button("🗑️ 刪除", key=f"biz_del_{_ci}", type="secondary"):
+                            _clients.remove(_cl); _save_clients(_clients); st.rerun()
+
+        st.divider()
+        # Pipeline 視覺化
+        st.subheader("📊 Pipeline 概覽")
+        from collections import Counter as _BizCtr
+        _stage_cnt = _BizCtr(c.get("stage","待接觸") for c in _clients)
+        _sp_cols = st.columns(len(_STAGES))
+        for _i, _s in enumerate(_STAGES):
+            _cnt = _stage_cnt.get(_s, 0)
+            _sc2 = _STAGE_COLOR[_s]
+            _sp_cols[_i].markdown(
+                f"<div style='background:#1a1a20;border-radius:8px;padding:10px;text-align:center;border-top:3px solid {_sc2}'>"
+                f"<div style='font-size:11px;color:{_sc2}'>{_s}</div>"
+                f"<div style='font-size:24px;font-weight:700'>{_cnt}</div></div>", unsafe_allow_html=True)
+
+    # ── 新增客戶 ──────────────────────────
+    elif _biz_sub == "➕ 新增客戶":
+        with st.form("add_client"):
+            _fc1, _fc2 = st.columns(2)
+            with _fc1:
+                _an_name    = st.text_input("客戶名稱 *", placeholder="XX 吉他教室")
+                _an_contact = st.text_input("聯繫方式",   placeholder="LINE @xxx / 電話")
+                _an_stage   = st.selectbox("目前階段", _STAGES)
+            with _fc2:
+                _an_action  = st.text_input("第一步行動", placeholder="傳訊息介紹 PRS 系列")
+                _an_next    = st.date_input("跟進日期", value=date.today())
+                _an_note    = st.text_area("備註", height=68)
+            if st.form_submit_button("➕ 新增", use_container_width=True):
+                if _an_name:
+                    _clients.append({"id": f"{int(time.time())}", "name": _an_name, "contact": _an_contact,
+                        "stage": _an_stage, "last_date": date.today().isoformat(),
+                        "next_date": _an_next.isoformat(), "next_action": _an_action, "note": _an_note})
+                    _save_clients(_clients); st.success(f"✅ 已新增 {_an_name}"); st.rerun()
+                else:
+                    st.error("請輸入客戶名稱")
+
+    # ── AI 訊息生成 ──────────────────────
+    elif _biz_sub == "✉️ AI 訊息生成":
+        st.subheader("✉️ AI 開發訊息生成")
+        _mg1, _mg2 = st.columns(2)
+        with _mg1:
+            _msg_target  = st.text_input("目標客戶類型", value="吉他工作室", placeholder="爵士吉他教室、錄音室")
+            _msg_product = st.text_input("主推商品", value="PRS / Gibson 電吉他", placeholder="Fender、Martin 木吉他")
+            _msg_tone    = st.selectbox("語氣", ["友善輕鬆", "專業正式", "簡短直接"])
+        with _mg2:
+            _msg_context = st.text_area("補充背景（可選）", height=100, placeholder="對方上次問過價格但沒回應...")
+        if st.button("🤖 生成訊息", use_container_width=True):
+            _msg_prompt = f"""你是一個台灣樂器業務，幫我寫一封開發訊息給「{_msg_target}」。
+主推商品：{_msg_product}
+語氣：{_msg_tone}
+背景：{_msg_context if _msg_context else '初次聯繫'}
+要求：繁體中文，100字內，自然不強迫，結尾留一個開放式問題。"""
+            try:
+                import anthropic as _ant2
+                _ak = st.secrets.get("ANTHROPIC_API_KEY","") or ""
+                if not _ak:
+                    try:
+                        _ak = json.load(open(os.path.join(os.path.dirname(__file__),"config.json"))).get("anthropic_api_key","")
+                    except Exception:
+                        pass
+                if _ak:
+                    _ac2 = _ant2.Anthropic(api_key=_ak)
+                    _mr  = _ac2.messages.create(model="claude-haiku-4-5-20251001", max_tokens=300,
+                                                messages=[{"role":"user","content":_msg_prompt}])
+                    st.markdown(f"<div style='background:#1a1a20;border-radius:10px;padding:16px;font-size:14px;line-height:1.8'>{_mr.content[0].text}</div>", unsafe_allow_html=True)
+                    st.caption("點擊訊息框內容可複製")
+                else:
+                    st.warning("請在 Streamlit Secrets 或 config.json 設定 ANTHROPIC_API_KEY")
+            except Exception as _me:
+                st.error(f"生成失敗：{_me}")
 
 st.divider()
 c1, c2 = st.columns([1, 5])
