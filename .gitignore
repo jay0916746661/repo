@@ -6,6 +6,9 @@ portfolio_history.csv
 deals.json
 data/
 !data/resale_items.json
+!data/books.json
+!data/local_books.json
+!data/ai_tools_feed.json
 *.log
 
 # Python

@@ -17,17 +17,181 @@ st.set_page_config(page_title="Jim 投資全視界", layout="wide",
                    page_icon="📊", initial_sidebar_state="expanded")
 st.markdown("""
 <style>
-[data-testid="metric-container"]{background:#1e1e2e;border-radius:10px;padding:12px}
-.stTabs [data-baseweb="tab"]{font-size:15px}
-.alert-danger{background:#3b0000;border-left:4px solid #ef4444;padding:10px;border-radius:6px;margin:4px 0}
-.alert-entry{background:#0f2c0f;border-left:4px solid #22c55e;padding:10px;border-radius:6px;margin:4px 0}
-.insider-buy{background:#0f2c0f;border-left:3px solid #22c55e;padding:8px;border-radius:4px;margin:3px 0;font-size:13px}
-.insider-sell{background:#3b0000;border-left:3px solid #ef4444;padding:8px;border-radius:4px;margin:3px 0;font-size:13px}
-@media(max-width:768px){
-  [data-testid="metric-container"]{padding:8px}
-  .block-container{padding:0.5rem 0.5rem}
-  h1{font-size:1.4rem!important}
-  h2{font-size:1.1rem!important}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+:root{--bg:#0b0b0d;--surface:#131317;--surface-2:#1a1a20;--border:#24242c;--border-2:#2e2e38;
+  --fg:#e9e9ec;--fg-2:#a8a8b2;--fg-3:#6c6c78;--fg-4:#3f3f48;
+  --danger:#ef4444;--warn:#f59e0b;--ok:#22c55e;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Inter","Noto Sans TC",system-ui,sans-serif}
+
+/* ── Streamlit overrides ───────────────────────── */
+.stApp,[data-testid="stAppViewContainer"]{background:var(--bg)!important}
+[data-testid="stSidebar"]{background:var(--surface)!important;border-right:1px solid var(--border)!important}
+.block-container{padding:1rem 2rem!important;max-width:1440px}
+body,.stMarkdown,p{font-family:var(--sans)!important}
+h1,h2,h3,h4{font-family:var(--sans)!important;letter-spacing:-.01em}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"]{background:transparent!important;border-bottom:1px solid var(--border)!important;gap:0!important}
+.stTabs [data-baseweb="tab"]{font-family:var(--sans)!important;font-size:13px!important;font-weight:500!important;
+  color:var(--fg-3)!important;padding:12px 20px!important;background:transparent!important;letter-spacing:.02em}
+.stTabs [aria-selected="true"]{color:var(--fg)!important;background:transparent!important}
+.stTabs [data-baseweb="tab-highlight"]{background:var(--fg)!important}
+.stTabs [data-baseweb="tab-panel"]{padding-top:20px!important}
+
+/* Metrics */
+[data-testid="metric-container"]{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:8px!important;padding:14px 16px!important}
+[data-testid="stMetricValue"]{font-family:var(--mono)!important;font-weight:600!important}
+[data-testid="stMetricLabel"]{font-family:var(--mono)!important;font-size:10px!important;text-transform:uppercase!important;letter-spacing:.1em!important;color:var(--fg-3)!important}
+
+/* Buttons */
+.stButton button{background:transparent!important;border:1px solid var(--border-2)!important;color:var(--fg-2)!important;
+  font-family:var(--mono)!important;font-size:11px!important;letter-spacing:.05em!important;border-radius:4px!important}
+.stButton button:hover{border-color:var(--fg-3)!important;color:var(--fg)!important}
+.stButton [data-testid="baseButton-primary"]{background:var(--fg)!important;color:#000!important}
+
+/* Inputs */
+.stTextInput input,.stNumberInput input,.stTextArea textarea,.stSelectbox select{
+  background:var(--bg)!important;border:1px solid var(--border)!important;color:var(--fg)!important;
+  font-family:var(--sans)!important;border-radius:4px!important}
+
+/* Expanders */
+.streamlit-expanderHeader{background:var(--surface-2)!important;border:1px solid var(--border)!important;border-radius:6px!important;font-family:var(--sans)!important;color:var(--fg-2)!important}
+details[open] .streamlit-expanderHeader{border-radius:6px 6px 0 0!important}
+.streamlit-expanderContent{background:var(--surface)!important;border:1px solid var(--border)!important;border-top:none!important;border-radius:0 0 6px 6px!important}
+
+/* Dividers */
+hr{border-color:var(--border)!important}
+
+/* ── Design system ─────────────────────────────── */
+/* Topbar */
+.topbar-inner{display:flex;justify-content:space-between;align-items:center;padding:12px 0 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:16px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;font-family:var(--sans)}
+.brand-dot{width:8px;height:8px;background:var(--fg);border-radius:50%}
+.brand small{color:var(--fg-3);font-weight:400;font-size:12px;margin-left:8px}
+.meta{display:flex;gap:20px;color:var(--fg-3);font-size:12px;font-family:var(--mono);flex-wrap:wrap}
+.meta b{color:var(--fg);font-weight:500}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:6px;animation:pulse-anim 2s infinite}
+@keyframes pulse-anim{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Section headers */
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;margin-top:22px}
+.sec-title{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--fg-3);text-transform:uppercase;font-family:var(--mono)}
+.sec-sub{font-size:11px;color:var(--fg-4);font-family:var(--mono)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+
+/* Hero */
+.hero-big{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:22px 24px;margin-bottom:16px}
+.hero-big .label{font-size:10px;color:var(--fg-3);letter-spacing:.1em;font-family:var(--mono);text-transform:uppercase}
+.hero-big .value{font-size:38px;font-weight:600;font-family:var(--mono);letter-spacing:-.02em;margin:6px 0 10px;line-height:1}
+.hero-big .sub{display:flex;gap:20px;font-family:var(--mono);font-size:12px;color:var(--fg-2);flex-wrap:wrap}
+.hero-big .sub b{color:var(--fg);font-weight:500}
+
+/* Account mini cards */
+.acct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.acct{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.acct .name{font-size:10px;color:var(--fg-3);letter-spacing:.1em;font-family:var(--mono);text-transform:uppercase;margin-bottom:8px}
+.acct .val{font-size:20px;font-weight:600;font-family:var(--mono);letter-spacing:-.01em;color:var(--fg)}
+.acct .row{display:flex;gap:12px;margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--fg-3)}
+.acct .bar{height:2px;background:var(--border-2);border-radius:2px;margin-top:10px;overflow:hidden}
+.acct .bar span{display:block;height:100%;background:var(--fg-2)}
+
+/* Alerts */
+.alert-stack{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.alert{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:6px;font-size:13px;border:1px solid transparent;font-family:var(--sans)}
+.alert-danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:#fca5a5}
+.alert-entry {background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.3); color:#86efac}
+.alert-warn  {background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:#fcd34d}
+.alert-icon{font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 7px;border-radius:3px;flex-shrink:0;letter-spacing:.05em}
+.alert-danger .alert-icon{background:var(--danger);color:#fff}
+.alert-entry  .alert-icon{background:var(--ok);color:#000}
+.alert-warn   .alert-icon{background:var(--warn);color:#000}
+.alert b{color:#fff;font-weight:600}
+.alert-meta{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg-3)}
+
+/* Rank rows */
+.rank-list{display:flex;flex-direction:column}
+.rank-row{display:grid;grid-template-columns:26px 72px 1fr auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
+.rank-row:last-child{border-bottom:none}
+.rank-n{font-family:var(--mono);color:var(--fg-4);font-size:12px;font-weight:500}
+.rank-sym{font-weight:600;font-family:var(--mono);font-size:14px;letter-spacing:.02em;color:var(--fg)}
+.rank-reason{color:var(--fg-3);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-tag{font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;letter-spacing:.05em;white-space:nowrap}
+.rank-tag.sell{background:rgba(239,68,68,.12);color:var(--danger)}
+.rank-tag.buy {background:rgba(34,197,94,.12); color:var(--ok)}
+.rank-tag.wait{background:var(--surface-2);color:var(--fg-3)}
+.rank-tag.hold{background:rgba(245,158,11,.12);color:var(--warn)}
+.rank-price{font-family:var(--mono);color:var(--fg-2);font-size:12px;text-align:right;white-space:nowrap}
+.rank-price b{color:var(--fg);font-weight:500}
+
+/* Status cells */
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.status-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.status-cell .lbl{font-size:10px;color:var(--fg-3);letter-spacing:.08em;font-family:var(--mono);text-transform:uppercase}
+.status-cell .val{font-size:22px;font-weight:600;font-family:var(--mono);margin:6px 0 4px;color:var(--fg)}
+.progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress span{display:block;height:100%;background:var(--fg-2)}
+.hint{color:var(--fg-4);font-size:11px;font-family:var(--mono);margin-top:6px}
+.up{color:var(--ok)}.down{color:var(--danger)}.muted{color:var(--fg-3)}
+
+/* Status pills */
+.status-pill{font-size:10px;padding:2px 8px;border-radius:10px;font-family:var(--mono);letter-spacing:.05em;font-weight:500;display:inline-block}
+.sp-zone{background:rgba(34,197,94,.12);color:var(--ok)}
+.sp-near{background:rgba(245,158,11,.12);color:var(--warn)}
+.sp-wait{background:var(--surface-2);color:var(--fg-3)}
+
+/* Watchlist table */
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 14px;font-family:var(--mono);font-size:12px}
+thead th{color:var(--fg-3);font-weight:500;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.num{text-align:right}
+
+/* Resale */
+.resale-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;position:relative;margin-bottom:10px}
+.resale-card .rs-status{position:absolute;top:12px;right:14px;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:10px;letter-spacing:.05em}
+.rs-listed{background:rgba(59,130,246,.12);color:#93c5fd}
+.rs-wait  {background:rgba(245,158,11,.12);color:var(--warn)}
+.rs-sold  {background:rgba(34,197,94,.12); color:var(--ok)}
+.rs-keep  {background:var(--surface-2);color:var(--fg-3)}
+.resale-card .rn{font-size:14px;font-weight:600;margin-bottom:4px;padding-right:60px;color:var(--fg)}
+.resale-card .rb{font-size:11px;color:var(--fg-3);font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px}
+.price-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-family:var(--mono);font-size:11px}
+.price-grid div{padding:6px 8px;background:var(--surface-2);border-radius:4px}
+.price-grid .pl{color:var(--fg-4);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.price-grid .pv{font-size:13px;font-weight:500;margin-top:2px;color:var(--fg)}
+.profit-val{color:var(--ok)}
+
+/* Journal */
+.journal-row{display:grid;grid-template-columns:70px 60px 1fr 80px;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);font-size:12px}
+.journal-row:last-child{border-bottom:none}
+.journal-date{color:var(--fg-3);font-family:var(--mono);font-size:11px}
+.journal-sym{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--fg)}
+.journal-reason{color:var(--fg-2);line-height:1.4;font-size:12px}
+.journal-conf{font-family:var(--mono);font-size:11px;color:var(--fg-3);text-align:right}
+
+/* Insider (kept) */
+.insider-buy {background:rgba(34,197,94,.08);border-left:3px solid var(--ok);    padding:8px 12px;border-radius:4px;margin:3px 0;font-size:13px}
+.insider-sell{background:rgba(239,68,68,.08);border-left:3px solid var(--danger);padding:8px 12px;border-radius:4px;margin:3px 0;font-size:13px}
+
+/* AI card */
+.ai-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:16px}
+.ai-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ai-head .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;font-family:var(--sans)}
+.ai-dot{width:6px;height:6px;background:var(--fg);border-radius:50%;animation:pulse-anim 2s infinite}
+.ai-head .time{font-size:11px;color:var(--fg-4);font-family:var(--mono)}
+
+/* Responsive */
+@media(max-width:900px){
+  .acct-grid{grid-template-columns:repeat(2,1fr)}
+  .status-grid{grid-template-columns:repeat(2,1fr)}
+  .rank-row{grid-template-columns:20px 60px 1fr auto;gap:10px}
+  .rank-row .rank-reason{display:none}
+  .block-container{padding:0.5rem 0.75rem!important}
+  h1{font-size:1.3rem!important}h2{font-size:1rem!important}
 }
 </style>""", unsafe_allow_html=True)
 
@@ -61,27 +225,31 @@ CATHAY_TW = {
     "6148":   ("正文科技", 34,  33.63),
 }
 
-# 派網代幣化股票 (成本USD, 預設股數) — 更新：2026-04-18
+# 派網代幣化股票 (成本USD, 預設股數) — 更新：2026-04-20
 PIONEX_STOCKS = {
     'ADBE': (239.70, 0.247),
     'HIMS': (24.29,  1.23),
-    'IONQ': (25.00,  0.507),   # 新增
+    'IONQ': (25.00,  0.507),
     'META': (560.00, 0.0458),
     'MSFT': (390.00, 0.112),
+    'MSTR': (320.00, 0.2048),  # MicroStrategy — Beta ~3.5x ⚠️
     'NVO':  (40.81,  1.25),
     'ORCL': (135.25, 0.25),
-    'SMCI': (22.16,  2.07),    # 加碼
-    'TSLA': (240.00, 0.138),   # 新增
+    'SMCI': (22.16,  2.07),
+    'SMR':  (5.50,   3.0),     # NuScale Power（小型核能）
+    'TSLA': (240.00, 0.138),
 }
 COIN_MAP = {"ADBE":"ADBEX","HIMS":"HIMSX","IONQ":"IONQX",
-            "META":"METAX","MSFT":"MSFTX","NVO":"NVOX",
-            "ORCL":"ORCLX","SMCI":"SMCIX","TSLA":"TSLAX"}
+            "META":"METAX","MSFT":"MSFTX","MSTR":"MSTRX",
+            "NVO":"NVOX","ORCL":"ORCLX","SMCI":"SMCIX",
+            "SMR":"SMRX","TSLA":"TSLAX"}
 
 # 派網加密貨幣 (coingecko_id, 預設數量, 成本USD) — 更新：2026-04-18
 PIONEX_CRYPTO = {
     'ETH':  ('ethereum', 0.00927,  2200.0),
-    'ADA':  ('cardano',  54.21,    0.35),   # 大幅增加
-    'ARKM': ('arkham',   48.77,    0.097),  # 減少
+    'SOL':  ('solana',   0.2799,   90.0),
+    'ADA':  ('cardano',  54.21,    0.35),
+    'ARKM': ('arkham',   321.634,  0.097),
 }
 PIONEX_USDT = 24.51  # 更新：2026-04-18
 
@@ -156,7 +324,7 @@ def _pionex_get(path: str, params: dict = {}) -> dict:
         return json.loads(r.read())
 
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=30)
 def fetch_pionex_bal() -> dict:
     """Returns coin→qty dict + "_ok" bool + "_error" str + "_prices" coin→USD price"""
     try:
@@ -170,7 +338,7 @@ def fetch_pionex_bal() -> dict:
         result["_ok"] = True
         prices = {}
         for coin in list(result.keys()):
-            if coin.startswith("_") or coin == "USDT":
+            if coin.startswith("_") or coin == "USDT" or coin.endswith("X"):
                 continue
             try:
                 td = _pionex_get("/api/v1/market/tickers", {"symbol": f"{coin}_USDT"})
@@ -552,6 +720,13 @@ WATCHLIST = {
              "theme":"比特幣代理","reason":"MicroStrategy 持續定額買BTC，Ace 平均成本$200，等BTC多頭確認再加；適合BTC替代倉位","date":"2026-04-18"},
     "ICHR": {"entry_zone":[25,35],   "target":55.0, "stop":20.0,
              "theme":"半導體設備","reason":"半導體設備上游供應商，AI帶動晶圓廠資本支出上升直接受益，低調但有潛力（Ace 2026-04-18）","date":"2026-04-18"},
+    # ── 消費品牌（零售銷售數據觸發關鍵）──────────────────
+    "DECK": {"entry_zone":[85, 120],  "target":185.0, "stop":75.0,
+             "theme":"消費品牌/HOKA","reason":"基本面最強（淨利率19.4%），HOKA+UGG雙品牌，等零售銷售數據確認後再進場；ROE 53%，幾乎零債","date":"2026-04-20"},
+    "ANF":  {"entry_zone":[65,  90],  "target":130.0, "stop":55.0,
+             "theme":"消費品牌","reason":"穩健成長但消費信心承壓，等週二零售銷售數據後決定是否進場","date":"2026-04-20"},
+    "FIGS": {"entry_zone":[5,   8],   "target":14.0,  "stop":4.0,
+             "theme":"醫療服飾","reason":"YoY +13.6%成長，體量小波動大，小倉投機；等市場情緒穩定後進","date":"2026-04-20"},
 }
 
 # ════════════════════════════════════════════════════
@@ -580,7 +755,8 @@ def fetch_us_quotes(symbols: tuple) -> dict:
 @st.cache_data(ttl=60)
 def fetch_tw_quotes() -> dict:
     result = {}
-    for code in CATHAY_TW:
+    all_codes = list(dict.fromkeys(list(CATHAY_TW.keys()) + list(TW_WATCHLIST.keys())))
+    for code in all_codes:
         sym = code + ".TW"
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=5d"
         try:
@@ -595,7 +771,7 @@ def fetch_tw_quotes() -> dict:
                             "chg_pct":(price-prev)/prev*100 if prev else 0.0}
         except:
             result[code] = {"price":0.0,"prev":0.0,"chg_pct":0.0}
-        time.sleep(0.2)
+        time.sleep(0.15)
     return result
 
 # CoinGecko ID 對照表（symbol → coingecko_id）
@@ -645,6 +821,34 @@ CRYPTO_WATCHLIST = {
     "TIA":  {"entry_zone":[0.30, 0.60],"target":2.5,  "stop":0.20,
              "theme":"模組化區塊鏈", "priority":8,
              "reason":"DA 層龍頭，Rollup 擴展直接受益；超高風險小市值，最小倉位佈局"},
+}
+
+# 台股觀察清單（入場區間 TWD）
+TW_WATCHLIST = {
+    "2330": {"name":"台積電",   "entry_zone":[700,  870],  "target":1050, "stop":640,
+             "theme":"AI晶片龍頭",   "priority":1,
+             "reason":"AI算力需求爆炸，3nm/2nm 產能滿載；全球最先進製程護城河無可取代，逢跌首選建倉"},
+    "2454": {"name":"聯發科",   "entry_zone":[900,  1100], "target":1500, "stop":780,
+             "theme":"IC設計",       "priority":2,
+             "reason":"天璣旗艦晶片持續升級，AI 手機週期啟動；本益比合理，受惠 AI 終端需求爆發"},
+    "2317": {"name":"鴻海",     "entry_zone":[145,  185],  "target":250,  "stop":125,
+             "theme":"AI伺服器EMS",  "priority":3,
+             "reason":"GB200 NVL72 機架主要組裝商，AI 伺服器佔比快速提升；回踩支撐為布局良機"},
+    "2382": {"name":"廣達",     "entry_zone":[220,  280],  "target":380,  "stop":190,
+             "theme":"AI伺服器ODM",  "priority":4,
+             "reason":"Google/Meta 雲端 AI 伺服器最大 ODM；液冷伺服器技術領先，AI 轉型進行式"},
+    "3711": {"name":"日月光投控","entry_zone":[130,  165],  "target":220,  "stop":115,
+             "theme":"先進封裝",     "priority":5,
+             "reason":"CoWoS/SoIC 先進封裝受惠 AI 算力，與台積電深度合作；供不應求延續至 2026H2"},
+    "2308": {"name":"台達電",   "entry_zone":[250,  320],  "target":420,  "stop":215,
+             "theme":"電源/散熱",    "priority":6,
+             "reason":"AI 資料中心電源與散熱方案龍頭，NVIDIA 指定供應商；長線穩健，防守兼進攻"},
+    "6669": {"name":"緯穎",     "entry_zone":[1600, 2100], "target":2800, "stop":1350,
+             "theme":"AI伺服器",     "priority":7,
+             "reason":"Meta/Microsoft AI 伺服器直接設計代工；波動大，逢深回至支撐區再進，高 R:R"},
+    "2412": {"name":"中華電",   "entry_zone":[115,  130],  "target":145,  "stop":108,
+             "theme":"電信/防禦",    "priority":8,
+             "reason":"高殖利率防禦股，市場動盪時避風港；6G 佈局啟動，適合保守型資金"},
 }
 
 def _cg_fetch(ids: list) -> dict:
@@ -1662,6 +1866,110 @@ def render_research_notes():
 
 
 # ════════════════════════════════════════════════════
+# 台股觀察清單
+# ════════════════════════════════════════════════════
+@st.fragment
+def render_tw_watchlist(tw_q: dict):
+    st.header("🇹🇼 台股即時入場觀察")
+
+    rows = []
+    for code, info in TW_WATCHLIST.items():
+        q     = tw_q.get(code, {})
+        price = q.get("price", 0.0)
+        chg   = q.get("chg_pct", 0.0)
+        lo, hi = info["entry_zone"]
+
+        if price <= 0:
+            status = "⚪ 無資料"
+            score  = 0
+        elif price < lo * 0.8:
+            status = "🔵 超跌觀察"
+            score  = 5
+        elif price <= hi:
+            status = "🟢 進場區！"
+            score  = 10
+        elif price <= hi * 1.1:
+            status = "🟡 靠近上緣"
+            score  = 6
+        else:
+            status = "⚪ 待觀望"
+            score  = 0
+
+        if price > 0 and info["stop"] > 0:
+            mid    = (lo + hi) / 2
+            rr_num = (info["target"] - mid) / max(mid - info["stop"], 1)
+        else:
+            rr_num = 0
+
+        rows.append({
+            "優先": info["priority"],
+            "代號": code,
+            "名稱": info["name"],
+            "主題": info["theme"],
+            "現價": price,
+            "今日%": chg,
+            "入場區": f"{lo:,.0f}–{hi:,.0f}",
+            "目標": info["target"],
+            "停損": info["stop"],
+            "R:R": f"1:{rr_num:.1f}",
+            "狀態": status,
+            "_score": score,
+            "_rr": rr_num,
+        })
+
+    rows.sort(key=lambda r: (-r["_score"], r["優先"]))
+
+    # ── 可進場標的提示卡 ──────────────────────────────
+    in_zone = [r for r in rows if r["_score"] >= 6]
+    if in_zone:
+        medals = ["🥇","🥈","🥉"] + ["📌"] * 10
+        st.subheader(f"✅ 目前可入場標的（{len(in_zone)} 檔）")
+        cols = st.columns(min(len(in_zone), 3))
+        for i, r in enumerate(in_zone[:3]):
+            with cols[i]:
+                chg_str = f"+{r['今日%']:.1f}%" if r['今日%'] >= 0 else f"{r['今日%']:.1f}%"
+                chg_color = "#22c55e" if r['今日%'] >= 0 else "#ef4444"
+                st.markdown(f"""
+<div style='background:#1a2744;border:1px solid #334155;border-radius:12px;padding:16px'>
+  <div style='font-size:22px'>{medals[i]} {r['名稱']} <span style='color:#94a3b8;font-size:14px'>{r['代號']}</span></div>
+  <div style='font-size:26px;font-weight:bold;margin:6px 0'>NT${r['現價']:,.0f}
+    <span style='font-size:14px;color:{chg_color}'>{chg_str}</span></div>
+  <div style='color:#fbbf24'>🎯 目標 NT${r['目標']:,} &nbsp; 🛡️ 停損 NT${r['停損']:,}</div>
+  <div style='color:#a78bfa;margin-top:4px'>⚖️ R:R {r["R:R"]} &nbsp; {r["狀態"]}</div>
+  <div style='color:#64748b;font-size:12px;margin-top:6px'>{r["主題"]}</div>
+</div>""", unsafe_allow_html=True)
+    else:
+        st.info("目前無標的落在入場區，繼續等待回調機會 📡")
+
+    # ── 完整觀察清單表格 ──────────────────────────────
+    st.subheader("📋 完整觀察清單")
+    df_show = []
+    for r in rows:
+        chg_str = f"+{r['今日%']:.1f}%" if r['今日%'] >= 0 else f"{r['今日%']:.1f}%"
+        df_show.append({
+            "P": r["優先"],
+            "代號": r["代號"],
+            "名稱": r["名稱"],
+            "現價": f"NT${r['現價']:,.0f}" if r["現價"] > 0 else "—",
+            "今日": chg_str,
+            "入場區(TWD)": r["入場區"],
+            "目標": f"NT${r['目標']:,}",
+            "R:R": r["R:R"],
+            "狀態": r["狀態"],
+        })
+    st.dataframe(pd.DataFrame(df_show), use_container_width=True, hide_index=True)
+
+    # ── 理由展開 ──────────────────────────────────────
+    with st.expander("📖 各標的分析理由"):
+        for code, info in sorted(TW_WATCHLIST.items(), key=lambda x: x[1]["priority"]):
+            q = tw_q.get(code, {})
+            price = q.get("price", 0.0)
+            price_str = f"NT${price:,.0f}" if price > 0 else "—"
+            st.markdown(f"**{info['priority']}. {info['name']} ({code})** · 現價 {price_str} · 進場區 NT${info['entry_zone'][0]:,}–{info['entry_zone'][1]:,}")
+            st.caption(info["reason"])
+
+
+# ════════════════════════════════════════════════════
 # 加密貨幣追蹤 + 觀察清單
 # ════════════════════════════════════════════════════
 @st.fragment
@@ -1856,45 +2164,42 @@ def render_crypto_dashboard(cry_q: dict, exrate: float):
 # ════════════════════════════════════════════════════
 # 主畫面
 # ════════════════════════════════════════════════════
-st.title("📊 Jim 投資全視界")
-
 _live_rate = fetch_usdtwd_rate()
 _exrate = st.session_state.get("exchange_rate", _live_rate)
+
+# 公開模式：網址帶 ?public=true 時隱藏金額，只顯示比例
+_public_mode = st.query_params.get("public", "false").lower() == "true"
+if _public_mode:
+    st.info("👁️ 公開瀏覽模式：金額已隱藏，僅顯示比例與漲跌方向")
 
 with st.spinner("抓取即時行情..."):
     df, us_q, tw_q, cry_q = build_portfolio(exrate=_exrate)
 
-# ── 警報區（最上方）──────────────────────────────────
 danger_list, entry_list = check_alerts(df, us_q, tw_q)
 
-if danger_list or entry_list:
-    with st.container():
-        if entry_list:
-            st.success("🚀 **急需入場警報**")
-            for a in entry_list:
-                st.markdown(f'<div class="alert-entry">{a}</div>', unsafe_allow_html=True)
-        if danger_list:
-            st.error("🚨 **個股危險警報**")
-            for a in danger_list:
-                st.markdown(f'<div class="alert-danger">{a}</div>', unsafe_allow_html=True)
-    st.divider()
+total_val   = df["現值(TWD)"].sum()
+total_pnl   = df["損益(TWD)"].sum()
+total_today = df["今日(TWD)"].sum()
+_pnl_color  = "#22c55e" if total_pnl >= 0 else "#ef4444"
+_td_color   = "#22c55e" if total_today >= 0 else "#ef4444"
 
-# ── 今日狀態列 ───────────────────────────────────────
-render_status_bar(df, _exrate)
-st.divider()
+_topbar_val = "****" if _public_mode else f"NT${total_val:,}"
+_topbar_today = ("今日 🟢" if total_today >= 0 else "今日 🔴") if _public_mode else f"今日 NT${total_today:+,}"
+_topbar_pnl   = (f"累積 {'🟢' if total_pnl >= 0 else '🔴'}{abs(total_pnl)/total_val*100:.1f}%") if _public_mode else f"累積 NT${total_pnl:+,}"
 
-# ── Market Insights ───────────────────────────────────
-render_market_insights(us_q)
-render_daily_upgrade(df, cry_q)
-render_daily_system()
-st.divider()
+st.markdown(f"""
+<div class="topbar-inner">
+  <span class="brand">📊 Jim Finance</span>
+  <span class="meta">
+    {_topbar_val} &nbsp;
+    <span style="color:{_td_color}">{_topbar_today}</span> &nbsp;
+    <span style="color:{_pnl_color}">{_topbar_pnl}</span> &nbsp;
+    USD/TWD {_exrate:.1f} &nbsp;
+    {datetime.now().strftime('%H:%M')}
+  </span>
+</div>""", unsafe_allow_html=True)
 
-# ── 頂部 4 帳戶數據看板 ───────────────────────────────
-platforms = ["國泰美股","國泰台股","派網","Firstrade"]
-
-total_val  = df["現值(TWD)"].sum()
-total_pnl  = df["損益(TWD)"].sum()
-total_today= df["今日(TWD)"].sum()
+# ── Helper functions (defined before tabs) ───────────
 
 def _pnl_html(today, pnl):
     tc = "#22c55e" if today >= 0 else "#ef4444"
@@ -1905,171 +2210,18 @@ def _pnl_html(today, pnl):
             f'<span style="color:{pc}">累積 NT${pnl:+,}</span>'
             f'</div>')
 
-cols = st.columns(5)
-cols[0].metric("💰 總市值", f"NT$ {total_val:,}")
-cols[0].markdown(_pnl_html(total_today, total_pnl), unsafe_allow_html=True)
-for i,plat in enumerate(platforms):
-    sub   = df[df["平台"]==plat]
-    val   = sub["現值(TWD)"].sum()
-    today = sub["今日(TWD)"].sum()
-    pnl   = sub["損益(TWD)"].sum()
-    cols[i+1].metric(plat, f"NT$ {val:,}")
-    cols[i+1].markdown(_pnl_html(today, pnl), unsafe_allow_html=True)
-
-st.divider()
-
-# ── 出場優先 / 進場優先 ───────────────────────────────
-col_exit, col_entry = st.columns(2)
-
-with col_exit:
-    st.subheader("🚨 出場優先排名")
-    exit_rows = []
-    for _, row in df.iterrows():
-        raw = row["標的"]
-        sym = raw.split("→")[-1] if "→" in raw else raw
-        info = ANALYST.get(sym)
-        if not info or info["action"] != "SELL":
-            continue
-        price = row["現價"]
-        pnl_pct = row["總損益(%)"]
-        stop = info.get("stop", 0)
-        dist_stop = (price - stop) / price * 100 if stop and price else 0
-        # 緊迫度：虧損越多 or 距停損越近 越優先
-        urgency = -pnl_pct + (5 - dist_stop if dist_stop < 5 else 0)
-        exit_rows.append({
-            "_urgency": urgency,
-            "標的": sym,
-            "現價": f"${price:.2f}",
-            "損益": f"{pnl_pct:+.1f}%",
-            "停損": f"${stop:.0f}" if stop else "—",
-            "原因": info["reason"],
-            "更新": info.get("date",""),
-        })
-    exit_rows.sort(key=lambda x: x["_urgency"], reverse=True)
-    for i, r in enumerate(exit_rows, 1):
-        color = "#ef4444" if i == 1 else ("#f97316" if i == 2 else "#eab308")
-        st.markdown(f"""
-<div style="background:#1e1e2e;border-left:4px solid {color};padding:10px;border-radius:6px;margin:6px 0">
-<b>#{i} {r['標的']}</b>　現價 {r['現價']}　損益 <span style="color:{color}">{r['損益']}</span>　停損 {r['停損']}<br>
-<span style="font-size:13px;color:#94a3b8">{r['原因']}</span>
-</div>""", unsafe_allow_html=True)
-    if not exit_rows:
-        st.info("目前無出場建議")
-
-with col_entry:
-    st.subheader("🚀 進場優先排名")
-    entry_rows = []
-    # 已持倉 BUY
-    seen_syms = set()
-    for _, row in df.iterrows():
-        raw = row["標的"]
-        sym = raw.split("→")[-1] if "→" in raw else raw
-        if sym in seen_syms: continue
-        seen_syms.add(sym)
-        info = ANALYST.get(sym)
-        if not info or info["action"] != "BUY": continue
-        price = row["現價"]
-        target = info.get("target", 0)
-        upside = (target - price) / price * 100 if target and price else 0
-        entry_rows.append({
-            "_upside": upside,
-            "標的": sym,
-            "類型": "持倉加碼",
-            "現價": f"${price:.2f}",
-            "目標": f"${target:.0f}",
-            "潛力": f"+{upside:.0f}%",
-            "原因": info["reason"],
-        })
-    # 觀察清單進場區
-    wl_q2 = fetch_us_quotes(tuple(WATCHLIST.keys()))
-    for sym, info in WATCHLIST.items():
-        q = wl_q2.get(sym, {})
-        price = q.get("price", 0)
-        if not price: continue
-        lo, hi = info["entry_zone"]
-        if price > hi * 1.05: continue  # 距進場區超過5%不顯示
-        upside = (info["target"] - price) / price * 100 if price else 0
-        status = "🟢 已進場區" if price <= hi else "🟡 接近進場"
-        entry_rows.append({
-            "_upside": upside + (20 if price <= hi else 0),
-            "標的": sym,
-            "類型": status,
-            "現價": f"${price:.2f}",
-            "目標": f"${info['target']:.0f}",
-            "潛力": f"+{upside:.0f}%",
-            "原因": info["reason"],
-        })
-    entry_rows.sort(key=lambda x: x["_upside"], reverse=True)
-    for i, r in enumerate(entry_rows[:6], 1):
-        color = "#22c55e" if "進場區" in r["類型"] else ("#0ea5e9" if i <= 2 else "#7c3aed")
-        st.markdown(f"""
-<div style="background:#1e1e2e;border-left:4px solid {color};padding:10px;border-radius:6px;margin:6px 0">
-<b>#{i} {r['標的']}</b>　<span style="color:{color}">{r['類型']}</span>　{r['現價']} → {r['目標']}　<b style="color:{color}">{r['潛力']}</b><br>
-<span style="font-size:13px;color:#94a3b8">{r['原因']}</span>
-</div>""", unsafe_allow_html=True)
-    if not entry_rows:
-        st.info("目前無進場機會")
-
-st.divider()
-
-# ── 財報提醒 + 資金分析 ───────────────────────────────
-EARNINGS_CAL = [
-    {"sym":"MSFT", "date":"2026-04-29", "note":"Azure成長 + AI Copilot"},
-    {"sym":"META", "date":"2026-04-30", "note":"AI廣告收入"},
-    {"sym":"GOOG", "date":"2026-04-29", "note":"搜尋+廣告+Cloud"},
-    {"sym":"ORCL", "date":"2026-06-10", "note":"雲端+AI訂單"},
-    {"sym":"NVDL", "date":"2026-05-28", "note":"NVDA財報（槓桿ETF受影響）"},
-]
-today_dt = datetime.now().date()
-
-cal_col, fund_col = st.columns([1.2, 1])
-
-with cal_col:
-    st.subheader("📅 財報日曆")
-    for e in sorted(EARNINGS_CAL, key=lambda x: x["date"]):
-        edate = datetime.strptime(e["date"], "%Y-%m-%d").date()
-        days_left = (edate - today_dt).days
-        if days_left < 0:
-            continue
-        urgency = "🔴" if days_left <= 7 else ("🟡" if days_left <= 14 else "🟢")
-        st.markdown(f"{urgency} **{e['sym']}**　{e['date']}　（{days_left}天後）　{e['note']}")
-
-with fund_col:
-    st.subheader("💵 資金利用率")
-    usdt_val  = df[df["標的"]=="USDT"]["現值(TWD)"].sum()
-    total_all = df["現值(TWD)"].sum()
-    invested  = total_all - usdt_val
-    util_pct  = invested / total_all * 100 if total_all else 0
-    idle_usd  = usdt_val / _exrate
-
-    # 出場候選可釋放
-    sell_syms = ["JOBY","NVDL","PYPL","RUN"]
-    sell_val  = df[df["標的"].isin(sell_syms)]["現值(TWD)"].sum()
-    sell_usd  = sell_val / _exrate
-
-    st.metric("閒置 USDT", f"${idle_usd:.0f}　≈ NT${usdt_val:,.0f}")
-    st.metric("投資部位", f"{util_pct:.1f}% 已投入",
-              delta=f"閒置 {100-util_pct:.1f}%")
-    if sell_val > 0:
-        st.info(f"📤 出場候選（{', '.join(sell_syms)}）\n可釋放 **NT${sell_val:,.0f}**（≈ **${sell_usd:.0f}**）")
-
-st.divider()
-
-# ── 操作建議 ─────────────────────────────────────────
-st.subheader("🎯 操作建議")
-
 def build_rec_rows(df):
-    buy_r,hold_r,sell_r=[],[],[]
-    seen=set()
-    for _,row in df.iterrows():
-        raw=row["標的"]; sym=raw.split("→")[-1] if "→" in raw else raw
+    buy_r, hold_r, sell_r = [], [], []
+    seen = set()
+    for _, row in df.iterrows():
+        raw = row["標的"]; sym = raw.split("→")[-1] if "→" in raw else raw
         if sym in seen or sym in ("USDT","ETH","ADA","ARKM"): continue
         seen.add(sym)
-        info=ANALYST.get(sym)
+        info = ANALYST.get(sym)
         if not info: continue
-        price=row["現價"]; target=info["target"]
-        upside=(target-price)/price*100 if target and price else 0
-        plat="/".join(set(df[df["標的"].str.contains(sym,na=False)]["平台"].tolist()))
+        price = row["現價"]; target = info["target"]
+        upside = (target-price)/price*100 if target and price else 0
+        plat = "/".join(set(df[df["標的"].str.contains(sym,na=False)]["平台"].tolist()))
         dist_stop = (price-info["stop"])/price*100 if info.get("stop") and price else 0
         rec_date = info.get("date","")
         try:
@@ -2077,19 +2229,16 @@ def build_rec_rows(df):
             date_label = f"{rec_date} ({'今日' if days_old==0 else f'{days_old}天前'}{'⚠️' if days_old>=7 else ''})"
         except:
             date_label = rec_date
-        rec={"標的":sym,"現價":f"${price:.2f}","目標":f"${target:.0f}" if target else "—",
-             "距目標":f"+{upside:.0f}%" if upside>0 else "—",
-             "距停損":f"-{dist_stop:.1f}%",
-             "持倉損益":f"{row['總損益(%)']:+.1f}%",
-             "停損":f"${info['stop']:.0f}" if info.get('stop') else "—",
-             "平台":plat,"更新":date_label,"理由":info["reason"]}
-        if info["action"]=="BUY":   buy_r.append(rec)
-        elif info["action"]=="SELL":sell_r.append(rec)
-        else:                       hold_r.append(rec)
-    return buy_r,hold_r,sell_r
-
-buy_r,hold_r,sell_r=build_rec_rows(df)
-_rb, _rh, _rs = st.columns(3)
+        rec = {"標的":sym,"現價":f"${price:.2f}","目標":f"${target:.0f}" if target else "—",
+               "距目標":f"+{upside:.0f}%" if upside>0 else "—",
+               "距停損":f"-{dist_stop:.1f}%",
+               "持倉損益":f"{row['總損益(%)']:+.1f}%",
+               "停損":f"${info['stop']:.0f}" if info.get('stop') else "—",
+               "平台":plat,"更新":date_label,"理由":info["reason"]}
+        if info["action"] == "BUY":    buy_r.append(rec)
+        elif info["action"] == "SELL": sell_r.append(rec)
+        else:                          hold_r.append(rec)
+    return buy_r, hold_r, sell_r
 
 def _rec_card(rec, color):
     return (f'<div style="background:#1e1e2e;border-left:3px solid {color};padding:8px;'
@@ -2098,169 +2247,33 @@ def _rec_card(rec, color):
             f'損益 {rec["持倉損益"]}　停損 {rec["停損"]}<br>'
             f'<span style="color:#94a3b8">{rec["理由"]}</span></div>')
 
-with _rb:
-    st.markdown(f"**✅ 加碼 ({len(buy_r)})**")
-    for r in buy_r:
-        st.markdown(_rec_card(r,"#22c55e"), unsafe_allow_html=True)
-with _rh:
-    st.markdown(f"**⏸️ 觀望 ({len(hold_r)})**")
-    for r in hold_r:
-        st.markdown(_rec_card(r,"#94a3b8"), unsafe_allow_html=True)
-with _rs:
-    st.markdown(f"**🚨 出場 ({len(sell_r)})**")
-    for r in sell_r:
-        st.markdown(_rec_card(r,"#ef4444"), unsafe_allow_html=True)
-
-st.divider()
-
-# ── 圖表 + 新聞 ──────────────────────────────────────
-left,right=st.columns([1.2,1])
-
-with left:
-    pie=df.groupby("平台")["現值(TWD)"].sum().reset_index()
-    fig_pie=px.pie(pie,names="平台",values="現值(TWD)",hole=0.4,title="帳戶分佈",
-                   color_discrete_sequence=["#7c3aed","#f59e0b","#0ea5e9","#10b981"])
-    st.plotly_chart(fig_pie,use_container_width=True)
-
-    today_df=df[~df["標的"].isin(["USDT"])].sort_values("今日(TWD)").copy()
-    plat_colors={"國泰美股":"#0ea5e9","國泰台股":"#f59e0b","派網":"#7c3aed","Firstrade":"#10b981"}
-    today_df["顏色"]=today_df.apply(
-        lambda r: plat_colors.get(r["平台"],"#6b7280") if r["今日(TWD)"]>=0
-                  else "#ef4444", axis=1)
-    fig_today=go.Figure(go.Bar(
-        x=today_df["今日(TWD)"],y=today_df["標的"],orientation='h',
-        marker_color=today_df["顏色"],
-        text=[f"NT${v:+,}" for v in today_df["今日(TWD)"]],textposition='outside',
-        customdata=today_df["平台"],
-        hovertemplate="%{y}  %{customdata}<br>今日 NT$%{x:+,}<extra></extra>"))
-    fig_today.update_layout(title="今日損益排行(NT$)　各平台分色",height=520,
-                             margin=dict(l=0,r=80,t=40,b=0))
-    st.plotly_chart(fig_today,use_container_width=True)
-
-with right:
-    st.subheader("🎙️ FinancialJuice 即時新聞")
-    components.iframe("https://www.financialjuice.com/feed",height=750,scrolling=True)
-
-st.divider()
-
-# ── 觀察清單 ─────────────────────────────────────────
-st.subheader("👀 觀察清單")
-wl_q = fetch_us_quotes(tuple(WATCHLIST.keys()))
-wl_rows=[]
-for sym,info in WATCHLIST.items():
-    q=wl_q.get(sym,{}); price=q.get("price",0); chg=q.get("chg_pct",0)
-    lo,hi=info["entry_zone"]
-    if price==0: status="❓"
-    elif price<=lo: status="🟢 進場！"
-    elif price<=hi: status="🟡 接近"
-    elif (price-hi)/hi*100<=10: status="🔵 觀察"
-    else: status="⚪ 等待"
-    upside=(info["target"]-price)/price*100 if price else 0
-    pct_away=f"+{(price-hi)/hi*100:.0f}%" if price>hi else "✓進場區"
-
-    tech=fetch_technicals(sym)
-    wl_rows.append({
-        "狀態":status,"標的":sym,"主題":info["theme"],
-        "現價":f"${price:.2f}","今日":f"{chg:+.1f}%",
-        "多空":tech.get("sentiment","—"),"RSI":tech.get("rsi","—"),
-        "支撐":f"${tech['support']}" if tech.get("support") else "—",
-        "壓力":f"${tech['resist']}"  if tech.get("resist")  else "—",
-        "進場區":f"${lo}~${hi}","距進場":pct_away,
-        "目標":f"${info['target']:.0f}","潛在獲利":f"+{upside:.0f}%",
-        "停損":f"${info['stop']:.0f}","更新":info["date"],"邏輯":info["reason"],
-    })
-
-wl_df=pd.DataFrame(wl_rows)
-ready=wl_df[wl_df["狀態"].str.contains("進場！",na=False)]
-near =wl_df[wl_df["狀態"].str.contains("接近",na=False)]
-if not ready.empty: st.success(f"🟢 已入進場區：{', '.join(ready['標的'])}")
-if not near.empty:  st.warning(f"🟡 接近進場：{', '.join(near['標的'])}")
-
-def color_wl(val):
-    if "進場！" in str(val): return "background:#14532d;color:#86efac"
-    if "接近"   in str(val): return "background:#713f12;color:#fde68a"
-    return ""
-st.dataframe(wl_df.style.map(color_wl,subset=["狀態"]),
-             use_container_width=True,hide_index=True)
-
-with st.expander("📈 個股深度分析"):
-    pick=st.selectbox("選擇：",list(WATCHLIST.keys()),key="wl_pick")
-    info=WATCHLIST[pick]; q=wl_q.get(pick,{}); price=q.get("price",0)
-    tech=fetch_technicals(pick)
-    c1,c2,c3,c4=st.columns(4)
-    c1.metric("現價",f"${price:.2f}",f"{q.get('chg_pct',0):+.2f}%")
-    c2.metric("進場區",f"${info['entry_zone'][0]}~${info['entry_zone'][1]}")
-    c3.metric("目標",f"${info['target']:.0f}",f"+{(info['target']-price)/price*100:.0f}%" if price else None)
-    c4.metric("RSI",tech.get("rsi","—"))
-    if tech:
-        s,r=tech["support"],tech["resist"]
-        pos=max(0,min(100,(price-s)/(r-s)*100)) if r!=s else 50
-        st.progress(int(pos),text=f"支撐 ${s}  ←  ${price:.2f}  →  壓力 ${r}")
-    TV_WL = f"""
-<div class="tradingview-widget-container" style="height:280px;width:100%">
-  <div class="tradingview-widget-container__widget" style="height:280px;width:100%"></div>
-  <script type="text/javascript"
-    src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-  {{"symbol":"{pick}","width":"100%","height":280,"locale":"en",
-    "dateRange":"3M","colorTheme":"dark","isTransparent":false,"autosize":true}}
-  </script>
-</div>"""
-    components.html(TV_WL, height=300)
-    st.caption(f"📌 {info['reason']}  （更新：{info['date']}）")
-
-st.divider()
-
-# ── 投資組合歷史走勢 ──────────────────────────────────
-render_portfolio_history()
-st.divider()
-
-# ── 4 帳戶詳細持倉 ────────────────────────────────────
-st.subheader("📋 持倉明細")
-
 def render_platform_detail(df, platform):
     sub = df[df["平台"] == platform].copy()
     sub = sub.sort_values("今日(TWD)", ascending=False)
-    v = sub["現值(TWD)"].sum()
-    p = sub["損益(TWD)"].sum()
-    t = sub["今日(TWD)"].sum()
+    v = sub["現值(TWD)"].sum(); p = sub["損益(TWD)"].sum(); t = sub["今日(TWD)"].sum()
     t_color = "🟢" if t >= 0 else "🔴"
-    p_color = "🟢" if p >= 0 else "🔴"
     label = (f"{t_color} {platform}　市值 NT${v:,}　"
              f"今日 {'▲' if t>=0 else '▼'} NT${abs(t):,}　"
              f"累積 {'▲' if p>=0 else '▼'} NT${abs(p):,}")
     with st.expander(label):
-        # 平台匯總指標
         mc1, mc2, mc3 = st.columns(3)
         mc1.metric("總市值", f"NT${v:,}")
         mc2.metric("今日損益", f"NT${t:+,}", delta_color="normal" if t >= 0 else "inverse")
         mc3.metric("累積損益", f"NT${p:+,}", delta_color="normal" if p >= 0 else "inverse")
         st.divider()
-
-        # 今日漲最多的標的標示
         if not sub.empty:
-            top_sym = sub.iloc[0]["標的"]
-            top_today = sub.iloc[0]["今日(TWD)"]
-            if top_today > 0:
-                st.success(f"🏆 今日最強：**{top_sym}**　今日 NT${top_today:+,}")
-            elif top_today < 0:
-                st.error(f"📉 今日最弱：**{top_sym}**　今日 NT${top_today:+,}")
-
-        # 每檔排名卡片
+            top_sym = sub.iloc[0]["標的"]; top_today = sub.iloc[0]["今日(TWD)"]
+            if top_today > 0:   st.success(f"🏆 今日最強：**{top_sym}**　今日 NT${top_today:+,}")
+            elif top_today < 0: st.error(f"📉 今日最弱：**{top_sym}**　今日 NT${top_today:+,}")
         max_abs = sub["今日(TWD)"].abs().max() or 1
         for rank_i, (_, row) in enumerate(sub.iterrows()):
-            sym      = row["標的"]
-            price    = row["現價"]
-            value    = row["現值(TWD)"]
-            today_v  = int(row["今日(TWD)"])
-            total_v  = int(row["損益(TWD)"])
-            today_pct= row["漲跌幅(%)"]
-            total_pct= row["總損益(%)"]
-            bar_w    = int(abs(today_v) / max_abs * 100)
+            sym = row["標的"]; price = row["現價"]; value = row["現值(TWD)"]
+            today_v = int(row["今日(TWD)"]); total_v = int(row["損益(TWD)"])
+            today_pct = row["漲跌幅(%)"]; total_pct = row["總損益(%)"]
+            bar_w = int(abs(today_v) / max_abs * 100)
             tc = "#22c55e" if today_v >= 0 else "#ef4444"
             pc = "#22c55e" if total_v >= 0 else "#ef4444"
-            medal = ("🥇" if rank_i == 0 else
-                     "🥈" if rank_i == 1 else
-                     "🥉" if rank_i == 2 else f"&nbsp;&nbsp;{rank_i+1}.")
+            medal = ("🥇" if rank_i == 0 else "🥈" if rank_i == 1 else "🥉" if rank_i == 2 else f"&nbsp;&nbsp;{rank_i+1}.")
             st.markdown(f"""
 <div style="background:#1e1e2e;border-radius:8px;padding:10px 14px;margin:5px 0;border-left:4px solid {tc}">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
@@ -2277,13 +2290,527 @@ def render_platform_detail(df, platform):
   </div>
 </div>""", unsafe_allow_html=True)
 
-for plat in ["國泰美股","國泰台股","派網","Firstrade"]:
-    render_platform_detail(df, plat)
+_RESALE_FILE = os.path.join(os.path.dirname(__file__), "data", "resale_items.json")
 
-# ── Finviz + 個股圖 ───────────────────────────────────
-st.divider()
-st.subheader("🌍 S&P 500 熱力圖")
-TV_HEATMAP = """
+def _load_resale():
+    try:
+        with open(_RESALE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
+def _save_resale(items):
+    os.makedirs(os.path.dirname(_RESALE_FILE), exist_ok=True)
+    with open(_RESALE_FILE, "w", encoding="utf-8") as f:
+        json.dump(items, f, ensure_ascii=False, indent=2)
+
+_deals_file = os.path.join(os.path.dirname(__file__), "deals.json")
+
+def _load_deals():
+    try:
+        with open(_deals_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"last_scan": None, "deals": []}
+
+_DECISION_FILE = os.path.join(os.path.dirname(__file__), "data", "decisions.csv")
+_DECISION_COLS = ["date","symbol","action","price","quantity","reasoning","confidence","market_condition"]
+
+def _load_decisions() -> pd.DataFrame:
+    if os.path.exists(_DECISION_FILE):
+        try:
+            return pd.read_csv(_DECISION_FILE, dtype=str)
+        except:
+            pass
+    return pd.DataFrame(columns=_DECISION_COLS)
+
+def _save_decision(row: dict):
+    os.makedirs(os.path.dirname(_DECISION_FILE), exist_ok=True)
+    exists = os.path.exists(_DECISION_FILE)
+    with open(_DECISION_FILE, "a", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=_DECISION_COLS)
+        if not exists:
+            w.writeheader()
+        w.writerow(row)
+
+def _get_anthropic_key() -> str:
+    try:
+        return st.secrets.get("ANTHROPIC_API_KEY", "")
+    except:
+        pass
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "config.json"), encoding="utf-8") as f:
+            return json.load(f).get("anthropic_api_key", "")
+    except:
+        return ""
+
+def _build_portfolio_context(df: pd.DataFrame, tw_q: dict, cry_q: dict, exrate: float) -> str:
+    today_str = date.today().strftime("%Y-%m-%d")
+    total_val = df["現值(TWD)"].sum()
+    total_gain = df["損益(TWD)"].sum()
+    gain_pct = total_gain / (total_val - total_gain) * 100 if (total_val - total_gain) > 0 else 0
+    lines = [
+        f"今天日期：{today_str}，USD/TWD 匯率：{exrate:.1f}",
+        f"總資產：NT${total_val:,.0f}，總損益：NT${total_gain:+,.0f}（{gain_pct:+.1f}%）",
+        "", "== 持倉明細 ==",
+    ]
+    for _, row in df.sort_values("損益(TWD)", ascending=False).iterrows():
+        lines.append(f"{row['平台']} | {row['標的']} | 現價 {row['現價']:.2f} | "
+                     f"現值 NT${row['現值(TWD)']:,.0f} | 損益 NT${row['損益(TWD)']:+,.0f}")
+    tw_in_zone = [f"{code} {info['name']} (現價 NT${tw_q.get(code,{}).get('price',0):,.0f}，入場區 {info['entry_zone'][0]}-{info['entry_zone'][1]})"
+                  for code, info in TW_WATCHLIST.items()
+                  if 0 < tw_q.get(code,{}).get("price",0) <= info["entry_zone"][1]]
+    if tw_in_zone:
+        lines += ["", "== 台股目前在入場區 =="] + tw_in_zone
+    cry_in_zone = [f"{sym} (現價 ${cry_q.get(sym,{}).get('price',0):.4f}，入場區 {info['entry_zone'][0]}-{info['entry_zone'][1]})"
+                   for sym, info in CRYPTO_WATCHLIST.items()
+                   if 0 < cry_q.get(sym,{}).get("price",0) <= info["entry_zone"][1]]
+    if cry_in_zone:
+        lines += ["", "== 加密貨幣目前在入場區 =="] + cry_in_zone
+    return "\n".join(lines)
+
+@st.fragment
+def render_decision_journal():
+    st.header("📓 投資決策日誌")
+    st.caption("記錄每次買賣理由 → 建立屬於你的投資記憶層")
+    with st.expander("✍️ 新增決策記錄", expanded=False):
+        dc1, dc2, dc3 = st.columns(3)
+        with dc1:
+            dj_date   = st.date_input("日期", value=date.today(), key="dj_date")
+            dj_sym    = st.text_input("標的代號 / 名稱", placeholder="e.g. NKE, 2330", key="dj_sym").upper().strip()
+            dj_action = st.selectbox("操作", ["買入","賣出","加碼","減碼","觀察","停損"], key="dj_action")
+        with dc2:
+            dj_price  = st.number_input("執行價格", min_value=0.0, step=0.01, key="dj_price")
+            dj_qty    = st.number_input("數量（股/顆）", min_value=0.0, step=1.0, key="dj_qty")
+            dj_mkt    = st.selectbox("市場情緒", ["多頭","空頭","震盪","不確定"], key="dj_mkt")
+        with dc3:
+            dj_conf   = st.slider("信心度 1–5", 1, 5, 3, key="dj_conf")
+            dj_reason = st.text_area("決策理由（為什麼做這個決定？）", height=100, key="dj_reason",
+                                     placeholder="e.g. NKE 跌到支撐區，RSI 超賣，基本面沒變，分批建倉")
+        if st.button("💾 儲存這筆決策", key="dj_save"):
+            if not dj_sym:
+                st.warning("請填入標的代號")
+            elif not dj_reason.strip():
+                st.warning("請填入決策理由（這是最重要的部分！）")
+            else:
+                _save_decision({"date": str(dj_date), "symbol": dj_sym, "action": dj_action,
+                                "price": dj_price, "quantity": dj_qty, "reasoning": dj_reason.strip(),
+                                "confidence": dj_conf, "market_condition": dj_mkt})
+                st.success("✅ 已記錄！")
+                st.rerun()
+    dj_df = _load_decisions()
+    if not dj_df.empty:
+        st.subheader(f"📋 歷史記錄（共 {len(dj_df)} 筆）")
+        syms = ["全部"] + sorted(dj_df["symbol"].dropna().unique().tolist())
+        filt = st.selectbox("篩選標的", syms, key="dj_filter")
+        show = dj_df if filt == "全部" else dj_df[dj_df["symbol"] == filt]
+        show = show.sort_values("date", ascending=False)
+        ACTION_ICON = {"買入":"🟢","賣出":"🔴","加碼":"📈","減碼":"📉","觀察":"👁️","停損":"🛑"}
+        CONF_STAR   = {1:"⭐",2:"⭐⭐",3:"⭐⭐⭐",4:"⭐⭐⭐⭐",5:"⭐⭐⭐⭐⭐"}
+        for _, r in show.head(20).iterrows():
+            icon  = ACTION_ICON.get(r.get("action",""), "📌")
+            stars = CONF_STAR.get(int(r.get("confidence", 3)), "")
+            st.markdown(f"""
+<div style='background:#1e1e2e;border-radius:8px;padding:10px 14px;margin:5px 0;border-left:3px solid #7c3aed'>
+  <div style='display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px'>
+    <span>{icon} <b>{r.get('action','')} {r.get('symbol','')}</b>
+      <span style='color:#94a3b8;font-size:12px;margin-left:8px'>@{r.get('price','')}　×{r.get('quantity','')}</span>
+    </span>
+    <span style='color:#64748b;font-size:12px'>{r.get('date','')} &nbsp; {stars} &nbsp; {r.get('market_condition','')}</span>
+  </div>
+  <div style='color:#cbd5e1;font-size:13px;margin-top:6px'>{r.get('reasoning','')}</div>
+</div>""", unsafe_allow_html=True)
+    else:
+        st.info("還沒有任何記錄，開始記錄你的第一筆投資決策吧！")
+
+@st.fragment
+def render_ai_chat(df: pd.DataFrame, tw_q: dict, cry_q: dict, exrate: float):
+    st.header("🤖 AI 投資助理")
+    api_key = _get_anthropic_key()
+    if not api_key:
+        st.info("💡 要啟用 AI 助理，請在 Streamlit Secrets 加入 `ANTHROPIC_API_KEY`，或在 config.json 加入 `anthropic_api_key`。")
+        with st.expander("如何設定？"):
+            st.code("""# Streamlit Cloud → Settings → Secrets：\nANTHROPIC_API_KEY = "sk-ant-xxxx"\n\n# 或本機 config.json：\n{\n  "anthropic_api_key": "sk-ant-xxxx"\n}""")
+        return
+    try:
+        import anthropic as _ant
+    except ImportError:
+        st.error("請先安裝：`pip install anthropic`")
+        return
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    portfolio_ctx = _build_portfolio_context(df, tw_q, cry_q, exrate)
+    SYSTEM_PROMPT = f"""你是 Jim 的專屬投資助理，叫做 Claude Finance。你說繁體中文，回答簡潔有力，每次不超過 200 字，除非被要求詳細說明。
+
+以下是 Jim 目前的投資組合和市場狀況（即時資料）：
+
+{portfolio_ctx}
+
+Jim 的目標：2026年底存到 20 萬 TWD 可投資資金，目前專注美股、台股、加密貨幣三個市場。
+回答時要結合上面的真實數據，不要說「我沒有數據」，數據就在上面。"""
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+    if prompt := st.chat_input("問我任何關於你投資組合的問題…", key="ai_chat_input"):
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            with st.spinner("思考中…"):
+                try:
+                    client = _ant.Anthropic(api_key=api_key)
+                    resp   = client.messages.create(
+                        model="claude-haiku-4-5-20251001",
+                        max_tokens=512,
+                        system=SYSTEM_PROMPT,
+                        messages=[{"role": m["role"], "content": m["content"]}
+                                  for m in st.session_state.chat_history],
+                    )
+                    answer = resp.content[0].text
+                except Exception as e:
+                    answer = f"❌ API 錯誤：{e}"
+                st.markdown(answer)
+                st.session_state.chat_history.append({"role": "assistant", "content": answer})
+    if st.session_state.chat_history:
+        if st.button("🗑️ 清除對話", key="clear_chat"):
+            st.session_state.chat_history = []
+            st.rerun()
+
+# ════════════════════════════════════════════════════
+# 4 個分頁
+# ════════════════════════════════════════════════════
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📈 投資", "🧠 生活系統", "🛍️ 撿漏轉賣", "🔬 研究", "🗺️ AI學習地圖", "📚 書庫"])
+
+# ══════════════════════════════════════════
+# TAB 1 — 投資
+# ══════════════════════════════════════════
+with tab1:
+    # ── 警報區 ────────────────────────────
+    if danger_list or entry_list:
+        if entry_list:
+            st.success("🚀 **急需入場警報**")
+            for a in entry_list:
+                st.markdown(f'<div class="alert-entry">{a}</div>', unsafe_allow_html=True)
+        if danger_list:
+            st.error("🚨 **個股危險警報**")
+            for a in danger_list:
+                st.markdown(f'<div class="alert-danger">{a}</div>', unsafe_allow_html=True)
+        st.divider()
+
+    # ── 今日狀態列 ────────────────────────
+    render_status_bar(df, _exrate)
+    st.divider()
+
+    # ── 派網部位快照 ──────────────────────
+    _px_file = os.path.join(os.path.dirname(__file__), "pionex_manual.json")
+    if os.path.exists(_px_file):
+        with open(_px_file, encoding="utf-8") as _pf:
+            _px = json.load(_pf)
+        with st.expander(f"📱 派網部位快照　更新：{_px.get('updated_at','—')}　總資產 ${_px.get('total_usd',0):,.2f}", expanded=True):
+            _px_cols = st.columns(4)
+            for _i, _pos in enumerate(_px.get("positions", [])):
+                _sym = _pos["symbol"]
+                _prc = _pos["price"]
+                _chg = _pos["change"]
+                _dir = _pos["direction"]
+                _arrow = "🟢" if _dir == "up" else ("🔴" if _dir == "down" else "➡️")
+                _chg_str = f"{_chg:+.2f}" if _chg != 0 else "持平"
+                _display_price = "****" if _public_mode else f"${_prc:,.2f}"
+                _display_chg   = _arrow if _public_mode else f"{_arrow} {_chg_str}"
+                _px_cols[_i % 4].markdown(
+                    f"<div style='background:#1e1e2e;border-radius:8px;padding:8px 12px;margin:4px 0'>"
+                    f"<div style='font-size:12px;color:#94a3b8'>{_sym}</div>"
+                    f"<div style='font-size:16px;font-weight:bold'>{_display_price}</div>"
+                    f"<div style='font-size:12px'>{_display_chg}</div>"
+                    f"</div>", unsafe_allow_html=True)
+            if not _public_mode:
+                with st.form("px_update"):
+                    st.caption("更新快照（貼上新數據後送出）")
+                    _pc1, _pc2, _pc3 = st.columns(3)
+                    with _pc1:
+                        _new_time  = st.text_input("更新時間", value=_px.get("updated_at",""), placeholder="2026-04-22 23:33")
+                        _new_total = st.number_input("總資產 USD", value=float(_px.get("total_usd",0)), step=0.01)
+                    with _pc2:
+                        _new_raw = st.text_area("貼上數據（每行：標的 價格 變動，空白分隔）",
+                            placeholder="MSFTX 431.93 1.29\nMETAX 674.92 0.30", height=150)
+                    if st.form_submit_button("💾 更新"):
+                        _new_positions = []
+                        for _line in _new_raw.strip().split("\n"):
+                            _parts = _line.strip().split()
+                            if len(_parts) >= 3:
+                                try:
+                                    _s, _p, _c = _parts[0], float(_parts[1]), float(_parts[2])
+                                    _new_positions.append({"symbol":_s,"price":_p,"change":_c,
+                                        "direction":"up" if _c>0 else ("down" if _c<0 else "flat")})
+                                except: pass
+                        if _new_positions:
+                            _px["updated_at"] = _new_time
+                            _px["total_usd"]  = _new_total
+                            _px["positions"]  = _new_positions
+                            with open(_px_file, "w", encoding="utf-8") as _wf:
+                                json.dump(_px, _wf, ensure_ascii=False, indent=2)
+                            st.success("已更新！"); st.rerun()
+    st.divider()
+
+    # ── 市場 Insights ─────────────────────
+    render_market_insights(us_q)
+    st.divider()
+
+    # ── 4 帳戶總覽 ────────────────────────
+    _platforms = ["國泰美股","國泰台股","派網","Firstrade"]
+    cols = st.columns(5)
+    cols[0].metric("💰 總市值", f"NT$ {total_val:,}")
+    cols[0].markdown(_pnl_html(total_today, total_pnl), unsafe_allow_html=True)
+    for i, plat in enumerate(_platforms):
+        sub   = df[df["平台"]==plat]
+        val   = sub["現值(TWD)"].sum()
+        today = sub["今日(TWD)"].sum()
+        pnl   = sub["損益(TWD)"].sum()
+        cols[i+1].metric(plat, f"NT$ {val:,}")
+        cols[i+1].markdown(_pnl_html(today, pnl), unsafe_allow_html=True)
+    st.divider()
+
+    # ── Beta 壓力測試 ─────────────────────
+    with st.expander("📉 Beta 壓力測試 — 市場下跌我損失多少？"):
+        _BETA_MAP = {
+            "MSTRX":2.8, "SMRX":3.0, "ARKM":2.5, "SOL":2.8, "IONQ":2.2,
+            "IONQX":2.2, "SMCIX":2.2, "TSLAX":2.0, "NVOX":1.8, "HIMSX":1.2,
+            "ORCLX":1.1, "METAX":1.3, "MSFTX":1.1,
+            "TSLA":2.0, "RXRX":2.5, "JOBY":2.5, "HIMS":1.5, "LULU":1.2,
+            "NKE":0.8, "ORCL":1.1, "MSFT":1.0,
+            "00763U":0.7, "1303":0.9, "1326":0.9, "2027":0.9,
+            "2317":1.1, "2344":1.2, "3481":1.2, "6148":1.0,
+        }
+        _DEFAULT_BETA = 1.2
+        _beta_rows = []
+        for _, row in df[~df["標的"].isin(["USDT"])].iterrows():
+            sym  = row["標的"].split("→")[-1] if "→" in row["標的"] else row["標的"]
+            val  = row["現值(TWD)"]
+            beta = _BETA_MAP.get(sym, _DEFAULT_BETA)
+            _beta_rows.append((sym, val, beta))
+        total_v = sum(v for _, v, _ in _beta_rows)
+        w_beta  = sum(v * b for _, v, b in _beta_rows) / total_v if total_v > 0 else _DEFAULT_BETA
+        bc1, bc2, bc3, bc4 = st.columns(4)
+        bc1.metric("加權 Beta", f"{w_beta:.2f}x", help="組合整體相對大盤波動倍數")
+        for (label, pct), col in zip([("大盤 -5%",-5),("大盤 -10%",-10),("大盤 -20%",-20)], [bc2,bc3,bc4]):
+            loss = total_v * (pct / 100) * w_beta
+            col.metric(label, f"NT${loss:,.0f}", delta=f"{pct*w_beta:.1f}%", delta_color="inverse")
+        high_beta = sorted([(s,v,b) for s,v,b in _beta_rows if b >= 2.0], key=lambda x: -x[2])[:5]
+        if high_beta:
+            st.caption("⚠️ 高 Beta 標的（Beta ≥ 2x）")
+            _hb_df = pd.DataFrame([{"標的":s,"現值(TWD)":int(v),"Beta":b,"大盤-10%預估":f"NT${v*(-0.1)*b:,.0f}"} for s,v,b in high_beta])
+            st.dataframe(_hb_df, hide_index=True, use_container_width=True)
+    st.divider()
+
+    # ── 出場 / 進場優先 ───────────────────
+    col_exit, col_entry = st.columns(2)
+    with col_exit:
+        st.subheader("🚨 出場優先排名")
+        exit_rows = []
+        for _, row in df.iterrows():
+            raw = row["標的"]; sym = raw.split("→")[-1] if "→" in raw else raw
+            info = ANALYST.get(sym)
+            if not info or info["action"] != "SELL": continue
+            price = row["現價"]; pnl_pct = row["總損益(%)"]
+            stop = info.get("stop", 0)
+            dist_stop = (price - stop) / price * 100 if stop and price else 0
+            urgency = -pnl_pct + (5 - dist_stop if dist_stop < 5 else 0)
+            exit_rows.append({"_urgency":urgency,"標的":sym,"現價":f"${price:.2f}",
+                               "損益":f"{pnl_pct:+.1f}%","停損":f"${stop:.0f}" if stop else "—",
+                               "原因":info["reason"],"更新":info.get("date","")})
+        exit_rows.sort(key=lambda x: x["_urgency"], reverse=True)
+        for i, r in enumerate(exit_rows, 1):
+            color = "#ef4444" if i == 1 else ("#f97316" if i == 2 else "#eab308")
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-left:4px solid {color};padding:10px;border-radius:6px;margin:6px 0">
+<b>#{i} {r['標的']}</b>　現價 {r['現價']}　損益 <span style="color:{color}">{r['損益']}</span>　停損 {r['停損']}<br>
+<span style="font-size:13px;color:#94a3b8">{r['原因']}</span>
+</div>""", unsafe_allow_html=True)
+        if not exit_rows: st.info("目前無出場建議")
+
+    with col_entry:
+        st.subheader("🚀 進場優先排名")
+        entry_rows = []; seen_syms = set()
+        for _, row in df.iterrows():
+            raw = row["標的"]; sym = raw.split("→")[-1] if "→" in raw else raw
+            if sym in seen_syms: continue
+            seen_syms.add(sym)
+            info = ANALYST.get(sym)
+            if not info or info["action"] != "BUY": continue
+            price = row["現價"]; target = info.get("target", 0)
+            upside = (target - price) / price * 100 if target and price else 0
+            entry_rows.append({"_upside":upside,"標的":sym,"類型":"持倉加碼",
+                                "現價":f"${price:.2f}","目標":f"${target:.0f}",
+                                "潛力":f"+{upside:.0f}%","原因":info["reason"]})
+        wl_q2 = fetch_us_quotes(tuple(WATCHLIST.keys()))
+        for sym, info in WATCHLIST.items():
+            q = wl_q2.get(sym, {}); price = q.get("price", 0)
+            if not price: continue
+            lo, hi = info["entry_zone"]
+            if price > hi * 1.05: continue
+            upside = (info["target"] - price) / price * 100 if price else 0
+            status = "🟢 已進場區" if price <= hi else "🟡 接近進場"
+            entry_rows.append({"_upside":upside+(20 if price<=hi else 0),"標的":sym,
+                                "類型":status,"現價":f"${price:.2f}","目標":f"${info['target']:.0f}",
+                                "潛力":f"+{upside:.0f}%","原因":info["reason"]})
+        entry_rows.sort(key=lambda x: x["_upside"], reverse=True)
+        for i, r in enumerate(entry_rows[:6], 1):
+            color = "#22c55e" if "進場區" in r["類型"] else ("#0ea5e9" if i <= 2 else "#7c3aed")
+            st.markdown(f"""
+<div style="background:#1e1e2e;border-left:4px solid {color};padding:10px;border-radius:6px;margin:6px 0">
+<b>#{i} {r['標的']}</b>　<span style="color:{color}">{r['類型']}</span>　{r['現價']} → {r['目標']}　<b style="color:{color}">{r['潛力']}</b><br>
+<span style="font-size:13px;color:#94a3b8">{r['原因']}</span>
+</div>""", unsafe_allow_html=True)
+        if not entry_rows: st.info("目前無進場機會")
+    st.divider()
+
+    # ── 財報日曆 + 資金利用率 ─────────────
+    EARNINGS_CAL = [
+        {"sym":"MSFT", "date":"2026-04-29", "note":"Azure成長 + AI Copilot"},
+        {"sym":"META", "date":"2026-04-30", "note":"AI廣告收入"},
+        {"sym":"GOOG", "date":"2026-04-29", "note":"搜尋+廣告+Cloud"},
+        {"sym":"ORCL", "date":"2026-06-10", "note":"雲端+AI訂單"},
+        {"sym":"NVDL", "date":"2026-05-28", "note":"NVDA財報（槓桿ETF受影響）"},
+    ]
+    today_dt = datetime.now().date()
+    cal_col, fund_col = st.columns([1.2, 1])
+    with cal_col:
+        st.subheader("📅 財報日曆")
+        for e in sorted(EARNINGS_CAL, key=lambda x: x["date"]):
+            edate = datetime.strptime(e["date"], "%Y-%m-%d").date()
+            days_left = (edate - today_dt).days
+            if days_left < 0: continue
+            urgency = "🔴" if days_left <= 7 else ("🟡" if days_left <= 14 else "🟢")
+            st.markdown(f"{urgency} **{e['sym']}**　{e['date']}　（{days_left}天後）　{e['note']}")
+    with fund_col:
+        st.subheader("💵 資金利用率")
+        usdt_val  = df[df["標的"]=="USDT"]["現值(TWD)"].sum()
+        total_all = df["現值(TWD)"].sum()
+        invested  = total_all - usdt_val
+        util_pct  = invested / total_all * 100 if total_all else 0
+        idle_usd  = usdt_val / _exrate
+        sell_syms = ["JOBY","NVDL","PYPL","RUN"]
+        sell_val  = df[df["標的"].isin(sell_syms)]["現值(TWD)"].sum()
+        sell_usd  = sell_val / _exrate
+        st.metric("閒置 USDT", f"${idle_usd:.0f}　≈ NT${usdt_val:,.0f}")
+        st.metric("投資部位", f"{util_pct:.1f}% 已投入", delta=f"閒置 {100-util_pct:.1f}%")
+        if sell_val > 0:
+            st.info(f"📤 出場候選（{', '.join(sell_syms)}）\n可釋放 **NT${sell_val:,.0f}**（≈ **${sell_usd:.0f}**）")
+    st.divider()
+
+    # ── 操作建議 ──────────────────────────
+    st.subheader("🎯 操作建議")
+    buy_r, hold_r, sell_r = build_rec_rows(df)
+    _rb, _rh, _rs = st.columns(3)
+    with _rb:
+        st.markdown(f"**✅ 加碼 ({len(buy_r)})**")
+        for r in buy_r: st.markdown(_rec_card(r,"#22c55e"), unsafe_allow_html=True)
+    with _rh:
+        st.markdown(f"**⏸️ 觀望 ({len(hold_r)})**")
+        for r in hold_r: st.markdown(_rec_card(r,"#94a3b8"), unsafe_allow_html=True)
+    with _rs:
+        st.markdown(f"**🚨 出場 ({len(sell_r)})**")
+        for r in sell_r: st.markdown(_rec_card(r,"#ef4444"), unsafe_allow_html=True)
+    st.divider()
+
+    # ── 圖表 + 新聞 ───────────────────────
+    left, right = st.columns([1.2, 1])
+    with left:
+        pie = df.groupby("平台")["現值(TWD)"].sum().reset_index()
+        fig_pie = px.pie(pie, names="平台", values="現值(TWD)", hole=0.4, title="帳戶分佈",
+                         color_discrete_sequence=["#7c3aed","#f59e0b","#0ea5e9","#10b981"])
+        st.plotly_chart(fig_pie, use_container_width=True)
+        today_df = df[~df["標的"].isin(["USDT"])].sort_values("今日(TWD)").copy()
+        plat_colors = {"國泰美股":"#0ea5e9","國泰台股":"#f59e0b","派網":"#7c3aed","Firstrade":"#10b981"}
+        today_df["顏色"] = today_df.apply(
+            lambda r: plat_colors.get(r["平台"],"#6b7280") if r["今日(TWD)"]>=0 else "#ef4444", axis=1)
+        fig_today = go.Figure(go.Bar(
+            x=today_df["今日(TWD)"], y=today_df["標的"], orientation='h',
+            marker_color=today_df["顏色"],
+            text=[f"NT${v:+,}" for v in today_df["今日(TWD)"]], textposition='outside',
+            customdata=today_df["平台"],
+            hovertemplate="%{y}  %{customdata}<br>今日 NT$%{x:+,}<extra></extra>"))
+        fig_today.update_layout(title="今日損益排行(NT$)", height=520, margin=dict(l=0,r=80,t=40,b=0))
+        st.plotly_chart(fig_today, use_container_width=True)
+    with right:
+        st.subheader("🎙️ FinancialJuice 即時新聞")
+        components.iframe("https://www.financialjuice.com/feed", height=750, scrolling=True)
+    st.divider()
+
+    # ── 觀察清單 ──────────────────────────
+    st.subheader("👀 觀察清單")
+    wl_q = fetch_us_quotes(tuple(WATCHLIST.keys()))
+    wl_rows = []
+    for sym, info in WATCHLIST.items():
+        q = wl_q.get(sym,{}); price = q.get("price",0); chg = q.get("chg_pct",0)
+        lo, hi = info["entry_zone"]
+        if price == 0: status = "❓"
+        elif price <= lo: status = "🟢 進場！"
+        elif price <= hi: status = "🟡 接近"
+        elif (price-hi)/hi*100 <= 10: status = "🔵 觀察"
+        else: status = "⚪ 等待"
+        upside = (info["target"]-price)/price*100 if price else 0
+        pct_away = f"+{(price-hi)/hi*100:.0f}%" if price > hi else "✓進場區"
+        tech = fetch_technicals(sym)
+        wl_rows.append({
+            "狀態":status,"標的":sym,"主題":info["theme"],
+            "現價":f"${price:.2f}","今日":f"{chg:+.1f}%",
+            "多空":tech.get("sentiment","—"),"RSI":tech.get("rsi","—"),
+            "支撐":f"${tech['support']}" if tech.get("support") else "—",
+            "壓力":f"${tech['resist']}" if tech.get("resist") else "—",
+            "進場區":f"${lo}~${hi}","距進場":pct_away,
+            "目標":f"${info['target']:.0f}","潛在獲利":f"+{upside:.0f}%",
+            "停損":f"${info['stop']:.0f}","更新":info["date"],"邏輯":info["reason"],
+        })
+    wl_df = pd.DataFrame(wl_rows)
+    ready = wl_df[wl_df["狀態"].str.contains("進場！",na=False)]
+    near  = wl_df[wl_df["狀態"].str.contains("接近",na=False)]
+    if not ready.empty: st.success(f"🟢 已入進場區：{', '.join(ready['標的'])}")
+    if not near.empty:  st.warning(f"🟡 接近進場：{', '.join(near['標的'])}")
+    def color_wl(val):
+        if "進場！" in str(val): return "background:#14532d;color:#86efac"
+        if "接近"   in str(val): return "background:#713f12;color:#fde68a"
+        return ""
+    st.dataframe(wl_df.style.map(color_wl, subset=["狀態"]), use_container_width=True, hide_index=True)
+    with st.expander("📈 個股深度分析"):
+        pick = st.selectbox("選擇：", list(WATCHLIST.keys()), key="wl_pick")
+        info = WATCHLIST[pick]; q = wl_q.get(pick,{}); price = q.get("price",0)
+        tech = fetch_technicals(pick)
+        c1,c2,c3,c4 = st.columns(4)
+        c1.metric("現價", f"${price:.2f}", f"{q.get('chg_pct',0):+.2f}%")
+        c2.metric("進場區", f"${info['entry_zone'][0]}~${info['entry_zone'][1]}")
+        c3.metric("目標", f"${info['target']:.0f}", f"+{(info['target']-price)/price*100:.0f}%" if price else None)
+        c4.metric("RSI", tech.get("rsi","—"))
+        if tech:
+            s,r = tech["support"], tech["resist"]
+            pos = max(0,min(100,(price-s)/(r-s)*100)) if r != s else 50
+            st.progress(int(pos), text=f"支撐 ${s}  ←  ${price:.2f}  →  壓力 ${r}")
+        TV_WL = f"""
+<div class="tradingview-widget-container" style="height:280px;width:100%">
+  <div class="tradingview-widget-container__widget" style="height:280px;width:100%"></div>
+  <script type="text/javascript"
+    src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+  {{"symbol":"{pick}","width":"100%","height":280,"locale":"en",
+    "dateRange":"3M","colorTheme":"dark","isTransparent":false,"autosize":true}}
+  </script>
+</div>"""
+        components.html(TV_WL, height=300)
+        st.caption(f"📌 {info['reason']}  （更新：{info['date']}）")
+    st.divider()
+
+    # ── 投資組合歷史走勢 ──────────────────
+    render_portfolio_history()
+    st.divider()
+
+    # ── 持倉明細 ──────────────────────────
+    st.subheader("📋 持倉明細")
+    for plat in ["國泰美股","國泰台股","派網","Firstrade"]:
+        render_platform_detail(df, plat)
+    st.divider()
+
+    # ── S&P 500 熱力圖 ────────────────────
+    st.subheader("🌍 S&P 500 熱力圖")
+    TV_HEATMAP = """
 <div class="tradingview-widget-container" style="height:400px;width:100%">
   <div class="tradingview-widget-container__widget" style="height:400px;width:100%"></div>
   <script type="text/javascript"
@@ -2303,122 +2830,96 @@ TV_HEATMAP = """
   }
   </script>
 </div>"""
-components.html(TV_HEATMAP, height=420)
-
-# ── Insider Trading ──────────────────────────────────
-st.divider()
-_held_syms = list(set(df["標的"].str.split("→").str[-1].tolist()))
-render_insider_trading(_held_syms)
-
-# ── 加密貨幣追蹤 + 觀察清單 ───────────────────────────
-st.divider()
-render_crypto_dashboard(cry_q, _exrate)
-
-# ── YouTube 研究筆記 + 待辦事項 ───────────────────────
-st.divider()
-try:
-    render_research_notes()
-except Exception as _rr_err:
-    st.error(f"研究筆記載入失敗：{_rr_err}")
-
-# ── 轉賣追蹤 ─────────────────────────────────────────
-_RESALE_FILE = os.path.join(os.path.dirname(__file__), "data", "resale_items.json")
-
-def _load_resale():
-    try:
-        with open(_RESALE_FILE, encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return []
-
-def _save_resale(items):
-    os.makedirs(os.path.dirname(_RESALE_FILE), exist_ok=True)
-    with open(_RESALE_FILE, "w", encoding="utf-8") as f:
-        json.dump(items, f, ensure_ascii=False, indent=2)
-
-_resale_items = _load_resale()
-st.divider()
-_rc1, _rc2 = st.columns([4,1])
-_rc1.header("🧴 撿漏轉賣追蹤")
-
-# ── 新增品項表單 ───────────────────────────────────────
-with st.expander("➕ 新增品項", expanded=(len(_resale_items) == 0)):
-    _nc1, _nc2, _nc3 = st.columns(3)
-    with _nc1:
-        _n_name     = st.text_input("品名", placeholder="LOEWE 小黃瓜蠟燭 170g", key="rn_name")
-        _n_brand    = st.text_input("品牌", placeholder="LOEWE / Diptyque...", key="rn_brand")
-        _n_category = st.selectbox("類別", ["香氛蠟燭","香水","保養品","包包","其他"], key="rn_cat")
-    with _nc2:
-        _n_cost     = st.number_input("入手成本 NT$", min_value=0, step=100, key="rn_cost")
-        _n_market   = st.number_input("市場行情 NT$（專櫃/市價）", min_value=0, step=100, key="rn_market")
-        _n_suggest  = st.number_input("建議售價 NT$", min_value=0, step=100, key="rn_suggest")
-    with _nc3:
-        _n_note     = st.text_area("備註", placeholder="限量款、全新有盒...", height=80, key="rn_note")
-        _n_date     = st.date_input("入手日期", value=date.today(), key="rn_date")
-        if st.button("✅ 新增", type="primary", key="rn_add"):
-            if _n_name.strip():
-                _new_id = max((i["id"] for i in _resale_items), default=0) + 1
-                _resale_items.append({
-                    "id": _new_id,
-                    "name": _n_name.strip(),
-                    "brand": _n_brand.strip(),
-                    "category": _n_category,
-                    "cost": int(_n_cost),
-                    "market_price": int(_n_market),
-                    "suggest_price": int(_n_suggest),
-                    "status": "待售",
-                    "platform": "",
-                    "sold_price": 0,
-                    "note": _n_note.strip(),
-                    "acquired_date": _n_date.isoformat(),
-                })
-                _save_resale(_resale_items)
-                st.success(f"✅ 已新增：{_n_name.strip()}")
-                st.rerun()
-            else:
-                st.warning("請填寫品名")
-
-if _resale_items:
-    _ri_df = pd.DataFrame(_resale_items)
-
-    # ── 總覽指標 ────────────────────────────────────
-    _total_cost    = sum(i["cost"] for i in _resale_items)
-    _total_market  = sum(i["market_price"] for i in _resale_items)
-    _total_suggest = sum(i["suggest_price"] for i in _resale_items)
-    _sold_items    = [i for i in _resale_items if i["status"] == "已售出"]
-    _total_sold    = sum(i["sold_price"] for i in _sold_items)
-    _total_profit_if_sold = _total_suggest - _total_cost
-    _realized_profit = _total_sold - sum(i["cost"] for i in _sold_items)
-
-    _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
-    _mc1.metric("總入手成本",   f"NT${_total_cost:,}")
-    _mc2.metric("市場行情總值", f"NT${_total_market:,}", f"+{(_total_market/_total_cost-1)*100:.0f}%")
-    _mc3.metric("建議售價總計", f"NT${_total_suggest:,}")
-    _mc4.metric("預估利潤",     f"NT${_total_profit_if_sold:,}",
-                delta_color="normal" if _total_profit_if_sold > 0 else "inverse")
-    _mc5.metric("已實現利潤",   f"NT${_realized_profit:,}" if _sold_items else "—")
-
+    components.html(TV_HEATMAP, height=420)
     st.divider()
 
-    # ── 每品項卡片 ───────────────────────────────────
-    STATUS_COLOR = {"待售":"#f59e0b","上架中":"#3b82f6","已售出":"#22c55e","自留":"#94a3b8"}
-    _resale_changed = False
+    # ── Insider Trading ───────────────────
+    _held_syms = list(set(df["標的"].str.split("→").str[-1].tolist()))
+    render_insider_trading(_held_syms)
+    st.divider()
 
-    for _ri in _resale_items:
-        _margin_pct = (_ri["suggest_price"] - _ri["cost"]) / _ri["cost"] * 100
-        _vs_market  = (1 - _ri["suggest_price"] / _ri["market_price"]) * 100
-        _sc = STATUS_COLOR.get(_ri["status"], "#94a3b8")
-        _sold_flag = _ri["status"] == "已售出"
+    # ── 台股觀察清單 ──────────────────────
+    render_tw_watchlist(tw_q)
+    st.divider()
 
-        _card_col, _ctrl_col = st.columns([3, 2])
-        with _card_col:
-            st.markdown(f"""
+    # ── 加密貨幣追蹤 ──────────────────────
+    render_crypto_dashboard(cry_q, _exrate)
+
+# ══════════════════════════════════════════
+# TAB 2 — 生活系統
+# ══════════════════════════════════════════
+with tab2:
+    render_daily_upgrade(df, cry_q)
+    st.divider()
+    render_daily_system()
+
+# ══════════════════════════════════════════
+# TAB 3 — 撿漏轉賣
+# ══════════════════════════════════════════
+with tab3:
+    _resale_items = _load_resale()
+    st.header("🧴 撿漏轉賣追蹤")
+
+    with st.expander("➕ 新增品項", expanded=(len(_resale_items) == 0)):
+        _nc1, _nc2, _nc3 = st.columns(3)
+        with _nc1:
+            _n_name     = st.text_input("品名", placeholder="LOEWE 小黃瓜蠟燭 170g", key="rn_name")
+            _n_brand    = st.text_input("品牌", placeholder="LOEWE / Diptyque...", key="rn_brand")
+            _n_category = st.selectbox("類別", ["電吉他","木吉他/民謠吉他","貝斯","鍵盤/電鋼琴","其他樂器","單眼相機機身","鏡頭","攝影周邊","其他"], key="rn_cat")
+        with _nc2:
+            _n_cost     = st.number_input("入手成本 NT$", min_value=0, step=100, key="rn_cost")
+            _n_market   = st.number_input("市場行情 NT$（專櫃/市價）", min_value=0, step=100, key="rn_market")
+            _n_suggest  = st.number_input("建議售價 NT$", min_value=0, step=100, key="rn_suggest")
+        with _nc3:
+            _n_note     = st.text_area("備註", placeholder="限量款、全新有盒...", height=80, key="rn_note")
+            _n_date     = st.date_input("入手日期", value=date.today(), key="rn_date")
+            if st.button("✅ 新增", type="primary", key="rn_add"):
+                if _n_name.strip():
+                    _new_id = max((i["id"] for i in _resale_items), default=0) + 1
+                    _resale_items.append({
+                        "id": _new_id, "name": _n_name.strip(), "brand": _n_brand.strip(),
+                        "category": _n_category, "cost": int(_n_cost),
+                        "market_price": int(_n_market), "suggest_price": int(_n_suggest),
+                        "status": "待售", "platform": "", "sold_price": 0,
+                        "note": _n_note.strip(), "acquired_date": _n_date.isoformat(),
+                    })
+                    _save_resale(_resale_items)
+                    st.success(f"✅ 已新增：{_n_name.strip()}")
+                    st.rerun()
+                else:
+                    st.warning("請填寫品名")
+
+    if _resale_items:
+        _total_cost    = sum(i["cost"] for i in _resale_items)
+        _total_market  = sum(i["market_price"] for i in _resale_items)
+        _total_suggest = sum(i["suggest_price"] for i in _resale_items)
+        _sold_items    = [i for i in _resale_items if i["status"] == "已售出"]
+        _total_sold    = sum(i["sold_price"] for i in _sold_items)
+        _total_profit_if_sold = _total_suggest - _total_cost
+        _realized_profit = _total_sold - sum(i["cost"] for i in _sold_items)
+        _mc1, _mc2, _mc3, _mc4, _mc5 = st.columns(5)
+        _mc1.metric("總入手成本",   f"NT${_total_cost:,}")
+        _mc2.metric("市場行情總值", f"NT${_total_market:,}", f"+{(_total_market/_total_cost-1)*100:.0f}%")
+        _mc3.metric("建議售價總計", f"NT${_total_suggest:,}")
+        _mc4.metric("預估利潤",     f"NT${_total_profit_if_sold:,}",
+                    delta_color="normal" if _total_profit_if_sold > 0 else "inverse")
+        _mc5.metric("已實現利潤",   f"NT${_realized_profit:,}" if _sold_items else "—")
+        st.divider()
+
+        STATUS_COLOR = {"待售":"#f59e0b","上架中":"#3b82f6","已售出":"#22c55e","自留":"#94a3b8"}
+        _resale_changed = False
+        for _ri in _resale_items:
+            _margin_pct = (_ri["suggest_price"] - _ri["cost"]) / _ri["cost"] * 100
+            _vs_market  = (1 - _ri["suggest_price"] / _ri["market_price"]) * 100
+            _sc = STATUS_COLOR.get(_ri["status"], "#94a3b8")
+            _card_col, _ctrl_col = st.columns([3, 2])
+            with _card_col:
+                st.markdown(f"""
 <div style="background:#1e1e2e;border-radius:8px;padding:12px 16px;border-left:4px solid {_sc}">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
     <div>
       <span style="font-weight:bold;font-size:15px">{_ri['name']}</span>
-      <span style="background:{_sc}22;color:{_sc};padding:2px 8px;border-radius:4px;
-            font-size:12px;margin-left:8px">{_ri['status']}</span>
+      <span style="background:{_sc}22;color:{_sc};padding:2px 8px;border-radius:4px;font-size:12px;margin-left:8px">{_ri['status']}</span>
     </div>
     <span style="color:#22c55e;font-size:13px">利潤空間 +{_margin_pct:.0f}%</span>
   </div>
@@ -2430,176 +2931,111 @@ if _resale_items:
   </div>
   <div style="color:#94a3b8;font-size:12px;margin-top:6px">{_ri['note']}</div>
 </div>""", unsafe_allow_html=True)
-
-        with _ctrl_col:
-            _new_status = st.selectbox(
-                "狀態", ["待售","上架中","已售出","自留"],
-                index=["待售","上架中","已售出","自留"].index(_ri.get("status","待售")),
-                key=f"rs_status_{_ri['id']}")
-            _new_platform = st.text_input("平台", value=_ri.get("platform",""),
-                                          placeholder="蝦皮/社團...",
-                                          key=f"rs_plat_{_ri['id']}")
-            _ce1, _ce2 = st.columns(2)
-            _new_cost    = _ce1.number_input("成本", value=int(_ri.get("cost",0)),    step=100, key=f"rs_cost_{_ri['id']}")
-            _new_market  = _ce2.number_input("行情", value=int(_ri.get("market_price",0)), step=100, key=f"rs_mkt_{_ri['id']}")
-            _new_suggest = _ce1.number_input("售價", value=int(_ri.get("suggest_price",0)), step=100, key=f"rs_sug_{_ri['id']}")
-            _new_sold    = _ce2.number_input("實售", value=int(_ri.get("sold_price",0)),   step=100, key=f"rs_sold_{_ri['id']}")
-            _del_btn = st.button("🗑️ 刪除", key=f"rs_del_{_ri['id']}", type="secondary")
-
-            if _del_btn:
-                _resale_items = [i for i in _resale_items if i["id"] != _ri["id"]]
-                _save_resale(_resale_items)
-                st.rerun()
-
-            if (_new_status != _ri["status"] or
-                _new_platform != _ri.get("platform","") or
-                _new_cost    != _ri.get("cost", 0) or
-                _new_market  != _ri.get("market_price", 0) or
-                _new_suggest != _ri.get("suggest_price", 0) or
-                _new_sold    != _ri.get("sold_price", 0)):
-                _ri["status"]        = _new_status
-                _ri["platform"]      = _new_platform
-                _ri["cost"]          = int(_new_cost)
-                _ri["market_price"]  = int(_new_market)
-                _ri["suggest_price"] = int(_new_suggest)
-                _ri["sold_price"]    = int(_new_sold)
-                _resale_changed = True
-
-    if _resale_changed:
-        _save_resale(_resale_items)
-        st.rerun()
-
-    # ── 打包建議 ────────────────────────────────────
-    _pending = [i for i in _resale_items if i["status"] in ("待售","上架中")]
-    if len(_pending) >= 2:
-        _bundle_cost   = sum(i["cost"] for i in _pending)
-        _bundle_min    = int(sum(i["suggest_price"] for i in _pending) * 0.88)
-        _bundle_max    = int(sum(i["suggest_price"] for i in _pending) * 0.95)
-        _bundle_profit = _bundle_min - _bundle_cost
-        st.info(f"💡 **打包銷售建議**：{len(_pending)} 件合售 NT${_bundle_min:,} ~ NT${_bundle_max:,}　"
-                f"（預估利潤 NT${_bundle_profit:,}，省去分開寄送麻煩）")
-
-else:
-    st.info("尚無轉賣追蹤項目")
-
-# ── 撿漏監控 ─────────────────────────────────────────
-st.divider()
-st.header("🛒 FB Marketplace 撿漏監控")
-
-_deals_file = os.path.join(os.path.dirname(__file__), "deals.json")
-_config_file = os.path.join(os.path.dirname(__file__), "config.json")
-
-def _load_deals():
-    try:
-        with open(_deals_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {"last_scan": None, "deals": []}
-
-def _load_scraper_config():
-    try:
-        with open(_config_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-_deal_data = _load_deals()
-_scraper_cfg = _load_scraper_config()
-_threshold = _scraper_cfg.get("threshold_ratio", 0.6)
-
-# ── 狀態列 ────────────────────────────────────────────
-_col_info1, _col_info2, _col_info3, _col_info4 = st.columns(4)
-_scan_time_str = _deal_data.get("last_scan")
-with _col_info1:
-    if _scan_time_str:
-        try:
-            from datetime import timezone as _tz
-            _st_dt = datetime.fromisoformat(_scan_time_str)
-            _now_tz = datetime.now(_st_dt.tzinfo) if _st_dt.tzinfo else datetime.now()
-            _hours_ago = (_now_tz - _st_dt).total_seconds() / 3600
-            _freshness = ("🟢 剛更新" if _hours_ago < 5 else
-                          "🟡 稍舊" if _hours_ago < 24 else "🔴 已過期")
-            st.metric("上次掃描", _scan_time_str[5:16].replace("T"," "))
-            st.caption(f"{_freshness}　{_hours_ago:.0f} 小時前")
-        except:
-            st.metric("上次掃描", _scan_time_str[:16].replace("T"," "))
+            with _ctrl_col:
+                _new_status = st.selectbox(
+                    "狀態", ["待售","上架中","已售出","自留"],
+                    index=["待售","上架中","已售出","自留"].index(_ri.get("status","待售")),
+                    key=f"rs_status_{_ri['id']}")
+                _new_platform = st.text_input("平台", value=_ri.get("platform",""),
+                                              placeholder="蝦皮/社團...", key=f"rs_plat_{_ri['id']}")
+                _ce1, _ce2 = st.columns(2)
+                _new_cost    = _ce1.number_input("成本", value=int(_ri.get("cost",0)), step=100, key=f"rs_cost_{_ri['id']}")
+                _new_market  = _ce2.number_input("行情", value=int(_ri.get("market_price",0)), step=100, key=f"rs_mkt_{_ri['id']}")
+                _new_suggest = _ce1.number_input("售價", value=int(_ri.get("suggest_price",0)), step=100, key=f"rs_sug_{_ri['id']}")
+                _new_sold    = _ce2.number_input("實售", value=int(_ri.get("sold_price",0)), step=100, key=f"rs_sold_{_ri['id']}")
+                if st.button("🗑️ 刪除", key=f"rs_del_{_ri['id']}", type="secondary"):
+                    _resale_items = [i for i in _resale_items if i["id"] != _ri["id"]]
+                    _save_resale(_resale_items); st.rerun()
+                if (_new_status != _ri["status"] or _new_platform != _ri.get("platform","") or
+                    _new_cost != _ri.get("cost",0) or _new_market != _ri.get("market_price",0) or
+                    _new_suggest != _ri.get("suggest_price",0) or _new_sold != _ri.get("sold_price",0)):
+                    _ri["status"] = _new_status; _ri["platform"] = _new_platform
+                    _ri["cost"] = int(_new_cost); _ri["market_price"] = int(_new_market)
+                    _ri["suggest_price"] = int(_new_suggest); _ri["sold_price"] = int(_new_sold)
+                    _resale_changed = True
+        if _resale_changed:
+            _save_resale(_resale_items); st.rerun()
+        _pending = [i for i in _resale_items if i["status"] in ("待售","上架中")]
+        if len(_pending) >= 2:
+            _bundle_cost = sum(i["cost"] for i in _pending)
+            _bundle_min  = int(sum(i["suggest_price"] for i in _pending) * 0.88)
+            _bundle_max  = int(sum(i["suggest_price"] for i in _pending) * 0.95)
+            st.info(f"💡 **打包銷售建議**：{len(_pending)} 件合售 NT${_bundle_min:,} ~ NT${_bundle_max:,}　"
+                    f"（預估利潤 NT${_bundle_min-_bundle_cost:,}）")
     else:
-        st.metric("上次掃描", "尚未執行")
-        st.caption("🔴 需要設定 FB_COOKIES")
-with _col_info2:
-    st.metric("監控標的數", len(_scraper_cfg.get("targets", [])))
-    st.caption(f"門檻：行情 × {_threshold:.0%}")
-with _col_info3:
-    _deals_total = len(_deal_data.get("deals", []))
-    st.metric("發現好物", _deals_total)
-with _col_info4:
-    st.metric("自動掃描", "每 4 小時")
-    st.caption("GitHub Actions 執行")
+        st.info("尚無轉賣追蹤項目")
 
-# ── 設定說明（可收合）────────────────────────────────
-with st.expander("⚙️ 自動掃描設定說明（第一次設定必看）"):
-    st.markdown("""
-**自動掃描需要 FB 登入 Cookie，步驟如下：**
+    # ── FB Marketplace 撿漏監控 ──────────
+    st.divider()
+    st.header("🛒 FB Marketplace 撿漏監控")
+    _deal_data = _load_deals()
+    _scraper_cfg = _load_scraper_config()
+    _threshold = _scraper_cfg.get("threshold_ratio", 0.6)
+    _col_info1, _col_info2, _col_info3, _col_info4 = st.columns(4)
+    _scan_time_str = _deal_data.get("last_scan")
+    with _col_info1:
+        if _scan_time_str:
+            try:
+                from datetime import timezone as _tz
+                _st_dt = datetime.fromisoformat(_scan_time_str)
+                _now_tz = datetime.now(_st_dt.tzinfo) if _st_dt.tzinfo else datetime.now()
+                _hours_ago = (_now_tz - _st_dt).total_seconds() / 3600
+                _freshness = "🟢 剛更新" if _hours_ago < 5 else ("🟡 稍舊" if _hours_ago < 24 else "🔴 已過期")
+                st.metric("上次掃描", _scan_time_str[5:16].replace("T"," "))
+                st.caption(f"{_freshness}　{_hours_ago:.0f} 小時前")
+            except:
+                st.metric("上次掃描", _scan_time_str[:16].replace("T"," "))
+        else:
+            st.metric("上次掃描", "尚未執行"); st.caption("🔴 需要設定 FB_COOKIES")
+    with _col_info2:
+        st.metric("監控標的數", len(_scraper_cfg.get("targets", [])))
+        st.caption(f"門檻：行情 × {_threshold:.0%}")
+    with _col_info3:
+        st.metric("發現好物", len(_deal_data.get("deals", [])))
+    with _col_info4:
+        st.metric("自動掃描", "每 4 小時"); st.caption("GitHub Actions 執行")
 
-**Step 1 — 在本機執行一次，取得 Cookie**
-```bash
-cd /Users/jimlin/Downloads/claude
-python save_fb_cookies.py
-# 瀏覽器會開啟，登入 Facebook 後關閉即可
-# 會產生 fb_cookies.json
-```
+    with st.expander("⚙️ 自動掃描設定說明（第一次設定必看）"):
+        st.markdown("""
+**Step 1** — `python save_fb_cookies.py`（本機，瀏覽器登入 FB）
 
-**Step 2 — 把 Cookie 轉成一行 JSON 字串**
-```bash
-cat fb_cookies.json | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)))"
-# 複製輸出的那一整行
-```
+**Step 2** — `cat fb_cookies.json | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)))"`
 
-**Step 3 — 存入 GitHub Secrets**
-前往 `https://github.com/jay0916746661/repo/settings/secrets/actions`
-→ New repository secret → Name: `FB_COOKIES` → 貼上 Step 2 的輸出
+**Step 3** — 存入 GitHub Secrets → `FB_COOKIES`
 
-**完成後** GitHub Actions 每 4 小時自動掃描 → deals.json 更新 → Streamlit 自動顯示新結果
+完成後 GitHub Actions 每 4 小時自動掃描，deals.json 更新後 Streamlit 即時顯示。
 """)
 
-# ── 手動執行（本機用）────────────────────────────────
-if st.button("🔍 立即執行掃描（本機用，需安裝 playwright）"):
-    with st.spinner("爬蟲執行中，請稍候..."):
-        try:
-            import subprocess, sys
-            result = subprocess.run(
-                [sys.executable, os.path.join(os.path.dirname(__file__), "fb_scraper.py")],
-                capture_output=True, text=True, timeout=300
-            )
-            if result.returncode == 0:
-                st.success("掃描完成！")
-                st.text(result.stdout[-2000:] if len(result.stdout) > 2000 else result.stdout)
-            else:
-                st.error("掃描時發生錯誤")
-                st.text(result.stderr[-1000:])
-        except Exception as _e:
-            st.error(f"無法啟動爬蟲：{_e}")
-    st.rerun()
+    if st.button("🔍 立即執行掃描（本機用，需安裝 playwright）"):
+        with st.spinner("爬蟲執行中，請稍候..."):
+            try:
+                import subprocess, sys as _sys
+                _res = subprocess.run(
+                    [_sys.executable, os.path.join(os.path.dirname(__file__), "fb_scraper.py")],
+                    capture_output=True, text=True, timeout=300)
+                if _res.returncode == 0:
+                    st.success("掃描完成！")
+                    st.text(_res.stdout[-2000:] if len(_res.stdout) > 2000 else _res.stdout)
+                else:
+                    st.error("掃描時發生錯誤"); st.text(_res.stderr[-1000:])
+            except Exception as _e:
+                st.error(f"無法啟動爬蟲：{_e}")
+        st.rerun()
 
-# 顯示發現的標的
-_deals = _deal_data.get("deals", [])
-if _deals:
-    st.subheader(f"🔥 發現 {len(_deals)} 個撿漏標的")
-    # 按品項分組，每組用一行卡片呈現
-    from collections import defaultdict
-    _grouped = defaultdict(list)
-    for _d in _deals:
-        _grouped[_d.get("item","其他")].append(_d)
-    for _item, _items in _grouped.items():
-        _best = _items[0]  # 已按價格排序，第一筆最便宜
-        _disc = _best.get("discount_pct", 0)
-        _price = _best.get("price", 0)
-        _market = _best.get("market_price", 0)
-        _title = _best.get("title","")[:35]
-        _link = _best.get("link","")
-        _color = "#ef4444" if _disc >= 50 else ("#f97316" if _disc >= 40 else "#eab308")
-        _extra = f"　＋另 {len(_items)-1} 筆" if len(_items) > 1 else ""
-        st.markdown(f"""
+    _deals = _deal_data.get("deals", [])
+    if _deals:
+        st.subheader(f"🔥 發現 {len(_deals)} 個撿漏標的")
+        from collections import defaultdict
+        _grouped = defaultdict(list)
+        for _d in _deals: _grouped[_d.get("item","其他")].append(_d)
+        for _item, _items in _grouped.items():
+            _best = _items[0]
+            _disc = _best.get("discount_pct", 0); _price = _best.get("price", 0)
+            _market = _best.get("market_price", 0); _title = _best.get("title","")[:35]
+            _link = _best.get("link","")
+            _color = "#ef4444" if _disc >= 50 else ("#f97316" if _disc >= 40 else "#eab308")
+            _extra = f"　＋另 {len(_items)-1} 筆" if len(_items) > 1 else ""
+            st.markdown(f"""
 <div style="background:#1e1e2e;border-left:4px solid {_color};padding:8px 12px;border-radius:6px;margin:4px 0;display:flex;justify-content:space-between;align-items:center">
 <div>
   <b style="color:{_color}">省 {_disc:.0f}%</b>　<b>{_item}</b>　NT${_price:,}
@@ -2608,32 +3044,546 @@ if _deals:
 </div>
 <a href="{_link}" target="_blank" style="color:{_color};font-size:12px;white-space:nowrap;margin-left:12px">查看 →</a>
 </div>""", unsafe_allow_html=True)
-else:
-    st.info("目前尚未發現低於行情 60% 的標的，或還未執行過掃描。")
-
-with st.expander("📋 監控清單"):
-    _targets = _scraper_cfg.get("targets", [])
-    if _targets:
-        _tdf = pd.DataFrame([{
-            "器材": t["name"],
-            "行情": f"NT${t['market_price']:,}",
-            f"觸發 ({_threshold:.0%})": f"NT${int(t['market_price']*_threshold):,}",
-        } for t in _targets])
-        st.dataframe(_tdf, use_container_width=True, hide_index=True)
     else:
-        st.write("config.json 未找到監控清單")
+        st.info("目前尚未發現低於行情 60% 的標的，或還未執行過掃描。")
 
-# ── 刷新 ─────────────────────────────────────────────
+    with st.expander("📋 監控清單"):
+        _targets = _scraper_cfg.get("targets", [])
+        if _targets:
+            _tdf = pd.DataFrame([{"器材":t["name"],"行情":f"NT${t['market_price']:,}",
+                                   f"觸發 ({_threshold:.0%})":f"NT${int(t['market_price']*_threshold):,}"} for t in _targets])
+            st.dataframe(_tdf, use_container_width=True, hide_index=True)
+        else:
+            st.write("config.json 未找到監控清單")
+
+# ══════════════════════════════════════════
+# TAB 4 — 研究
+# ══════════════════════════════════════════
+with tab4:
+    render_ai_chat(df, tw_q, cry_q, _exrate)
+    st.divider()
+    render_decision_journal()
+    st.divider()
+    try:
+        render_research_notes()
+    except Exception as _rr_err:
+        st.error(f"研究筆記載入失敗：{_rr_err}")
+
+# ══════════════════════════════════════════
+# TAB 5 — AI 學習地圖
+# ══════════════════════════════════════════
+with tab5:
+    st.header("🗺️ Jim 的 AI 槓桿學習地圖")
+    st.caption("目標：一年內透過 AI 開始盈利或槓桿 · 更新於 2026-04-22")
+
+    # 進度概覽
+    st.subheader("📍 你現在的位置")
+    st.markdown("""
+    ```
+    完全新手 ──[2026-04-15]──▶ 能用 Claude 建 dashboard ──▶ 你在這裡 ▶ ???
+    ```
+    """)
+
+    # 四個層級
+    st.subheader("四個能力層級")
+
+    lvl1, lvl2, lvl3, lvl4 = st.tabs(["🟢 L1 指揮官", "🔵 L2 建造者", "🟣 L3 整合者", "🔴 L4 產品化"])
+
+    with lvl1:
+        st.markdown("### 🟢 Level 1｜指揮官（現在 ～ 1個月）")
+        st.markdown("**核心技能：精準描述你要什麼**")
+        data = {
+            "要學的": ["Prompt 工程", "讀懂程式碼", "用 NotebookLM 整理資料", "認識 AI 工具版圖"],
+            "怎麼練": [
+                "每次問問題前寫「背景+目標+限制」",
+                "每次拿到程式碼問「這段在做什麼」",
+                "每天丟一筆資料進去",
+                "知道 Claude/Gemini/GPT 各自強在哪",
+            ],
+            "完成標誌": [
+                "Claude 第一次就給你要的結果",
+                "能說出每個函數的用途",
+                "有一份自己整理的知識庫",
+                "能選對工具用",
+            ],
+        }
+        st.table(pd.DataFrame(data))
+        st.success("💡 這層的槓桿：你的時間 × 10")
+
+    with lvl2:
+        st.markdown("### 🔵 Level 2｜建造者（1 ～ 3個月）")
+        st.markdown("**核心技能：用 AI 自動化你的日常**")
+        data = {
+            "要學的": ["Python 基礎讀寫", "GitHub Actions", "API 串接", "CSV/JSON 資料處理"],
+            "怎麼練": [
+                "改 dashboard.py 的小地方，問 Claude 解釋",
+                "讓面板每天自動更新、自動發通知",
+                "接 LINE Notify / Discord / Email",
+                "用 AI 寫腳本整理投資紀錄",
+            ],
+            "完成標誌": [
+                "能自己加一個新欄位",
+                "不需要手動跑程式",
+                "重要訊號自動推播",
+                "有自動化的損益追蹤",
+            ],
+        }
+        st.table(pd.DataFrame(data))
+        st.success("💡 這層的槓桿：你的時間 × 50（自動化睡覺也在跑）")
+
+    with lvl3:
+        st.markdown("### 🟣 Level 3｜整合者（3 ～ 6個月）")
+        st.markdown("**核心技能：把多個 AI 串成工作流**")
+        data = {
+            "要學的": ["n8n / Make 自動化平台", "Claude API 直接呼叫", "RAG 知識庫", "自動報告生成"],
+            "怎麼練": [
+                "建一條「新聞→分析→通知」的流程",
+                "讓面板內建 AI 分析",
+                "把投資筆記變成 AI 可查的知識庫",
+                "每週自動生成投資週報",
+            ],
+            "完成標誌": [
+                "有一條完全自動的情報流",
+                "面板能自動解讀財報",
+                "AI 能回答「我過去買TSLA的理由」",
+                "不需要手動整理",
+            ],
+        }
+        st.table(pd.DataFrame(data))
+        st.success("💡 這層的槓桿：你的決策品質 × 10")
+
+    with lvl4:
+        st.markdown("### 🔴 Level 4｜產品化（6 ～ 12個月）")
+        st.markdown("**核心技能：把你的系統變成可以賺錢的產品**")
+        data = {
+            "要學的": ["把面板變成付費工具", "AI Agent 設計", "樂器生意 × AI", "內容變現"],
+            "怎麼練": [
+                "包裝投資面板給其他人用",
+                "建一個自動執行研究+整理+通知的 Agent",
+                "用 AI 自動生成開發信、市場研究",
+                "把 AI 使用過程分享出去",
+            ],
+            "完成標誌": [
+                "第一個付費用戶",
+                "Agent 每天替你工作8小時",
+                "業績可量化提升",
+                "建立個人品牌",
+            ],
+        }
+        st.table(pd.DataFrame(data))
+        st.success("💡 這層的槓桿：你的系統 × N 個人付費")
+
+    st.divider()
+
+    # 專屬路線
+    st.subheader("🚀 你的專屬里程碑")
+    milestones = [
+        {"時間": "本週",    "目標": "把面板改到「看一眼就懂」",              "狀態": "🔄 進行中"},
+        {"時間": "下週",    "目標": "設定 LINE 自動通知 + GitHub 自動排程",  "狀態": "⬜ 待開始"},
+        {"時間": "第2週",   "目標": "用 NotebookLM 建立投資知識庫",          "狀態": "✅ 已建立"},
+        {"時間": "第1個月", "目標": "能自己改面板小功能，不需要完全靠 Claude","狀態": "⬜ 待開始"},
+        {"時間": "第3個月", "目標": "有一條自動情報流（新聞→分析→推播）",    "狀態": "⬜ 待開始"},
+        {"時間": "第6個月", "目標": "面板可以給朋友用 / 開始樂器 AI 自動化", "狀態": "⬜ 待開始"},
+        {"時間": "第12個月","目標": "有可量化的 AI 帶來的收入或節省",        "狀態": "⬜ 待開始"},
+    ]
+    st.table(pd.DataFrame(milestones))
+
+    st.divider()
+    st.info("💡 **每天最重要的一件事**：帶著一個具體問題來，完成它，明天再來一個。\n\n不要「今天想學 AI」——要「今天要讓面板的停損警示更顯眼」。")
+
+    st.divider()
+    st.subheader("🛠️ AI 工具推播")
+    st.caption("Claude 幫你篩選的開源工具，你決定要不要裝")
+
+    _tools_file = os.path.join(os.path.dirname(__file__), "data", "ai_tools_feed.json")
+    try:
+        with open(_tools_file, encoding="utf-8") as _tf:
+            _tools = json.load(_tf)
+    except:
+        _tools = []
+
+    _cat_colors = {"研究":"#8b5cf6","知識庫":"#3b82f6","自動化":"#f59e0b","Agent":"#ef4444","寫作":"#22c55e"}
+    for _tool in _tools:
+        _cat   = _tool.get("category","其他")
+        _color = _cat_colors.get(_cat, "#64748b")
+        _installed = _tool.get("status") == "installed"
+        _badge = "✅ 已安裝" if _installed else "⬜ 待評估"
+        _tc1, _tc2 = st.columns([4, 1])
+        with _tc1:
+            st.markdown(f"""
+<div style='background:#131317;border:1px solid #24242c;border-radius:8px;padding:12px 16px;margin:6px 0;border-left:3px solid {_color}'>
+  <div style='display:flex;align-items:center;gap:8px;margin-bottom:5px'>
+    <span style='background:{_color}18;color:{_color};font-size:10px;padding:2px 8px;border-radius:4px;
+         font-family:"JetBrains Mono",monospace;letter-spacing:.04em'>{_cat}</span>
+    <b style='color:#e9e9ec;font-size:13px'>{_tool['name']}</b>
+    <span style='color:#3f3f48;font-size:11px;font-family:"JetBrains Mono",monospace'>— {_tool['repo']}</span>
+  </div>
+  <div style='color:#a8a8b2;font-size:12px;line-height:1.55'>{_tool['desc']}</div>
+  <div style='color:#3f3f48;font-size:10px;margin-top:7px;font-family:"JetBrains Mono",monospace'>
+    安裝：<code style='color:#6c6c78'>{_tool['install']}</code></div>
+</div>""", unsafe_allow_html=True)
+        with _tc2:
+            st.markdown(f"<div style='padding-top:20px;text-align:center'>{_badge}</div>", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════
+# TAB 6 — 書庫
+# ══════════════════════════════════════════
+with tab6:
+    _books_file   = os.path.join(os.path.dirname(__file__), "data", "books.json")
+    _local_file   = os.path.join(os.path.dirname(__file__), "data", "local_books.json")
+    _covers_dir   = os.path.join(os.path.dirname(__file__), "data", "covers")
+    _data_dir     = os.path.dirname(_books_file)
+    os.makedirs(_covers_dir, exist_ok=True)
+
+    # ── 載入書單（Drive + 本機合併）────────
+    def _load_all_books():
+        drive_books = []
+        local_books = []
+        try:
+            with open(_books_file, encoding="utf-8") as _f:
+                drive_books = json.load(_f)
+        except Exception:
+            pass
+        try:
+            with open(_local_file, encoding="utf-8") as _f:
+                local_books = json.load(_f)
+        except Exception:
+            pass
+        # 合併：以書名去重，Drive 版優先
+        seen = {b["title"]: b for b in drive_books}
+        for b in local_books:
+            if b["title"] not in seen:
+                seen[b["title"]] = b
+        merged = list(seen.values())
+        merged.sort(key=lambda b: b.get("added_date", ""), reverse=True)
+        return merged, drive_books, local_books
+
+    _books, _drive_books, _local_books_list = _load_all_books()
+
+    _CAT_C = {
+        "投資/財富":"#f59e0b","AI/科技":"#8b5cf6","人性/心理":"#3b82f6",
+        "生活/心智":"#22c55e","關係/情緒":"#ec4899","商業":"#f97316",
+        "攝影":"#06b6d4","塔羅/靈性":"#a855f7","其他":"#64748b"
+    }
+    _CAT_EM = {
+        "投資/財富":"📈","AI/科技":"🤖","人性/心理":"🧠","生活/心智":"🌱",
+        "關係/情緒":"💝","商業":"💼","攝影":"📷","塔羅/靈性":"🔮","其他":"📖"
+    }
+    _ST_C = {"待讀":"#f59e0b","讀中":"#3b82f6","已讀":"#22c55e"}
+
+    # ── 頂部統計 ─────────────────────────
+    _total    = len(_books)
+    _reading  = sum(1 for b in _books if b.get("status") == "讀中")
+    _done     = sum(1 for b in _books if b.get("status") == "已讀")
+    _pending  = _total - _done - _reading
+    _n_drive  = len(_drive_books)
+    _n_local  = len(_local_books_list)
+
+    st.markdown(f"""
+<style>
+.lib-stat-row{{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}}
+.lib-stat{{background:#131317;border:1px solid #24242c;border-radius:10px;
+           padding:16px 20px;flex:1;min-width:110px}}
+.lib-stat .lbl{{font-size:10px;color:#6c6c78;letter-spacing:.1em;
+                font-family:"JetBrains Mono",monospace;text-transform:uppercase;margin-bottom:6px}}
+.lib-stat .val{{font-size:30px;font-weight:900;font-family:"Noto Sans TC","JetBrains Mono",monospace;
+                letter-spacing:-.02em;line-height:1}}
+.lib-stat .sub{{font-size:10px;color:#3f3f48;font-family:"JetBrains Mono",monospace;margin-top:4px}}
+.bk-card{{background:#131317;border:1px solid #24242c;border-radius:12px;overflow:hidden;
+          margin-bottom:4px;transition:transform .18s,box-shadow .18s;cursor:default}}
+.bk-card:hover{{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,0,0,.5)}}
+.bk-cover{{width:100%;height:260px;object-fit:cover;display:block}}
+.bk-body{{padding:12px 14px 10px}}
+.bk-title{{font-size:14px;font-weight:900;font-family:"Noto Sans TC",sans-serif;
+           letter-spacing:-.01em;color:#e9e9ec;line-height:1.4;margin-bottom:4px;
+           display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
+.bk-author{{font-size:11px;color:#6c6c78;font-family:"JetBrains Mono",monospace;
+            margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.bk-footer{{display:flex;justify-content:space-between;align-items:center;gap:8px}}
+.bk-badge{{font-size:9px;padding:2px 8px;border-radius:99px;
+           font-family:"JetBrains Mono",monospace;letter-spacing:.04em;white-space:nowrap}}
+.bk-src{{font-size:10px;color:#3f3f48;font-family:"JetBrains Mono",monospace}}
+.bk-open{{font-size:11px;color:#a78bfa;text-decoration:none;
+          font-family:"JetBrains Mono",monospace;letter-spacing:.02em;white-space:nowrap}}
+</style>
+<div class="lib-stat-row">
+  <div class="lib-stat"><div class="lbl">總收藏</div><div class="val" style="color:#e9e9ec">{_total}</div>
+    <div class="sub">☁️ {_n_drive} Drive　💻 {_n_local} 本機</div></div>
+  <div class="lib-stat"><div class="lbl">待讀</div><div class="val" style="color:#f59e0b">{_pending}</div></div>
+  <div class="lib-stat"><div class="lbl">讀中</div><div class="val" style="color:#3b82f6">{_reading}</div></div>
+  <div class="lib-stat"><div class="lbl">已讀</div><div class="val" style="color:#22c55e">{_done}</div></div>
+</div>""", unsafe_allow_html=True)
+
+    # ── 控制列 ───────────────────────────
+    _has_client = os.path.exists(os.path.join(_data_dir, "google_client.json"))
+    _has_token  = os.path.exists(os.path.join(_data_dir, "google_token.json"))
+
+    _lc0, _lc1, _lc2, _lc3, _lc4 = st.columns([1.2, 1, 2, 2, 1.5])
+    with _lc0:
+        if st.button("📁 掃描本機", key="book_local_scan", use_container_width=True,
+                     help="掃描 ~/Desktop/電子書/ 並自動抽取封面"):
+            with st.spinner("掃描中，抽取封面..."):
+                try:
+                    import subprocess as _ssp2, sys as _ssys2
+                    _sr2 = _ssp2.run(
+                        [_ssys2.executable,
+                         os.path.join(os.path.dirname(__file__), "extract_covers.py")],
+                        capture_output=True, text=True, timeout=300)
+                    import re as _re3
+                    _m2 = _re3.search(r"新增 (\d+) 本.*共 (\d+) 本", _sr2.stdout)
+                    if _m2:
+                        st.success(f"✓ 新增 {_m2.group(1)} 本，共 {_m2.group(2)} 本")
+                    else:
+                        st.success("✓ 掃描完成")
+                    st.rerun()
+                except Exception as _se2:
+                    st.error(str(_se2))
+    with _lc1:
+        _sync_tip = None if _has_client else "請先在 ⚙️ Google Drive 設定中上傳憑證"
+        if st.button("☁️ Drive同步", key="book_sync", use_container_width=True,
+                     disabled=not _has_client, help=_sync_tip):
+            with st.spinner("同步中..."):
+                try:
+                    import subprocess as _ssp, sys as _ssys, re as _re2
+                    _sr = _ssp.run(
+                        [_ssys.executable, os.path.join(os.path.dirname(__file__), "sync_books.py")],
+                        capture_output=True, text=True, timeout=120)
+                    if _sr.returncode == 0:
+                        _m = _re2.search(r"共 (\d+) 本", _sr.stdout)
+                        st.success(f"✓ 同步完成（共 {_m.group(1)} 本）" if _m else "✓ 同步完成")
+                        st.rerun()
+                    else:
+                        st.error(_sr.stderr.strip() or "同步失敗，請查看 ⚙️ 設定")
+                except Exception as _se:
+                    st.error(str(_se))
+    with _lc2:
+        _sf = st.segmented_control("", ["全部","待讀","讀中","已讀"], default="全部", key="book_sf")
+    with _lc3:
+        _cf = st.selectbox("", ["全部分類"]+list(_CAT_C.keys()), key="book_cf", label_visibility="collapsed")
+    with _lc4:
+        _sq = st.text_input("", placeholder="搜尋書名...", key="book_sq", label_visibility="collapsed")
+
+    # ── Google Drive 設定 ────────────────
+    _gset_label = "⚙️ Google Drive 設定  ✅" if _has_token else (
+                  "⚙️ Google Drive 設定  ⚠️ 需首次授權" if _has_client else
+                  "⚙️ Google Drive 設定  — 未設定")
+    with st.expander(_gset_label, expanded=not _has_client):
+        if _has_token:
+            st.success("已連接 Google Drive，可直接使用 ☁️ Drive同步")
+        elif _has_client:
+            st.info("憑證已上傳。點 ☁️ Drive同步後瀏覽器會開啟 Google 授權頁，完成一次即可。")
+        else:
+            st.markdown("""**第一次設定步驟：**
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/) → 建立（或選擇）專案
+2. 搜尋並啟用 **Google Drive API**
+3. 左側 **憑證** → 建立憑證 → **OAuth 2.0 用戶端 ID**（選「桌面應用程式」）
+4. 下載 JSON → 上傳到下方""")
+        _uploaded_cred = st.file_uploader("上傳 google_client.json", type="json", key="goog_cred_up",
+                                           label_visibility="collapsed")
+        if _uploaded_cred:
+            _cred_dest = os.path.join(_data_dir, "google_client.json")
+            with open(_cred_dest, "wb") as _cw:
+                _cw.write(_uploaded_cred.read())
+            st.success("✓ 憑證已儲存。請點 ☁️ Drive同步（首次會開啟瀏覽器授權）")
+            st.rerun()
+
+    # ── 選書推薦 ─────────────────────────
+    with st.expander("🤖 幫我選書"):
+        _mood = st.text_area("", placeholder="你現在的狀態，例：想學決策、今天很焦慮、想了解 AI 趨勢",
+                              height=60, key="book_mood", label_visibility="collapsed")
+        if st.button("推薦", key="book_rec", type="primary"):
+            if _mood.strip():
+                _unread = [b for b in _books if b.get("status") != "已讀"]
+                _blist  = "\n".join(f"- 《{b['title']}》({b['category']})" for b in _unread[:60])
+                with st.spinner("選書中..."):
+                    try:
+                        _ak = _get_anthropic_key()
+                        if _ak:
+                            import anthropic as _ant
+                            _r = _ant.Anthropic(api_key=_ak).messages.create(
+                                model="claude-sonnet-4-6", max_tokens=400,
+                                messages=[{"role":"user","content":f"用戶狀態：{_mood}\n未讀書單：\n{_blist}\n\n推薦1-2本，說明理由。繁體中文。"}])
+                            st.markdown(_r.content[0].text)
+                        else:
+                            st.warning("請先設定 Anthropic API Key")
+                    except Exception as _re:
+                        st.error(str(_re))
+            else:
+                st.warning("請描述你的狀態")
+
+    st.divider()
+
+    # ── 現代雜誌網格（2欄大卡片）────────────
+    import base64 as _b64
+
+    _sq_v   = _sq.strip().lower() if _sq else ""
+    _fbooks = [b for b in _books
+               if (_sf == "全部" or b.get("status") == _sf)
+               and (_cf == "全部分類" or b.get("category") == _cf)
+               and (not _sq_v or _sq_v in b.get("title","").lower()
+                    or _sq_v in (b.get("author","") or "").lower())]
+
+    if not _fbooks:
+        st.info("沒有符合條件的書籍")
+    else:
+        _NCOLS = 2
+        for _ri in range(0, len(_fbooks), _NCOLS):
+            _row   = _fbooks[_ri:_ri+_NCOLS]
+            _rcols = st.columns(_NCOLS)
+            for _ci, _b in enumerate(_row):
+                _cc   = _CAT_C.get(_b.get("category","其他"), "#64748b")
+                _em   = _CAT_EM.get(_b.get("category","其他"), "📖")
+                _bst  = _b.get("status","待讀")
+                _stc  = _ST_C.get(_bst, "#64748b")
+                _auth = _b.get("author","") or "─"
+                _is_drive = bool(_b.get("drive_id"))
+                _src_icon = "☁️" if _is_drive else "💻"
+
+                # 開啟連結
+                if _is_drive:
+                    _open_url = f"https://drive.google.com/file/d/{_b['drive_id']}/view"
+                    _open_lbl = "Drive →"
+                elif _b.get("local_path"):
+                    _open_url = ""
+                    _open_lbl = "本機"
+                else:
+                    _open_url = ""
+                    _open_lbl = ""
+
+                # 封面圖（優先順序：本機 cover_path → Drive cover → 佔位）
+                _cov_html = ""
+                _cover_found = False
+
+                # 本機封面
+                _lcp = _b.get("cover_path","")
+                if _lcp and os.path.exists(_lcp):
+                    try:
+                        with open(_lcp,"rb") as _cf2:
+                            _idata = _b64.b64encode(_cf2.read()).decode()
+                        _cov_html = f'<img class="bk-cover" src="data:image/jpeg;base64,{_idata}">'
+                        _cover_found = True
+                    except Exception:
+                        pass
+
+                # Drive 封面
+                if not _cover_found and _is_drive:
+                    _dcp = os.path.join(_covers_dir, f"{_b['drive_id']}.jpg")
+                    if os.path.exists(_dcp):
+                        try:
+                            with open(_dcp,"rb") as _cf2:
+                                _idata = _b64.b64encode(_cf2.read()).decode()
+                            _cov_html = f'<img class="bk-cover" src="data:image/jpeg;base64,{_idata}">'
+                            _cover_found = True
+                        except Exception:
+                            pass
+
+                # 無封面佔位
+                if not _cover_found:
+                    _atit = _b['title'][:28]+("…" if len(_b['title'])>28 else "")
+                    _cov_html = f"""
+<div style='height:260px;background:linear-gradient(155deg,{_cc}28 0%,{_cc}08 100%);
+     display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;
+     position:relative;border-bottom:1px solid {_cc}30'>
+  <div style='position:absolute;top:10px;right:12px;background:{_stc}22;color:{_stc};
+       font-size:9px;padding:2px 8px;border-radius:99px;
+       font-family:"JetBrains Mono",monospace;letter-spacing:.05em'>{_bst}</div>
+  <div style='font-size:52px;margin-bottom:14px;opacity:.85'>{_em}</div>
+  <div style='font-size:13px;font-weight:900;font-family:"Noto Sans TC",sans-serif;
+       text-align:center;line-height:1.5;color:{_cc};letter-spacing:-.01em;
+       max-height:80px;overflow:hidden'>{_atit}</div>
+</div>"""
+
+                _open_a = (f'<a class="bk-open" href="{_open_url}" target="_blank">{_open_lbl}</a>'
+                           if _open_url else
+                           f'<span class="bk-src">{_open_lbl}</span>')
+
+                with _rcols[_ci]:
+                    _bid_key = str(_b.get('id',''))
+                    st.markdown(f"""
+<div class="bk-card">
+  {_cov_html}
+  <div class="bk-body">
+    <div class="bk-title">{_b['title']}</div>
+    <div class="bk-author">{_auth}</div>
+    <div class="bk-footer">
+      <span class="bk-badge" style="background:{_cc}18;color:{_cc}">{_b.get("category","")}</span>
+      <span class="bk-src">{_src_icon}</span>
+      {_open_a}
+    </div>
+  </div>
+</div>""", unsafe_allow_html=True)
+
+                    # 狀態切換
+                    _opts = ["待讀","讀中","已讀"]
+                    _cur  = _opts.index(_bst) if _bst in _opts else 0
+                    _nst  = st.selectbox("", _opts, index=_cur,
+                                         key=f"bst_{_bid_key}", label_visibility="collapsed")
+                    if _nst != _bst:
+                        _b["status"] = _nst
+                        # 更新對應的 json
+                        if _is_drive:
+                            _tgt_file = _books_file
+                            _tgt_list = _drive_books
+                        else:
+                            _tgt_file = _local_file
+                            _tgt_list = _local_books_list
+                        for _tb in _tgt_list:
+                            if str(_tb.get("id","")) == _bid_key:
+                                _tb["status"] = _nst
+                                break
+                        with open(_tgt_file,"w",encoding="utf-8") as _bw:
+                            json.dump(_tgt_list, _bw, ensure_ascii=False, indent=2)
+                        st.rerun()
+
+    st.divider()
+
+    # ── NotebookLM ────────────────────────
+    st.markdown("""
+<div style='font-size:10px;letter-spacing:.12em;color:#6c6c78;font-family:"JetBrains Mono",monospace;
+     text-transform:uppercase;margin-bottom:14px'>NOTEBOOK 重點整理</div>""", unsafe_allow_html=True)
+
+    _drive_only = [b for b in _books if b.get("drive_id")]
+    if _drive_only:
+        _nlm_c1, _nlm_c2 = st.columns([3,1])
+        with _nlm_c1:
+            _sel_b = st.selectbox("", [b['title'] for b in _drive_only], key="book_nlm_sel", label_visibility="collapsed")
+        with _nlm_c2:
+            _gen_btn = st.button("生成摘要 →", key="book_nlm_btn", type="primary", use_container_width=True)
+        if _gen_btn:
+            _sb = next((b for b in _drive_only if b['title'] == _sel_b), None)
+            if _sb:
+                _nlm_url = f"https://drive.google.com/file/d/{_sb['drive_id']}/view"
+                with st.spinner(f"上傳《{_sb['title']}》到 NotebookLM..."):
+                    try:
+                        import subprocess as _sp
+                        _nb_id = "785be3cc-a70e-4642-b1eb-9953c79bed1f"
+                        _sp.run(["notebooklm","use",_nb_id], capture_output=True)
+                        _src = _sp.run(["notebooklm","source","add",_nlm_url,"--json"],
+                                       capture_output=True, text=True)
+                        _sd = json.loads(_src.stdout) if _src.stdout.strip().startswith("{") else {}
+                        _sid = _sd.get("source",{}).get("id","")
+                        if _sid:
+                            _sp.run(["notebooklm","source","wait",_sid,"--timeout","120"], capture_output=True)
+                        _rep = _sp.run(["notebooklm","generate","report","--format","study-guide",
+                                        "--append",f"書名：《{_sb['title']}》，用繁體中文整理重點","--json"],
+                                       capture_output=True, text=True)
+                        _rd = json.loads(_rep.stdout) if _rep.stdout.strip().startswith("{") else {}
+                        if _rd.get("task_id"):
+                            st.info(f"✅ 生成中（約5-10分鐘）\n\n```\nnotebooklm download report ~/Downloads/{_sb['title']}.md\n```")
+                        else:
+                            st.warning("已上傳來源，請到 NotebookLM 手動生成報告")
+                    except Exception as _be:
+                        st.error(str(_be))
+
+# ── 刷新 ─────────────────────────────────
 st.divider()
-c1,c2=st.columns([1,5])
+c1, c2 = st.columns([1, 5])
 with c1:
     if st.button("🔄 立即刷新"):
         st.cache_data.clear(); st.rerun()
 with c2:
     st.caption(f"更新：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}　每60秒自動刷新")
-# 自動刷新（60秒）
 components.html("""<script>
-// 只有在使用者沒有在填表單時才自動刷新（5分鐘）
 let hasInput = false;
 document.addEventListener('focusin', e => {
   if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') hasInput = true;
@@ -2644,5 +3594,5 @@ document.addEventListener('focusout', e => {
 });
 setTimeout(()=>{
   if(!hasInput) window.parent.location.reload();
-}, 300000);
+}, 60000);
 </script>""", height=0)
