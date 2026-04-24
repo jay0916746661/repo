@@ -3959,7 +3959,7 @@ with tab_ai:
     st.divider()
     st.header("🧭 AI 派遣 & 工具管理")
 
-    _dp_sub = st.radio("", ["📋 派遣 & 待辦", "🕓 歷史記錄", "📊 分析", "📡 智慧推送", "📌 速查表"],
+    _dp_sub = st.radio("", ["📋 派遣 & 待辦", "🕓 歷史記錄", "📊 分析", "📡 智慧推送", "📚 書庫", "📺 YouTube", "📌 速查表"],
                        horizontal=True, label_visibility="collapsed", key="dp_sub")
 
     # ════════ 派遣 & 待辦 ════════
@@ -4165,6 +4165,113 @@ with tab_ai:
             except Exception:
                 pass
             st.caption("每 15 分鐘更新 · 資料來源：Google News + CoinGecko")
+
+    # ════════ 書庫 ════════
+    elif _dp_sub == "📚 書庫":
+        _bk_file  = os.path.join(os.path.dirname(__file__), "data", "books.json")
+        _bk_local = os.path.join(os.path.dirname(__file__), "data", "local_books.json")
+        _all_bks  = []
+        try:
+            _all_bks += json.load(open(_bk_file, encoding="utf-8"))
+        except Exception: pass
+        try:
+            for _lb in json.load(open(_bk_local, encoding="utf-8")):
+                _lb.setdefault("category","其他"); _lb.setdefault("shelf","本機")
+                _all_bks.append(_lb)
+        except Exception: pass
+
+        st.subheader(f"📚 書庫（{len(_all_bks)} 本）")
+        if _all_bks:
+            from collections import Counter as _BC
+            _bcat = _BC(b.get("category","其他") for b in _all_bks)
+            _bshelf = _BC(b.get("shelf","") for b in _all_bks)
+
+            _bka, _bkb = st.columns([2, 1])
+            with _bka:
+                _bk_cat_filter = st.multiselect("分類篩選", list(_bcat.keys()), default=list(_bcat.keys()), key="bk_cat")
+                _bk_search = st.text_input("搜尋書名", key="bk_search", placeholder="輸入關鍵字...")
+            with _bkb:
+                st.markdown("**分類統計**")
+                for _cat, _cnt in sorted(_bcat.items(), key=lambda x: -x[1]):
+                    st.markdown(f"<div style='display:flex;justify-content:space-between;font-size:12px;padding:2px 0'><span style='color:#94a3b8'>{_cat}</span><span style='font-weight:700'>{_cnt}</span></div>", unsafe_allow_html=True)
+
+            _bk_filtered = [b for b in _all_bks if b.get("category","其他") in _bk_cat_filter]
+            if _bk_search:
+                _bk_filtered = [b for b in _bk_filtered if _bk_search.lower() in b.get("title","").lower()]
+            st.caption(f"顯示 {len(_bk_filtered)} 本")
+
+            _bk_cols = st.columns(4)
+            for _bi, _bk in enumerate(_bk_filtered[:60]):
+                _title = _bk.get("title","")[:28]
+                _cat   = _bk.get("category","其他")
+                _shelf = _bk.get("shelf","")
+                _cc    = {"AI/科技":"#06b6d4","投資/財富":"#22c55e","人性/心理":"#ec4899","商業/創業":"#f59e0b","生活/心智":"#8b5cf6","溝通/談判":"#3b82f6"}.get(_cat,"#6c6c78")
+                _bk_cols[_bi % 4].markdown(
+                    f"<div style='background:#1a1a20;border-radius:8px;padding:10px;margin:4px 0;border-left:3px solid {_cc};min-height:70px'>"
+                    f"<div style='font-size:12px;font-weight:600;color:#e9e9ec;line-height:1.4'>{_title}</div>"
+                    f"<div style='font-size:10px;color:{_cc};margin-top:4px'>{_cat}</div>"
+                    f"<div style='font-size:10px;color:#6c6c78'>{_shelf}</div>"
+                    f"</div>", unsafe_allow_html=True)
+        else:
+            st.warning("找不到書單，請先執行 `python sync_books.py`")
+        st.caption("更新書單：在終端機執行 `python sync_books.py`")
+
+    # ════════ YouTube ════════
+    elif _dp_sub == "📺 YouTube":
+        _yt_file = os.path.join(os.path.dirname(__file__), "data", "youtube_subs.json")
+        try:
+            _yt_subs = json.load(open(_yt_file, encoding="utf-8"))
+        except Exception:
+            _yt_subs = []
+
+        st.subheader(f"📺 YouTube 訂閱（{len(_yt_subs)} 個頻道）")
+        if _yt_subs:
+            _YT_CATS = {
+                "AI/科技":   ["ai","gpt","llm","tech","程式","科技","coding","python","developer","machine learning","人工智慧"],
+                "投資/財富": ["財富","投資","股票","美股","幣圈","crypto","finance","money","trading","理財","財經","基金"],
+                "音樂":      ["music","piano","guitar","鋼琴","吉他","band","jazz","beats","song","音樂","dance","vocal","producer"],
+                "知識/成長": ["成長","習慣","效率","mindset","productivity","motivation","學習","知識","教育","psychology","哲學"],
+                "商業/創業": ["創業","business","entrepreneur","行銷","marketing","startup","策略"],
+                "生活/其他": ["vlog","生活","旅遊","travel","lifestyle","日常","cooking","fitness"],
+            }
+            def _yt_classify(name):
+                n = name.lower()
+                for cat, kws in _YT_CATS.items():
+                    if any(k in n for k in kws): return cat
+                return "其他"
+
+            from collections import Counter as _YC
+            _yt_cat_map = {s["channel"]: _yt_classify(s["channel"]) for s in _yt_subs}
+            _yt_cnt = _YC(_yt_cat_map.values())
+
+            _ya, _yb = st.columns([1, 2])
+            with _ya:
+                st.markdown("**頻道分類統計**")
+                _yt_colors = {"AI/科技":"#06b6d4","投資/財富":"#22c55e","音樂":"#ec4899","知識/成長":"#8b5cf6","商業/創業":"#f59e0b","生活/其他":"#6c6c78","其他":"#3f3f48"}
+                for _cat, _cnt in sorted(_yt_cnt.items(), key=lambda x:-x[1]):
+                    _ycc = _yt_colors.get(_cat,"#6c6c78")
+                    pct = _cnt / len(_yt_subs) * 100
+                    st.markdown(
+                        f"<div style='margin:5px 0'><div style='display:flex;justify-content:space-between;font-size:12px'>"
+                        f"<span style='color:{_ycc}'>{_cat}</span><span style='font-weight:700'>{_cnt}</span></div>"
+                        f"<div style='background:#24242c;border-radius:4px;height:4px;margin-top:3px'>"
+                        f"<div style='background:{_ycc};width:{pct:.0f}%;height:4px;border-radius:4px'></div></div></div>",
+                        unsafe_allow_html=True)
+
+            with _yb:
+                _yt_sel_cat = st.selectbox("選擇分類查看頻道", ["全部"] + list(_yt_colors.keys()), key="yt_cat_sel")
+                _yt_search  = st.text_input("搜尋頻道名稱", key="yt_search", placeholder="輸入關鍵字...")
+                _yt_show = _yt_subs if _yt_sel_cat == "全部" else [s for s in _yt_subs if _yt_cat_map.get(s["channel"]) == _yt_sel_cat]
+                if _yt_search: _yt_show = [s for s in _yt_show if _yt_search.lower() in s["channel"].lower()]
+                st.caption(f"顯示 {len(_yt_show)} 個")
+                for _ch in _yt_show[:40]:
+                    _chcat = _yt_cat_map.get(_ch["channel"],"其他")
+                    _chcc  = _yt_colors.get(_chcat,"#6c6c78")
+                    st.markdown(f"<div style='font-size:12px;padding:3px 0;border-bottom:1px solid #24242c'>"
+                                f"<span style='color:#e9e9ec'>{_ch['channel']}</span> "
+                                f"<span style='font-size:10px;color:{_chcc}'>{_chcat}</span></div>", unsafe_allow_html=True)
+        else:
+            st.warning("找不到 YouTube 訂閱資料，請先執行 `python youtube_auth.py`")
 
     # ════════ 速查表 ════════
     elif _dp_sub == "📌 速查表":
