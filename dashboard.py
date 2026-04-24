@@ -2548,6 +2548,75 @@ with tab_home:
                     f"<span style='font-size:15px;font-weight:700;color:{_hq_color}'>{_hq_icon} {_hq_ai}</span><br>"
                     f"<span style='font-size:13px;color:#94a3b8'>{_hq_reason}</span></div>", unsafe_allow_html=True)
 
+    st.divider()
+    # ── 今日推薦 ──────────────────────────────
+    st.subheader("✨ 今日推薦")
+    _rec_file = os.path.join(os.path.dirname(__file__), "data", "today_recommend.json")
+    _rec_data = None
+    try:
+        _rec_raw = json.load(open(_rec_file, encoding="utf-8"))
+        if _rec_raw.get("date") == date.today().isoformat():
+            _rec_data = _rec_raw.get("content", "")
+    except Exception:
+        pass
+
+    if _rec_data:
+        st.markdown(
+            f"<div style='background:#1a1a20;border-radius:10px;padding:16px 20px;"
+            f"border-left:3px solid #8b5cf6;font-size:13px;color:#e9e9ec;"
+            f"white-space:pre-wrap;line-height:1.9'>{_rec_data}</div>",
+            unsafe_allow_html=True)
+        if st.button("🔄 重新生成", key="regen_rec"):
+            try: os.remove(_rec_file)
+            except: pass
+            st.rerun()
+    else:
+        _gen_rec_btn = st.button("✨ 生成今日推薦", key="gen_rec", type="primary")
+        if _gen_rec_btn:
+            import random as _rand_r
+            _bks_r, _yt_r = [], []
+            try: _bks_r = json.load(open(os.path.join(os.path.dirname(__file__), "data", "books.json"), encoding="utf-8"))
+            except: pass
+            try: _yt_r  = json.load(open(os.path.join(os.path.dirname(__file__), "data", "youtube_subs.json"), encoding="utf-8"))
+            except: pass
+            _s_bks = _rand_r.sample(_bks_r, min(15, len(_bks_r))) if _bks_r else []
+            _s_yt  = _rand_r.sample(_yt_r,  min(20, len(_yt_r)))  if _yt_r  else []
+            _prompt_r = f"""今天是 {date.today().strftime('%Y/%m/%d')}。根據這個人的書單與YouTube訂閱，給今日推薦：
+
+書單（部分）：
+{chr(10).join(f"- 《{b['title']}》({b.get('category','')})" for b in _s_bks)}
+
+YouTube訂閱（部分）：
+{chr(10).join(f"- {s['channel']}" for s in _s_yt)}
+
+請用繁體中文回答，格式如下：
+
+📖 今日好書
+書名：（推薦一本）
+原因：（2句話）
+
+📺 今日頻道
+頻道：（推薦一個）
+原因：（1句話）
+
+🔍 今日關鍵字：（3個主題詞）"""
+            with st.spinner("AI 生成中..."):
+                try:
+                    _ak = _get_anthropic_key()
+                    if _ak:
+                        import anthropic as _ant_r
+                        _r3 = _ant_r.Anthropic(api_key=_ak).messages.create(
+                            model="claude-haiku-4-5-20251001", max_tokens=400,
+                            messages=[{"role":"user","content":_prompt_r}])
+                        _rec_txt = _r3.content[0].text
+                        json.dump({"date": date.today().isoformat(), "content": _rec_txt},
+                                  open(_rec_file, "w", encoding="utf-8"), ensure_ascii=False)
+                        st.rerun()
+                    else:
+                        st.warning("請先在設定中填入 Anthropic API Key")
+                except Exception as _rec_e:
+                    st.error(str(_rec_e))
+
 # ══════════════════════════════════════════
 # TAB — 投資
 # ══════════════════════════════════════════
@@ -4168,53 +4237,135 @@ with tab_ai:
 
     # ════════ 書庫 ════════
     elif _dp_sub == "📚 書庫":
+        import hashlib as _hl
         _bk_file  = os.path.join(os.path.dirname(__file__), "data", "books.json")
         _bk_local = os.path.join(os.path.dirname(__file__), "data", "local_books.json")
         _all_bks  = []
         try:
-            _all_bks += json.load(open(_bk_file, encoding="utf-8"))
+            for _b in json.load(open(_bk_file, encoding="utf-8")):
+                _b.setdefault("status","待讀"); _all_bks.append(_b)
         except Exception: pass
         try:
             for _lb in json.load(open(_bk_local, encoding="utf-8")):
-                _lb.setdefault("category","其他"); _lb.setdefault("shelf","本機")
+                _lb.setdefault("category","其他"); _lb.setdefault("shelf","本機"); _lb.setdefault("status","待讀")
                 _all_bks.append(_lb)
         except Exception: pass
 
-        st.subheader(f"📚 書庫（{len(_all_bks)} 本）")
-        if _all_bks:
+        _BK_CC = {"AI/科技":"#06b6d4","投資/財富":"#22c55e","人性/心理":"#ec4899","商業/創業":"#f59e0b","生活/心智":"#8b5cf6","溝通/談判":"#3b82f6","其他":"#64748b"}
+        _BK_EM = {"AI/科技":"🤖","投資/財富":"💰","人性/心理":"🧠","商業/創業":"🚀","生活/心智":"🌱","溝通/談判":"🤝","其他":"📖"}
+
+        if not _all_bks:
+            st.warning("找不到書單，請先執行 `python sync_books.py`")
+        else:
             from collections import Counter as _BC
             _bcat = _BC(b.get("category","其他") for b in _all_bks)
-            _bshelf = _BC(b.get("shelf","") for b in _all_bks)
-
-            _bka, _bkb = st.columns([2, 1])
-            with _bka:
-                _bk_cat_filter = st.multiselect("分類篩選", list(_bcat.keys()), default=list(_bcat.keys()), key="bk_cat")
-                _bk_search = st.text_input("搜尋書名", key="bk_search", placeholder="輸入關鍵字...")
-            with _bkb:
-                st.markdown("**分類統計**")
-                for _cat, _cnt in sorted(_bcat.items(), key=lambda x: -x[1]):
-                    st.markdown(f"<div style='display:flex;justify-content:space-between;font-size:12px;padding:2px 0'><span style='color:#94a3b8'>{_cat}</span><span style='font-weight:700'>{_cnt}</span></div>", unsafe_allow_html=True)
-
-            _bk_filtered = [b for b in _all_bks if b.get("category","其他") in _bk_cat_filter]
-            if _bk_search:
-                _bk_filtered = [b for b in _bk_filtered if _bk_search.lower() in b.get("title","").lower()]
-            st.caption(f"顯示 {len(_bk_filtered)} 本")
-
-            _bk_cols = st.columns(4)
-            for _bi, _bk in enumerate(_bk_filtered[:60]):
-                _title = _bk.get("title","")[:28]
-                _cat   = _bk.get("category","其他")
-                _shelf = _bk.get("shelf","")
-                _cc    = {"AI/科技":"#06b6d4","投資/財富":"#22c55e","人性/心理":"#ec4899","商業/創業":"#f59e0b","生活/心智":"#8b5cf6","溝通/談判":"#3b82f6"}.get(_cat,"#6c6c78")
-                _bk_cols[_bi % 4].markdown(
-                    f"<div style='background:#1a1a20;border-radius:8px;padding:10px;margin:4px 0;border-left:3px solid {_cc};min-height:70px'>"
-                    f"<div style='font-size:12px;font-weight:600;color:#e9e9ec;line-height:1.4'>{_title}</div>"
-                    f"<div style='font-size:10px;color:{_cc};margin-top:4px'>{_cat}</div>"
-                    f"<div style='font-size:10px;color:#6c6c78'>{_shelf}</div>"
+            # 分類統計卡片
+            st.markdown(f"<div style='font-size:20px;font-weight:800;margin-bottom:12px'>📚 書庫 <span style='font-size:13px;color:#64748b;font-weight:400'>共 {len(_all_bks)} 本</span></div>", unsafe_allow_html=True)
+            _cat_sorted = sorted(_bcat.items(), key=lambda x:-x[1])
+            _ccols = st.columns(len(_cat_sorted))
+            for _ci2, (_cname, _cnt) in enumerate(_cat_sorted):
+                _cc2 = _BK_CC.get(_cname,"#64748b")
+                _em2 = _BK_EM.get(_cname,"📖")
+                _pct = _cnt / len(_all_bks) * 100
+                _ccols[_ci2].markdown(
+                    f"<div style='text-align:center;padding:6px 2px'>"
+                    f"<div style='font-size:22px'>{_em2}</div>"
+                    f"<div style='font-size:10px;color:{_cc2};font-weight:700;margin:2px 0'>{_cname}</div>"
+                    f"<div style='font-size:20px;font-weight:900;color:#e9e9ec'>{_cnt}</div>"
+                    f"<div style='background:#24242c;border-radius:4px;height:3px;margin-top:4px'>"
+                    f"<div style='background:{_cc2};width:{_pct:.0f}%;height:3px;border-radius:4px'></div></div>"
                     f"</div>", unsafe_allow_html=True)
-        else:
-            st.warning("找不到書單，請先執行 `python sync_books.py`")
-        st.caption("更新書單：在終端機執行 `python sync_books.py`")
+
+            st.divider()
+
+            # AI 選書
+            with st.expander("🤖 幫我選書"):
+                _mood2 = st.text_area("", placeholder="例：我想了解投資策略、最近壓力大、想學 AI 應用...",
+                                      height=55, key="bk_mood2", label_visibility="collapsed")
+                if st.button("幫我挑", key="bk_rec2", type="primary"):
+                    if _mood2.strip():
+                        _unread2 = [b for b in _all_bks if b.get("status") != "已讀"]
+                        _blist2 = "\n".join(f"- 《{b['title']}》({b.get('category','')})" for b in _unread2[:80])
+                        with st.spinner("AI 選書中..."):
+                            try:
+                                _ak = _get_anthropic_key()
+                                if _ak:
+                                    import anthropic as _ant2
+                                    _r2 = _ant2.Anthropic(api_key=_ak).messages.create(
+                                        model="claude-haiku-4-5-20251001", max_tokens=300,
+                                        messages=[{"role":"user","content":f"我的狀態：{_mood2}\n我的書單：\n{_blist2}\n\n推薦1-2本最適合現在讀的，說明理由。繁體中文，簡短。"}])
+                                    st.markdown(_r2.content[0].text)
+                                else:
+                                    st.warning("請先設定 Anthropic API Key")
+                            except Exception as _re2:
+                                st.error(str(_re2))
+                    else:
+                        st.warning("請描述你的狀態")
+
+            # 篩選列
+            _bk_fa, _bk_fb, _bk_fc = st.columns([1,1,2])
+            with _bk_fa:
+                _bk_sf = st.selectbox("", ["全部狀態","待讀","讀中","已讀"], key="bk_sf2", label_visibility="collapsed")
+            with _bk_fb:
+                _bk_cf = st.selectbox("", ["全部分類"]+list(_BK_CC.keys()), key="bk_cf2", label_visibility="collapsed")
+            with _bk_fc:
+                _bk_sq = st.text_input("", placeholder="搜尋書名...", key="bk_sq2", label_visibility="collapsed")
+
+            _fbooks2 = [b for b in _all_bks
+                       if (_bk_sf == "全部狀態" or b.get("status","待讀") == _bk_sf)
+                       and (_bk_cf == "全部分類" or b.get("category","其他") == _bk_cf)]
+            if _bk_sq:
+                _fbooks2 = [b for b in _fbooks2 if _bk_sq.lower() in b.get("title","").lower()]
+            st.caption(f"顯示 {len(_fbooks2)} 本")
+
+            # 雜誌感 3欄卡片
+            _NCOLS2 = 3
+            _bk_raw_list = []
+            try: _bk_raw_list = json.load(open(_bk_file, encoding="utf-8"))
+            except: pass
+
+            for _ri2 in range(0, min(len(_fbooks2), 90), _NCOLS2):
+                _row2  = _fbooks2[_ri2:_ri2+_NCOLS2]
+                _rcols2 = st.columns(_NCOLS2)
+                for _ci3, _b2 in enumerate(_row2):
+                    _cc3   = _BK_CC.get(_b2.get("category","其他"),"#64748b")
+                    _em3   = _BK_EM.get(_b2.get("category","其他"),"📖")
+                    _bst2  = _b2.get("status","待讀")
+                    _stc2  = {"待讀":"#64748b","讀中":"#f59e0b","已讀":"#22c55e"}.get(_bst2,"#64748b")
+                    _ttl2  = _b2.get("title","")
+                    _short = _ttl2[:32]+("…" if len(_ttl2)>32 else "")
+                    _shf2  = _b2.get("shelf","")
+                    _tid2  = _hl.md5(_ttl2.encode()).hexdigest()[:8]
+                    with _rcols2[_ci3]:
+                        st.markdown(f"""
+<div style='background:#1a1a20;border-radius:10px;overflow:hidden;border:1px solid #2a2a34;margin:5px 0'>
+  <div style='height:72px;background:linear-gradient(135deg,{_cc3}30 0%,{_cc3}08 100%);
+       display:flex;align-items:center;justify-content:center;position:relative'>
+    <span style='position:absolute;top:7px;right:9px;font-size:9px;
+         background:{_stc2}28;color:{_stc2};padding:2px 7px;border-radius:99px'>{_bst2}</span>
+    <span style='font-size:30px'>{_em3}</span>
+  </div>
+  <div style='padding:10px 12px 8px'>
+    <div style='font-size:12px;font-weight:700;color:#e9e9ec;line-height:1.45;min-height:34px'>{_short}</div>
+    <div style='display:flex;justify-content:space-between;align-items:center;margin-top:7px'>
+      <span style='font-size:10px;background:{_cc3}18;color:{_cc3};padding:2px 7px;border-radius:99px'>{_b2.get("category","")}</span>
+      <span style='font-size:10px;color:#4a4a5a'>{_shf2}</span>
+    </div>
+  </div>
+</div>""", unsafe_allow_html=True)
+                        _opts2 = ["待讀","讀中","已讀"]
+                        _cur2  = _opts2.index(_bst2) if _bst2 in _opts2 else 0
+                        _nst2  = st.selectbox("", _opts2, index=_cur2,
+                                              key=f"bk2_{_tid2}", label_visibility="collapsed")
+                        if _nst2 != _bst2:
+                            _b2["status"] = _nst2
+                            try:
+                                for _rb in _bk_raw_list:
+                                    if _rb.get("title") == _ttl2:
+                                        _rb["status"] = _nst2; break
+                                json.dump(_bk_raw_list, open(_bk_file,"w",encoding="utf-8"), ensure_ascii=False, indent=2)
+                            except: pass
+                            st.rerun()
 
     # ════════ YouTube ════════
     elif _dp_sub == "📺 YouTube":
