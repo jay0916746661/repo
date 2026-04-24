@@ -1,772 +1,682 @@
 [
   {
-    "id": 1,
-    "title": "不當行為：行為經濟學之父教你更聰明的思考、理財、看世界",
-    "author": "理查·塞勒",
-    "category": "投資/財富",
-    "drive_id": "1xiquPYNVjpLXy1IyUNUOY6fMbFBxUuK3",
-    "status": "待讀",
-    "tags": ["投資", "心理學", "決策"],
-    "added_date": "2026-03-18",
-    "folder": "電子書"
-  },
-  {
-    "id": 2,
-    "title": "一如既往：不變的人性與致富心態",
-    "author": "摩根·豪泽尔",
-    "category": "投資/財富",
-    "drive_id": "14PZ9ABBvYZbhoGaCTG-I9bh7NieDFA8h",
-    "status": "待讀",
-    "tags": ["投資", "財富", "人性"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 3,
-    "title": "好的決策",
-    "author": "夏棟",
-    "category": "投資/財富",
-    "drive_id": "1wi-_PqO0JjhHhSkEdyTcdY5IPYh5kwWp",
-    "status": "待讀",
-    "tags": ["決策", "思維"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 4,
-    "title": "奧爾特曼傳",
-    "author": "周恒星",
-    "category": "AI/科技",
-    "drive_id": "1HygMDtTyR7AXGq3IVTz21JmluAVvHYC9",
-    "status": "待讀",
-    "tags": ["AI", "創業", "OpenAI"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 5,
-    "title": "打造第二大腦",
-    "author": "提亞戈·佛特",
-    "category": "AI/科技",
-    "drive_id": "1A9Y1cdnVzPZGDBp6n3tbT-042vggp_aa",
-    "status": "待讀",
-    "tags": ["知識管理", "生產力", "筆記"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 6,
-    "title": "人性縱橫說",
-    "author": "",
-    "category": "人性/心理",
-    "drive_id": "1RTyZEj4R0ePc7QM380oe7RCn9Y8L2Yc0",
-    "status": "待讀",
-    "tags": ["人性", "心理"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 7,
-    "title": "人性的博弈：為什麼做個好人這麼難",
-    "author": "阿明·福爾克",
-    "category": "人性/心理",
-    "drive_id": "1Ovw9-EveSACGuxPPlm-01L-g9QXSGz3i",
-    "status": "待讀",
-    "tags": ["人性", "行為科學"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 8,
-    "title": "怎樣洞察別人",
-    "author": "尼倫伯格、卡萊羅",
-    "category": "人性/心理",
-    "drive_id": "1vXNrLZOXyMBG1M5pkksvFw69C0alze-T",
-    "status": "待讀",
-    "tags": ["人際", "觀察", "溝通"],
-    "added_date": "2026-01-28",
-    "folder": "電子書"
-  },
-  {
-    "id": 9,
-    "title": "製造消費者",
-    "author": "安東尼·加魯佐",
-    "category": "人性/心理",
-    "drive_id": "1ggyyHuBb3nT2i6YpQORxeCnkbIFCMh7d",
-    "status": "待讀",
-    "tags": ["消費心理", "行銷", "社會"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 10,
-    "title": "多巴胺國度：在縱慾年代找到身心平衡",
-    "author": "安娜·蘭布克醫師",
-    "category": "生活/心智",
-    "drive_id": "1TI2nSA91mcg_0-YY4MdaGjn2VxFFYEoL",
-    "status": "待讀",
-    "tags": ["心理健康", "自律", "大腦"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 11,
-    "title": "1分鐘冥想",
-    "author": "馬丁·保羅森",
-    "category": "生活/心智",
-    "drive_id": "18GjM0Xu53WvbnbKNuTCNC1nnd_2frTBp",
-    "status": "待讀",
-    "tags": ["冥想", "正念", "習慣"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 12,
-    "title": "專注的真相",
-    "author": "李笑來",
-    "category": "生活/心智",
-    "drive_id": "1Vft_XezgI5DQdKHn9vv8l_bH3b0gJotw",
-    "status": "待讀",
-    "tags": ["專注", "學習", "成長"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 13,
-    "title": "軟技能",
-    "author": "劉擎等",
-    "category": "生活/心智",
-    "drive_id": "1iIZXxfzYFxlwrNnKxNl07bfeC-1iJ9xE",
-    "status": "待讀",
-    "tags": ["軟實力", "溝通", "職場"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 14,
-    "title": "破圈",
-    "author": "顧及",
-    "category": "生活/心智",
-    "drive_id": "1V4xvPLofJSk-ysk6vKD2tmStyn8bFITn",
-    "status": "待讀",
-    "tags": ["突破", "成長", "思維"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 15,
-    "title": "覺悟：長大成人的力量",
-    "author": "杜駿飛",
-    "category": "生活/心智",
-    "drive_id": "1ON0o4EyKJ_D4Ji8ffFWcRm0QxrJhk4VB",
-    "status": "待讀",
-    "tags": ["成長", "自我"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 16,
-    "title": "先解決情緒，再解決問題",
-    "author": "托帕茲·阿迪澤斯",
-    "category": "關係/情緒",
-    "drive_id": "1pByydNZmQ-uG-h-O-SUAHAgGlEEiuFis",
-    "status": "待讀",
-    "tags": ["情緒管理", "關係", "溝通"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 17,
-    "title": "關係陷阱",
-    "author": "洪培芸",
-    "category": "關係/情緒",
-    "drive_id": "1m3nFi9_Pg_8_TCJa7p0i_-TkbIaXkLLu",
-    "status": "待讀",
-    "tags": ["關係", "心理", "人際"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 18,
-    "title": "社群發售變現，你也學得會",
-    "author": "鄧艷紅",
-    "category": "商業",
-    "drive_id": "1u8nwshDIJ22BWlW04-xT-Ap5LccNr1fG",
-    "status": "待讀",
-    "tags": ["社群", "變現", "行銷"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 19,
-    "title": "Life Force",
-    "author": "Tony Robbins",
-    "category": "商業",
-    "drive_id": "1J3XGm5uF19Jbiy5bL18P3bKz1bTk7N2m",
-    "status": "待讀",
-    "tags": ["健康", "長壽", "科技"],
-    "added_date": "2026-01-28",
-    "folder": "電子書"
-  },
-  {
-    "id": 20,
-    "title": "諾蘭變奏曲",
-    "author": "湯姆·邵恩",
-    "category": "其他",
-    "drive_id": "1-zUzgV69KmAwh2F3ynzZwA8JlejqIS_l",
-    "status": "待讀",
-    "tags": ["電影", "導演", "藝術"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 21,
-    "title": "約翰·藍儂傳",
-    "author": "萊斯莉-安·瓊斯",
-    "category": "其他",
-    "drive_id": "1-xxzNaLbrQwfu4EoE3ZJNtwGnVGQSQgK",
-    "status": "待讀",
-    "tags": ["音樂", "傳記", "搖滾"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 22,
-    "title": "馬斯克傳",
-    "author": "華特·艾薩克森",
-    "category": "AI/科技",
-    "drive_id": "1AccQLHTpDWts4XmSexM5ZEFyaSQMJaYK",
-    "status": "待讀",
-    "tags": ["AI", "創業", "傳記"],
-    "added_date": "2025-01-11",
-    "folder": "電子書"
-  },
-  {
-    "id": 23,
-    "title": "黃仁勳：英偉達之芯",
-    "author": "斯蒂芬·威特",
-    "category": "AI/科技",
-    "drive_id": "1KVmkJiQda3v-ueVfsWig-6y6HtUAfQgB",
-    "status": "待讀",
-    "tags": ["AI", "晶片", "傳記"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 24,
-    "title": "智人之上：從石器時代到 AI 時代的信息網絡簡史",
-    "author": "尤瓦爾·赫拉利",
-    "category": "AI/科技",
-    "drive_id": "1h5JR7s8Px-915Q5ihsZnpbyXS01IVycm",
-    "status": "待讀",
-    "tags": ["AI", "歷史", "未來"],
-    "added_date": "2025-03-18",
-    "folder": "電子書"
-  },
-  {
-    "id": 25,
-    "title": "DeepSeek：打開財富密碼",
-    "author": "陳根",
-    "category": "AI/科技",
-    "drive_id": "1O8KxTrFCMgmUMi297JGpb-c0dsQkMt4w",
-    "status": "待讀",
-    "tags": ["AI", "DeepSeek", "科技"],
-    "added_date": "2025-03-18",
-    "folder": "電子書"
-  },
-  {
-    "id": 26,
-    "title": "金錢心態",
-    "author": "森博嗣",
-    "category": "投資/財富",
-    "drive_id": "14vGkFptN9kcNiaqtFkWX_EAQ7ZAw-WEC",
-    "status": "待讀",
-    "tags": ["理財", "心態", "財富"],
-    "added_date": "2025-12-14",
-    "folder": "電子書"
-  },
-  {
-    "id": 27,
-    "title": "跟錢做朋友",
-    "author": "村上世彰",
-    "category": "投資/財富",
-    "drive_id": "1p1tXYCiwkkdJlrS_ti8kpYldM3bWYEPn",
-    "status": "待讀",
-    "tags": ["投資", "股票", "理財"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 28,
-    "title": "失去的三十年：平成日本經濟史",
-    "author": "野口悠紀雄",
-    "category": "投資/財富",
-    "drive_id": "13TJrg3a4xWxSX4_D6n60KYZcvhsjK9-2",
-    "status": "待讀",
-    "tags": ["經濟", "日本", "歷史"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 29,
-    "title": "情緒賽局",
-    "author": "埃亞爾·溫特",
-    "category": "人性/心理",
-    "drive_id": "1T-wV4UKSTcMhs7b9f4shKF-246emtZ09",
-    "status": "待讀",
-    "tags": ["情緒", "決策", "賽局"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 30,
-    "title": "我們如何思考",
-    "author": "西蒙·布萊克本",
-    "category": "人性/心理",
-    "drive_id": "1egs8mXWd6w35waWqESk5FElwC8kcuBRX",
-    "status": "待讀",
-    "tags": ["思考", "哲學", "心理"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 31,
-    "title": "自卑與超越",
-    "author": "阿爾弗雷德·阿德勒",
-    "category": "人性/心理",
-    "drive_id": "1LXPjudN-8L06JGfWPamDOw9jJ9Xr-B48",
-    "status": "待讀",
-    "tags": ["心理學", "自我", "成長"],
-    "added_date": "2025-01-11",
-    "folder": "電子書"
-  },
-  {
-    "id": 32,
-    "title": "強大內心的自我對話",
-    "author": "伊桑·克羅斯",
-    "category": "人性/心理",
-    "drive_id": "1MA_JL5tHAv1TS6HY3Hilw226xVYyqkfx",
-    "status": "待讀",
-    "tags": ["內心", "心理", "自我對話"],
-    "added_date": "2026-04-22",
-    "folder": "待看電子書"
-  },
-  {
-    "id": 33,
-    "title": "讓你不自覺做錯（暗黑心智）",
-    "author": "",
-    "category": "人性/心理",
-    "drive_id": "1ve-ud6HjK1DtKcuwPiIIw5n-lhGVc0MR",
-    "status": "待讀",
-    "tags": ["行為", "心理", "決策"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 34,
-    "title": "智商稅：如何避免信息焦慮時代的認知陷阱",
-    "author": "高德",
-    "category": "人性/心理",
-    "drive_id": "1rgYw6mnhsKaS5bju5aR6Fn9z1nXFbOgw",
-    "status": "待讀",
-    "tags": ["認知", "資訊", "思維"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 35,
-    "title": "臣服實驗",
-    "author": "麥克·辛格",
-    "category": "生活/心智",
-    "drive_id": "1DktdpWnVxLOWEzdlHZdudEdBJCOzpKSG",
-    "status": "待讀",
-    "tags": ["靈性", "成長", "臣服"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 36,
-    "title": "The Let Them Theory",
-    "author": "Mel Robbins",
-    "category": "生活/心智",
-    "drive_id": "1gB9vhULt9H76LOpCcsJmCcODrMvSpVLO",
-    "status": "待讀",
-    "tags": ["心態", "自由", "成長"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 37,
-    "title": "最高學以致用法",
-    "author": "樺澤紫苑",
-    "category": "生活/心智",
-    "drive_id": "1PWgkNeXnn81epdoUQDKSZ0SqJghzXzPC",
-    "status": "待讀",
-    "tags": ["學習", "輸出", "成長"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 38,
-    "title": "子彈思考整理術",
-    "author": "瑞德·卡洛",
-    "category": "生活/心智",
-    "drive_id": "1gvBUygnoC9rZ5cst06XCnt2HfmbffMqy",
-    "status": "待讀",
-    "tags": ["筆記", "組織", "生產力"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 39,
-    "title": "重啟人生",
-    "author": "亞瑟·布魯克斯",
-    "category": "生活/心智",
-    "drive_id": "1iKJO2WPo6k92C3N7eaon44vM6YKOdwub",
-    "status": "待讀",
-    "tags": ["人生", "成長", "改變"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 40,
-    "title": "平衡的智慧",
-    "author": "帕特·基辛格",
-    "category": "生活/心智",
-    "drive_id": "1BVgCW9A55TP_fA0TO2HIsttNXxPCIzPR",
-    "status": "待讀",
-    "tags": ["平衡", "信仰", "工作"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 41,
-    "title": "設計你的工作和人生",
-    "author": "比爾·博內特、戴夫·伊萬斯",
-    "category": "生活/心智",
-    "drive_id": "1OKUv1GUIF50_bGcm-ka8PC2XQq45pihE",
-    "status": "待讀",
-    "tags": ["設計思維", "職涯", "人生"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 42,
-    "title": "高效迭代",
-    "author": "馮起升",
-    "category": "生活/心智",
-    "drive_id": "1yiZ3ZTrjeAU5wKXXi5RX-cPhe1ymapr-",
-    "status": "待讀",
-    "tags": ["成長", "效率", "迭代"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 43,
-    "title": "無路之路",
-    "author": "保羅·米勒",
-    "category": "生活/心智",
-    "drive_id": "1xycsYonb4OMBYDVVMmWRjYwNeYqTjv8F",
-    "status": "待讀",
-    "tags": ["工作", "自由", "人生"],
-    "added_date": "2025-11-15",
-    "folder": "待看電子書"
-  },
-  {
-    "id": 44,
-    "title": "你的自信，所向披靡",
-    "author": "",
-    "category": "生活/心智",
-    "drive_id": "1JnKVjA8kDuUNcR4UYcQa_K3NFIxZlOnz",
-    "status": "待讀",
-    "tags": ["自信", "心態"],
-    "added_date": "2026-01-13",
-    "folder": "待看電子書"
-  },
-  {
-    "id": 45,
-    "title": "生活槓桿",
-    "author": "羅伯·摩爾",
-    "category": "商業",
-    "drive_id": "1f9kJm_7v9eh_2bQtxa-nrqf6hXRaRS0H",
-    "status": "待讀",
-    "tags": ["槓桿", "效率", "商業"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 46,
-    "title": "執行長日記：關於事業與人生的33條法則",
-    "author": "史蒂文·巴列特",
-    "category": "商業",
-    "drive_id": "1fsmpSg5x9wXeLXsUj4asTUIyJKCZiRd1",
-    "status": "待讀",
-    "tags": ["商業", "領導", "法則"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 47,
-    "title": "影響力（全新升級版）",
-    "author": "羅伯特·西奧迪尼",
-    "category": "商業",
-    "drive_id": "1346niHnhz6cNOoc1ura1tVd1pAx1rViu",
-    "status": "待讀",
-    "tags": ["說服", "行銷", "心理"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 48,
-    "title": "談判尺度：在博弈中實現雙贏",
-    "author": "",
-    "category": "商業",
-    "drive_id": "113etCH7P6T9El5w2PeER567ipUpBcKFk",
-    "status": "待讀",
-    "tags": ["談判", "溝通", "策略"],
-    "added_date": "2025-01-11",
-    "folder": "電子書"
-  },
-  {
-    "id": 49,
-    "title": "超越哈佛",
-    "author": "馬克·麥考梅克",
-    "category": "商業",
-    "drive_id": "1hwg9OCqCOTj9ehTp7LThIiOnhRAos01p",
-    "status": "待讀",
-    "tags": ["商業智慧", "職場", "成功"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 50,
-    "title": "品味，從知識開始",
-    "author": "水野學",
-    "category": "商業",
-    "drive_id": "1Feey_A5UR42SLZExQQTydJAwgoDW4FlK",
-    "status": "待讀",
-    "tags": ["品味", "設計", "品牌"],
-    "added_date": "2025-11-15",
-    "folder": "待看電子書"
-  },
-  {
-    "id": 51,
-    "title": "最好的親密關係",
-    "author": "羅賓·鄧巴",
-    "category": "關係/情緒",
-    "drive_id": "1y8YmnjMdfsKjK3Ll6hgDYuHYD3-n-k-X",
-    "status": "待讀",
-    "tags": ["關係", "愛情", "心理"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 52,
-    "title": "愛情的邏輯",
-    "author": "蔡垒磊",
-    "category": "關係/情緒",
-    "drive_id": "1iOrldgcPpdo7mQZxOjPptzTvTlzCWri0",
-    "status": "待讀",
-    "tags": ["愛情", "邏輯", "親密關係"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 53,
-    "title": "戀愛心理必修課",
-    "author": "段鑫星等",
-    "category": "關係/情緒",
-    "drive_id": "1RRqM6PZp82MOkqNu45xNc4u-NkjAuLdy",
-    "status": "待讀",
-    "tags": ["戀愛", "心理", "關係"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 54,
-    "title": "沉默時，請大聲朗讀情書",
-    "author": "梁彥增",
-    "category": "關係/情緒",
-    "drive_id": "1-HAIwvW2EzgqpTEB_rzxsEzaUOnZ--uq",
-    "status": "待讀",
-    "tags": ["愛情", "文學", "情感"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 55,
-    "title": "人類簡史三部曲",
-    "author": "尤瓦爾·赫拉利",
-    "category": "其他",
-    "drive_id": "1KsAIV63VDxTu9zcUhcv3wmFCp8SzOe6l",
-    "status": "待讀",
-    "tags": ["歷史", "人類", "文明"],
-    "added_date": "2025-03-18",
-    "folder": "電子書"
-  },
-  {
-    "id": 56,
-    "title": "世界盡頭的咖啡館",
-    "author": "約翰·史崔勒基",
-    "category": "其他",
-    "drive_id": "187cB3WCVMQ7cJw517zQ0eAPJs61-_jDc",
-    "status": "待讀",
-    "tags": ["人生", "哲學", "小說"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 57,
-    "title": "面紗",
-    "author": "威廉·毛姆",
-    "category": "其他",
-    "drive_id": "1hrKIXCSzZSHD5lJs4X2d1FUy3WxJMbY-",
-    "status": "待讀",
-    "tags": ["小說", "文學", "愛情"],
-    "added_date": "2025-12-15",
-    "folder": "電子書"
-  },
-  {
-    "id": 58,
-    "title": "音樂即自由",
-    "author": "坂本龍一",
-    "category": "其他",
-    "drive_id": "1r724epMsyxCa29_c53Ji5m9pYUtC-ibS",
-    "status": "待讀",
-    "tags": ["音樂", "藝術", "傳記"],
-    "added_date": "2025-11-15",
-    "folder": "待看電子書"
-  },
-  {
-    "id": 59,
-    "title": "咖啡癮史",
-    "author": "史都華·李·艾倫",
-    "category": "其他",
-    "drive_id": "19RLaCripzWen7LbZYT1RpSyJ0o_0c86g",
-    "status": "待讀",
-    "tags": ["咖啡", "歷史", "文化"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
-  },
-  {
-    "id": 60,
-    "title": "紐約攝影學院教程",
-    "author": "",
-    "category": "攝影",
-    "drive_id": "1FVpq8rjkLcwslpqI2ff0wEkmtHbGc0Tn",
-    "status": "待讀",
-    "tags": ["攝影", "教程", "技術"],
-    "added_date": "2025-09-14",
-    "folder": "電子書"
-  },
-  {
-    "id": 61,
-    "title": "攝影之道",
-    "author": "",
-    "category": "攝影",
-    "drive_id": "1c2VKF0GB2rI3MYob9dEZrgpdyf0QkQ9b",
-    "status": "待讀",
-    "tags": ["攝影", "創作", "視覺"],
-    "added_date": "2025-05-26",
-    "folder": "電子書"
-  },
-  {
-    "id": 62,
-    "title": "日系清新人像攝影",
-    "author": "芥末",
-    "category": "攝影",
-    "drive_id": "1EAi7m5JS2b-LTrvGoTxdmIcPlOfH5XnS",
-    "status": "待讀",
-    "tags": ["攝影", "人像", "日系"],
-    "added_date": "2025-09-14",
-    "folder": "電子書"
-  },
-  {
-    "id": 63,
-    "title": "少女映像室：唯美人像攝影",
-    "author": "陳滔",
-    "category": "攝影",
-    "drive_id": "1jnHOka_isBOsetVcLABdAgFUwin2tRMC",
-    "status": "待讀",
-    "tags": ["攝影", "人像", "唯美"],
-    "added_date": "2025-09-14",
-    "folder": "電子書"
-  },
-  {
-    "id": 64,
-    "title": "塔羅自學指南",
-    "author": "達斯堤·懷特",
-    "category": "塔羅/靈性",
-    "drive_id": "1-PKpfCeSfsUVjVBHSOtyMYlTZY8RqZr9",
-    "status": "待讀",
-    "tags": ["塔羅", "靈性", "自學"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 65,
-    "title": "托特塔羅解密",
-    "author": "羅·米洛·杜奎特",
-    "category": "塔羅/靈性",
-    "drive_id": "1SV1Ua9-jUMCRor6ibwKN10et5tSSiRZf",
-    "status": "待讀",
-    "tags": ["塔羅", "托特", "神祕學"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 66,
-    "title": "占星相位研究",
-    "author": "蘇·湯普金",
-    "category": "塔羅/靈性",
-    "drive_id": "1hMqXgF5RC6zIbiTealGLPAClsSfvq5YA",
-    "status": "待讀",
-    "tags": ["占星", "相位", "靈性"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
-  },
-  {
-    "id": 67,
+    "title": "“犹”钱的思维",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《 全球华人进阶推荐用书之——塔罗逆位精解 》",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《专注的真相》李笑来【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "共情销售",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "向上社交：如何让优秀的人靠近你",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "延展：释放有限资源的无限潜能",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《100个基本：松浦弥太郎的人生信条》松浦弥太郎【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "抗逆力：如何应对生活中的坏事件",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": ".DS_Store",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "王家卫访谈录",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "番茄工作法",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "真我布蘭妮",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "金钱心理学",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "10分鐘入禪休息法：風行全球菁英的正念減壓法，7步驟進入心流，既專注又放鬆的最高休息法",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "[轮回] 跨越前世今生——陈胜英医师的催眠治疗报.pdf",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Every Living Thing The Great and Deadly Race to Know All Life",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Let_Them_Theory_Chapter1_CN",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Love Life How to Raise Your Standards...",
+    "shelf": "電子書",
+    "category": "AI/科技"
+  },
+  {
+    "title": "The Let Them Theory A Life-Changing Tool That Millions of People Can’t Stop Talking About",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Thinking in Jazz",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Very Important People. Status and Beauty in the Global Party Circuit",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《1分钟冥想》马丁·保罗森【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "《DeepSeek：打开财富密码》陈根【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《一如既往--不变的人性与致富心态》【美】摩根·豪泽尔【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "《世界尽头的咖啡馆》万洁 【美】约翰·史崔勒基【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《人性的博弈：为什么做个好人这么难》阿明·福尔克【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "《人性纵横说》1.0",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "《人的潜能和价值》亚伯拉罕·马斯洛 & 等【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《人类之旅：财富与不平等的起源》奥戴德·盖勒【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《人类简史三部曲（套装全3册）》【以】尤瓦尔·赫拉利【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《先解决情绪，再解决问题：改善伴侣关系的12项练习》托帕兹·阿迪泽斯【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《入木三分（约翰·厄普代克艺术随笔集）》约翰·厄普代克【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《关系陷阱》洪培芸【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《制造消费者》安东尼·加卢佐【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《咖啡癮史》史都華.李.艾倫【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《图说世界经济史【100余幅图理清经济全球化2000年历史脉络！世界经济变得如今这般休戚相关？以图读史，韩国人气教授揭秘画中的画，《马可·波罗游记》插画，可口可乐广告……",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《多巴胺國度：在縱慾年代找到身心平衡》安娜‧蘭布克醫師【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "《失去的三十年 平成日本经济史》野口悠纪雄【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《奥尔特曼传》周恒星【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《好的决策》夏栋【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《影响力：全新升级版》［美］罗伯特·西奥迪尼;闾佳译【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《恋爱心理必修课》段鑫星 & 李文文 & 司莹雪【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "《我从何来：自我的心理学探问》罗伊·F.鲍迈斯特【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "《我们如何思考》西蒙·布莱克本【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "《打造第二大腦》提亞戈．佛特 Tiago Forte【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "AI/科技"
+  },
+  {
+    "title": "《智人之上：从石器时代到AI时代的信息网络简史》尤瓦尔·赫拉利【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "AI/科技"
+  },
+  {
+    "title": "《智商税：如何避免信息焦虑时代的智商陷阱》高德【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《最好的亲密关系》罗宾·邓巴【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《沉默时，请大声朗读情书》梁彦增【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《爱情的逻辑：破除亲密关系中的认知陷阱》蔡垒磊【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《目标感》威廉·戴蒙【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《破圈》顾及【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "《社群发售变现，你也学得会》邓艳红【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "商業/創業"
+  },
+  {
+    "title": "《觉悟：长大成人的力量（杜课通识之二）》杜骏飞【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《諾蘭變奏曲》湯姆．邵恩【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《设计你的工作和人生 ： 如何成长、改变，在工作中 找到快乐和新的自由》比尔 · 博内特 & 戴夫 · 伊万斯【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《谁是约翰·列侬：摇滚神话的爱、生命与死亡》[英]莱斯莉-安·琼斯【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《超越哈佛：麦考梅克不同凡响的商业智慧》[美]马克·H.麦考梅克【文字版_PDF电子书_下载】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《软技能—（自改）刘擎[等]（2023新星）》刘擎【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《重啟人生：一個哈佛教授的生命領悟，給你把餘生過好的簡單建議》亞瑟．布魯克斯",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《馬斯克傳》華特．艾薩克森 Walter Isaacson【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《高效迭代：高手的自我进化方法论（ 知乎超700000次高赞收藏的人气大V从人力资源角度教你如何冲破舒适边界，实现倍速成长，迅速拉开与同龄人的差距！）》冯起升【文字版_PDF电",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《黄仁勋：英伟达之芯》斯蒂芬·威特【文字版_PDF电子书_雅书】",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "一如既往：不變的人性法則與致富心態",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "一本書終結你的拖延症：透過「小行動」打開大腦的行動開關，懶人也能變身「行動派」的37個科學方法",
+    "shelf": "電子書",
+    "category": "AI/科技"
+  },
+  {
     "title": "上升星座",
-    "author": "韓良露",
-    "category": "塔羅/靈性",
-    "drive_id": "1aFTnAx13bNLpugsAnZbTUv2j9s8hLXGZ",
-    "status": "待讀",
-    "tags": ["占星", "星座", "靈性"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
+    "shelf": "電子書",
+    "category": "其他"
   },
   {
-    "id": 68,
-    "title": "直覺式塔羅牌（透特牌）",
-    "author": "Pandora",
-    "category": "塔羅/靈性",
-    "drive_id": "1Ipgcl9_BI91Huy6in2T61Q94lrbcQEwD",
-    "status": "待讀",
-    "tags": ["塔羅", "透特", "直覺"],
-    "added_date": "2025-06-30",
-    "folder": "電子書"
+    "title": "为什么精英都是时间控",
+    "shelf": "電子書",
+    "category": "其他"
   },
   {
-    "id": 69,
-    "title": "跨越前世今生",
-    "author": "陳勝英",
-    "category": "塔羅/靈性",
-    "drive_id": "17Phott5Xg5IqS4uMzFW94x0e0Srxhe37",
-    "status": "待讀",
-    "tags": ["輪迴", "催眠", "靈性"],
-    "added_date": "2026-01-22",
-    "folder": "電子書"
+    "title": "人为何物进化的逻辑",
+    "shelf": "電子書",
+    "category": "其他"
   },
   {
-    "id": 70,
+    "title": "人脈變現：建立共好網絡，讓別人看見你，也讓機會找上你",
+    "shelf": "電子書",
+    "category": "商業/創業"
+  },
+  {
+    "title": "人際網絡解密：史丹佛教授剖析，你在人群中的位置，如何決定你的未來",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "你就是镜头前的百变超模人像摄影摆姿宝典",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "停損的勝算：世界撲克冠軍教你精準判斷何時放棄，反而贏更多",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "僧人心態_從道場到職場_訓練你的心_過著平靜而有目標的每一天_",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "內容電力公司：用好內容玩出大事業",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "分镜头脚本设计教程",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "創新可以更好、更快、更有效 全球最權威趨勢獵人, 解析6大機會模式, 讓商業點子源源不絕",
+    "shelf": "電子書",
+    "category": "商業/創業"
+  },
+  {
+    "title": "占卜师",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "占星相位研究",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "命运",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "執行長日記_關於事業與人生的33條法則_史蒂文_巴列特_Steven_B_",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "塔罗的藏宝：不讲牌面的牌意书（第二版）",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "塔羅自學指南",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "塔羅逆位精解",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "好點子都是偷來的（全球熱賣 史上最性感的60堂創新課，讓美國總統奧巴馬讚歎不絕的創意書！）",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "子彈思考整理術：釐清超載思緒，化想法為行動，專注最重要的事，設計你想要的人生)",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "少女映像室唯美人像摄影从入门到实战",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "布光拍摄修饰-斯科特·凯尔比影棚人像摄影全流程详解",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "平衡的智慧_家庭_信仰和工作的优先次序原则_美_帕特基辛格_Pat_",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "影响力",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "情緒賽局：揭開決策背後的情緒機制，8位諾貝爾經濟學獎得主盛讚，提高人生勝率的 23項贏家邏輯",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "托特塔羅解密)",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "持續買進：資料科學家的投資終極解答，存錢及致富的實證方法",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "摄影之道 摄影师的创作方法和视觉观点",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "日系清新人像摄影",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "最高學以致用法：讓學習發揮最大成果的輸出大全",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "梦的解析",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "水晶能量疗愈指南 Crystals for Beginners-The Guide to Get Started with the Healing Power of Crystals",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "減法的力量：全美最啟迪人心的跨領域教授，帶你發現｢少，才更好｣",
+    "shelf": "電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "為什麼我很努力，卻沒被看見？：30堂國際溝通課，打造你的職場能見力)",
+    "shelf": "電子書",
+    "category": "溝通/談判"
+  },
+  {
+    "title": "生活槓桿：短時間發揮最大生產力，讓事業、生活、財富達到完美平衡的工作哲學)",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "直觉式塔罗牌（透特牌）中文珍藏版",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "砍掉重練  30歲開始也不遲的工作術",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "纽约摄影学院教程",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "臣服實驗 從隱居者到上市公司執行長, 放手讓生命掌舵的旅程",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "自卑与超越",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "要钱还是要生活_没有财务自由_也能提前退休_",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "讓你不自覺做錯，事後卻又受傷懊悔的暗黑心智：操控情緒與行為的童年意念，讓你無意間傷害了自己與他人，你該如何脫身、做出改變",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "谈判尺度：在博弈中实现双赢",
+    "shelf": "電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "跟錢做朋友：向日本股神學習影響一生的致富觀，打通金錢通道的理財課",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "重啟人生_一個哈佛教授的生命領悟_給你把餘生過好的簡單建議_",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "重啟人生_一個哈佛教授的生命領悟_給你把餘生過好的簡單建議_亞瑟_布魯克斯_",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "金錢心態：認清金錢的價值，重新定義慾望本質，做個真正「富足的人」",
+    "shelf": "電子書",
+    "category": "投資/財富"
+  },
+  {
+    "title": "面紗（毛姆強烈自傳色彩之小說傑作）",
+    "shelf": "電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Applications of No-Limit Hold em",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Behave",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "COCO GUITAR",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "LIT Life Ignition Tools Use Natures Playbook to Energize Your Brain, Spark Ideas, and Ignite Action",
+    "shelf": "待看電子書",
+    "category": "AI/科技"
+  },
+  {
     "title": "The Mathematics of Poker",
-    "author": "Bill Chen, Jerrod Ankenman",
-    "category": "其他",
-    "drive_id": "1djqZsnEjwpan7By-MogAWxpMx1NM0bRu",
-    "status": "待讀",
-    "tags": ["撲克", "數學", "策略"],
-    "added_date": "2026-04-22",
-    "folder": "待看電子書"
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Thinking in Jazz",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Vibe Coding The Future of Programming",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "Workbook for James Clears Atomic Habits The Step By Step Guide To Turn Your Goals Into Reality",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "《多巴胺國度：在縱慾年代找到身心平衡》安娜‧蘭布克醫師【文字版_PDF电子书_雅书】",
+    "shelf": "待看電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "你的自信，所向披靡",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "史上極惡「心靈陷阱」的暗黑心機操控心理學：識破61種騙術套路，別讓自己成了待宰羔羊",
+    "shelf": "待看電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "品味，從知識開始：日本設計天王打造百億暢銷品牌的美學思考術",
+    "shelf": "待看電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "射精道：男人必備，解決所有性事、性功能困擾",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "巴拉巴西成功定律（网络科学最新研究揭示成功五大普适定律，成功竟然有公式）",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "強大內心的自我對話習慣：緊張下維持專注，混亂中清楚思考，身陷困難不被負面情緒拖垮，任何時刻都發揮高水準表現",
+    "shelf": "待看電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "强大内心的自我对话",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "操控人性弱點の說服心理學  大腦95非理性思考, 巧妙引導誰都會聽你的",
+    "shelf": "待看電子書",
+    "category": "AI/科技"
+  },
+  {
+    "title": "海洋-麗ZJ19957578",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "無路之路  你的人生怎麼可能有前例 商業類罕見傳奇, 工作與生活的新解答",
+    "shelf": "待看電子書",
+    "category": "生活/心智"
+  },
+  {
+    "title": "百萬富翁快車道",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "稀缺：我们是如何陷入贫穷与忙碌的",
+    "shelf": "待看電子書",
+    "category": "其他"
+  },
+  {
+    "title": "認知覺醒：開啟自我改變的原動力（當你認知覺醒，何懼焦慮迷茫！暢銷書《反本能》作者衛藍激賞力薦！）",
+    "shelf": "待看電子書",
+    "category": "人性/心理"
+  },
+  {
+    "title": "音乐即自由",
+    "shelf": "待看電子書",
+    "category": "其他"
   }
 ]

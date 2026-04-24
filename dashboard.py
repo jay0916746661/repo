@@ -2479,7 +2479,7 @@ Jim 的目標：2026年底存到 20 萬 TWD 可投資資金，目前專注美股
 # ════════════════════════════════════════════════════
 # 4 個分頁
 # ════════════════════════════════════════════════════
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📈 投資", "🧠 生活系統", "🛍️ 撿漏轉賣", "🔬 研究", "🗺️ AI學習地圖", "📚 書庫"])
+tab1, tab2, tab3, tab4, tab_fincept, tab5, tab6, tab_dispatch = st.tabs(["📈 投資", "🧠 生活系統", "🛍️ 撿漏轉賣", "🔬 研究", "🖥️ 市場研究", "🗺️ AI學習地圖", "📚 書庫", "🧭 派遣台"])
 
 # ══════════════════════════════════════════
 # TAB 1 — 投資
@@ -3070,6 +3070,222 @@ with tab4:
         st.error(f"研究筆記載入失敗：{_rr_err}")
 
 # ══════════════════════════════════════════
+# TAB FINCEPT — 市場研究終端機
+# ══════════════════════════════════════════
+@st.cache_data(ttl=300)
+def _fincept_global_indices():
+    import csv, io, requests as _req
+    syms = {
+        "^SPX": ("S&P 500", "🇺🇸"), "^DJI": ("Dow Jones", "🇺🇸"), "^NDX": ("NASDAQ 100", "🇺🇸"),
+        "^NKX": ("Nikkei 225", "🇯🇵"), "^HSI": ("Hang Seng", "🇭🇰"), "^TSX": ("台灣加權", "🇹🇼"),
+        "^DAX": ("DAX", "🇩🇪"), "^FTSE": ("FTSE 100", "🇬🇧"), "^CAC": ("CAC 40", "🇫🇷"),
+        "^STI": ("新加坡STI", "🇸🇬"),
+    }
+    results = []
+    for sym, (name, flag) in syms.items():
+        try:
+            url = f"https://stooq.com/q/l/?s={sym}&f=sd2t2ohlcv&h&e=csv"
+            r = _req.get(url, timeout=6)
+            reader = csv.DictReader(io.StringIO(r.text))
+            for row in reader:
+                close = float(row.get("Close", 0) or 0)
+                open_ = float(row.get("Open", 0) or 0)
+                chg = ((close - open_) / open_ * 100) if open_ else 0
+                results.append({"name": name, "flag": flag, "close": close, "chg": chg, "date": row.get("Date", "")})
+                break
+        except Exception:
+            pass
+    return results
+
+@st.cache_data(ttl=120)
+def _fincept_crypto():
+    import requests as _req
+    ids = "bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,cardano,avalanche-2"
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={ids}&vs_currencies=usd,twd&include_24hr_change=true&include_market_cap=true"
+    try:
+        r = _req.get(url, timeout=6)
+        data = r.json()
+        labels = {"bitcoin": ("BTC", "Bitcoin"), "ethereum": ("ETH", "Ethereum"),
+                  "solana": ("SOL", "Solana"), "binancecoin": ("BNB", "BNB"),
+                  "ripple": ("XRP", "XRP"), "dogecoin": ("DOGE", "Dogecoin"),
+                  "cardano": ("ADA", "Cardano"), "avalanche-2": ("AVAX", "Avalanche")}
+        out = []
+        for cid, info in data.items():
+            sym, full = labels.get(cid, (cid[:4].upper(), cid))
+            out.append({
+                "sym": sym, "name": full,
+                "usd": info.get("usd", 0),
+                "twd": info.get("twd", 0),
+                "chg": info.get("usd_24h_change", 0),
+                "mcap": info.get("usd_market_cap", 0),
+            })
+        return out
+    except Exception:
+        return []
+
+@st.cache_data(ttl=1800)
+def _fincept_stock_chart(sym: str, period: str = "3mo"):
+    import yfinance as _yf
+    try:
+        df = _yf.download(sym, period=period, interval="1d", progress=False)
+        if df.empty:
+            return None
+        df = df.reset_index()
+        df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
+        return df[["Date", "Open", "High", "Low", "Close", "Volume"]].dropna()
+    except Exception:
+        return None
+
+@st.cache_data(ttl=600)
+def _fincept_news(topic: str, lang: str = "zh-Hant", country: str = "TW", n: int = 8):
+    try:
+        from gnews import GNews
+        g = GNews(language=lang, country=country, max_results=n)
+        return g.get_news(topic)
+    except Exception:
+        return []
+
+with tab_fincept:
+    st.header("🖥️ 市場研究終端機")
+    st.caption("Powered by Fincept Terminal · 即時行情 + 加密幣 + 財經新聞")
+
+    _fc_sub = st.radio("選擇模組", ["🌍 全球指數", "📈 個股K線", "🪙 加密貨幣", "📰 財經新聞"],
+                       horizontal=True, label_visibility="collapsed", key="fc_sub")
+
+    # ── 全球指數 ─────────────────────────
+    if _fc_sub == "🌍 全球指數":
+        st.subheader("🌍 全球主要指數")
+        with st.spinner("載入中..."):
+            _idx = _fincept_global_indices()
+        if _idx:
+            _icols = st.columns(5)
+            for i, row in enumerate(_idx):
+                chg_color = "#22c55e" if row["chg"] >= 0 else "#ef4444"
+                chg_arrow = "▲" if row["chg"] >= 0 else "▼"
+                _icols[i % 5].markdown(
+                    f"<div style='background:#1a1a20;border-radius:10px;padding:12px 14px;margin:4px 0;border:1px solid #24242c'>"
+                    f"<div style='font-size:11px;color:#94a3b8'>{row['flag']} {row['name']}</div>"
+                    f"<div style='font-size:17px;font-weight:700;font-family:monospace'>{row['close']:,.2f}</div>"
+                    f"<div style='font-size:12px;color:{chg_color}'>{chg_arrow} {row['chg']:+.2f}%</div>"
+                    f"<div style='font-size:10px;color:#6c6c78'>{row['date']}</div>"
+                    f"</div>", unsafe_allow_html=True
+                )
+        else:
+            st.warning("無法載入指數資料，稍後重試")
+
+    # ── 個股K線 ──────────────────────────
+    elif _fc_sub == "📈 個股K線":
+        st.subheader("📈 個股 K 線查詢")
+        _fc_col1, _fc_col2 = st.columns([2, 1])
+        with _fc_col1:
+            _fc_sym = st.text_input("輸入股票代碼（如 AAPL, TSLA, 2330.TW, ^GSPC）", value="AAPL", key="fc_sym").strip().upper()
+        with _fc_col2:
+            _fc_period = st.selectbox("區間", ["1mo", "3mo", "6mo", "1y", "2y"], index=1, key="fc_period")
+        if _fc_sym:
+            with st.spinner(f"載入 {_fc_sym} 資料..."):
+                _fc_df = _fincept_stock_chart(_fc_sym, _fc_period)
+            if _fc_df is not None and not _fc_df.empty:
+                _last = _fc_df.iloc[-1]
+                _prev = _fc_df.iloc[-2] if len(_fc_df) > 1 else _last
+                _chg_pct = (_last["Close"] - _prev["Close"]) / _prev["Close"] * 100
+                _c1, _c2, _c3, _c4 = st.columns(4)
+                _c1.metric("收盤", f"{_last['Close']:.2f}", f"{_chg_pct:+.2f}%")
+                _c2.metric("開盤", f"{_last['Open']:.2f}")
+                _c3.metric("最高", f"{_last['High']:.2f}")
+                _c4.metric("最低", f"{_last['Low']:.2f}")
+                fig_fc = go.Figure(go.Candlestick(
+                    x=_fc_df["Date"], open=_fc_df["Open"], high=_fc_df["High"],
+                    low=_fc_df["Low"], close=_fc_df["Close"],
+                    increasing_line_color="#22c55e", decreasing_line_color="#ef4444",
+                    name=_fc_sym,
+                ))
+                fig_fc.update_layout(
+                    paper_bgcolor="#0b0b0d", plot_bgcolor="#0b0b0d",
+                    font=dict(color="#e9e9ec"), height=420,
+                    xaxis=dict(gridcolor="#24242c", rangeslider_visible=False),
+                    yaxis=dict(gridcolor="#24242c"),
+                    margin=dict(l=10, r=10, t=20, b=10),
+                )
+                st.plotly_chart(fig_fc, use_container_width=True)
+                with st.expander("原始數據"):
+                    st.dataframe(_fc_df.tail(30).sort_values("Date", ascending=False), use_container_width=True)
+            else:
+                st.error(f"找不到 {_fc_sym} 的資料，確認代碼正確（台股加 .TW，如 2330.TW）")
+
+    # ── 加密貨幣 ──────────────────────────
+    elif _fc_sub == "🪙 加密貨幣":
+        st.subheader("🪙 加密貨幣即時行情")
+        with st.spinner("載入中..."):
+            _crypto = _fincept_crypto()
+        if _crypto:
+            _cc1, _cc2 = st.columns(2)
+            for i, c in enumerate(_crypto):
+                chg_color = "#22c55e" if c["chg"] >= 0 else "#ef4444"
+                chg_arrow = "▲" if c["chg"] >= 0 else "▼"
+                mcap_str = f"${c['mcap']/1e9:.1f}B" if c["mcap"] > 1e9 else f"${c['mcap']/1e6:.1f}M"
+                (_cc1 if i % 2 == 0 else _cc2).markdown(
+                    f"<div style='background:#1a1a20;border-radius:10px;padding:14px 16px;margin:5px 0;border:1px solid #24242c'>"
+                    f"<div style='display:flex;justify-content:space-between;align-items:center'>"
+                    f"<span style='font-size:14px;font-weight:700'>{c['sym']} <span style='font-size:11px;color:#94a3b8;font-weight:400'>{c['name']}</span></span>"
+                    f"<span style='font-size:12px;color:{chg_color}'>{chg_arrow} {c['chg']:+.2f}%</span></div>"
+                    f"<div style='font-size:20px;font-weight:700;font-family:monospace;margin:4px 0'>${c['usd']:,.4g}</div>"
+                    f"<div style='font-size:11px;color:#6c6c78'>NT${c['twd']:,.0f} · 市值 {mcap_str}</div>"
+                    f"</div>", unsafe_allow_html=True
+                )
+            st.caption("資料來源：CoinGecko · 每 2 分鐘更新")
+        else:
+            st.warning("無法載入加密幣資料，稍後重試")
+
+    # ── 財經新聞 ──────────────────────────
+    elif _fc_sub == "📰 財經新聞":
+        st.subheader("📰 財經新聞")
+        _nc1, _nc2 = st.columns([1, 1])
+        with _nc1:
+            _news_topic_tw = st.text_input("台股/中文關鍵字", value="股市", key="fc_news_tw")
+        with _nc2:
+            _news_topic_en = st.text_input("英文關鍵字", value="crypto bitcoin", key="fc_news_en")
+
+        _nca, _ncb = st.columns(2)
+        with _nca:
+            st.markdown("**📰 中文財經**")
+            with st.spinner("載入中..."):
+                _news_tw = _fincept_news(_news_topic_tw, lang="zh-Hant", country="TW", n=6)
+            if _news_tw:
+                for item in _news_tw:
+                    pub = item.get("published date", "")[:16]
+                    url_n = item.get("url", "#")
+                    title = item.get("title", "")
+                    publisher = item.get("publisher", {}).get("title", "") if isinstance(item.get("publisher"), dict) else ""
+                    st.markdown(
+                        f"<div style='background:#1a1a20;border-radius:8px;padding:10px 14px;margin:5px 0;border:1px solid #24242c'>"
+                        f"<div style='font-size:13px;font-weight:600;line-height:1.4'>{title}</div>"
+                        f"<div style='font-size:11px;color:#6c6c78;margin-top:4px'>{publisher} · {pub}</div>"
+                        f"</div>", unsafe_allow_html=True
+                    )
+            else:
+                st.info("暫無中文新聞")
+
+        with _ncb:
+            st.markdown("**📰 英文財經**")
+            with st.spinner("載入中..."):
+                _news_en = _fincept_news(_news_topic_en, lang="en", country="US", n=6)
+            if _news_en:
+                for item in _news_en:
+                    pub = item.get("published date", "")[:16]
+                    title = item.get("title", "")
+                    publisher = item.get("publisher", {}).get("title", "") if isinstance(item.get("publisher"), dict) else ""
+                    st.markdown(
+                        f"<div style='background:#1a1a20;border-radius:8px;padding:10px 14px;margin:5px 0;border:1px solid #24242c'>"
+                        f"<div style='font-size:13px;font-weight:600;line-height:1.4'>{title}</div>"
+                        f"<div style='font-size:11px;color:#6c6c78;margin-top:4px'>{publisher} · {pub}</div>"
+                        f"</div>", unsafe_allow_html=True
+                    )
+            else:
+                st.info("暫無英文新聞")
+
+        st.caption("資料來源：Google News · 每 10 分鐘更新")
+
+# ══════════════════════════════════════════
 # TAB 5 — AI 學習地圖
 # ══════════════════════════════════════════
 with tab5:
@@ -3599,6 +3815,333 @@ with tab6:
                         st.error(str(_be))
 
 # ── 刷新 ─────────────────────────────────
+# ══════════════════════════════════════════
+# TAB 派遣台 — AI 問題路由器 + 歷史 + 分析 + 智慧推送
+# ══════════════════════════════════════════
+_DISPATCH_FILE = os.path.join(os.path.dirname(__file__), "data", "ai_queue.json")
+_HISTORY_FILE  = os.path.join(os.path.dirname(__file__), "data", "ai_history.json")
+_PRIORITY_MAP  = {"🔴 現在馬上": 0, "🟡 今天": 1, "🟢 本週內": 2, "⚪ 可以等": 3}
+_AI_COLORS     = {"派網 AI": "#f59e0b", "Claude": "#8b5cf6", "Claude Code": "#7c3aed", "Gemini": "#3b82f6", "GPT": "#10b981"}
+_CAT_COLORS    = {"加密幣": "#f59e0b", "投資/股票": "#22c55e", "業務/客戶": "#3b82f6", "程式/技術": "#7c3aed", "學習/成長": "#ec4899", "AI/工具": "#06b6d4", "其他": "#6c6c78"}
+
+def _load_queue() -> list:
+    try:
+        if os.path.exists(_DISPATCH_FILE):
+            return json.load(open(_DISPATCH_FILE, encoding="utf-8"))
+    except Exception:
+        pass
+    return []
+
+def _load_history() -> list:
+    try:
+        if os.path.exists(_HISTORY_FILE):
+            return json.load(open(_HISTORY_FILE, encoding="utf-8"))
+    except Exception:
+        pass
+    return []
+
+def _save_queue(q: list):
+    os.makedirs(os.path.dirname(_DISPATCH_FILE), exist_ok=True)
+    with open(_DISPATCH_FILE, "w", encoding="utf-8") as f:
+        json.dump(q, f, ensure_ascii=False, indent=2)
+
+def _append_history(item: dict):
+    os.makedirs(os.path.dirname(_HISTORY_FILE), exist_ok=True)
+    hist = _load_history()
+    hist.append(item)
+    with open(_HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(hist, f, ensure_ascii=False, indent=2)
+
+def _categorize(text: str) -> str:
+    t = text.lower()
+    if any(k in t for k in ["btc", "eth", "幣", "加密", "crypto", "派網", "usdt", "sol", "bnb"]):
+        return "加密幣"
+    if any(k in t for k in ["股票", "投資", "持倉", "台股", "美股", "etf", "基金", "報酬", "虧損"]):
+        return "投資/股票"
+    if any(k in t for k in ["客戶", "業務", "工作室", "報價", "開發", "銷售", "吉他", "樂器"]):
+        return "業務/客戶"
+    if any(k in t for k in ["程式", "bug", "dashboard", "code", "python", "功能", "錯誤", "streamlit"]):
+        return "程式/技術"
+    if any(k in t for k in ["書", "學習", "課程", "閱讀", "技巧", "音樂", "語言", "知識", "成長"]):
+        return "學習/成長"
+    if any(k in t for k in ["ai", "gemini", "claude", "gpt", "prompt", "模型", "工具"]):
+        return "AI/工具"
+    return "其他"
+
+def _route_question(text: str) -> tuple[str, str, str]:
+    t = text.lower()
+    if any(k in t for k in ["幣", "btc", "eth", "加密", "crypto", "派網", "grid", "bot", "usdt", "sol", "bnb", "xrp"]):
+        return "派網 AI", "🔶", "加密幣/派網相關，用派網平台內建 AI 問"
+    if any(k in t for k in ["程式", "bug", "dashboard", "streamlit", "code", "python", "錯誤", "修改", "功能", "加入"]):
+        return "Claude Code", "🟣", "程式/Dashboard 問題，直接在這個對話問我"
+    if any(k in t for k in ["google", "gmail", "行事曆", "calendar", "drive", "youtube", "搜尋", "最新", "今天新聞", "最近"]):
+        return "Gemini", "🔵", "需要即時搜尋或 Google 服務，用 Gemini"
+    if any(k in t for k in ["翻譯", "圖片", "生圖", "簡單", "快速", "幫我寫信", "email"]):
+        return "GPT", "🟤", "輕量任務，用 GPT 免費版省額度"
+    if any(k in t for k in ["分析", "策略", "規劃", "投資", "決策", "判斷", "應該", "建議", "比較", "深入", "為什麼"]):
+        return "Claude", "🟣", "需要深度分析，用 Claude.ai"
+    return "Claude", "🟣", "預設建議 Claude，適合複雜推理"
+
+@st.cache_data(ttl=900)
+def _dispatch_smart_feed(top_cats: list) -> dict:
+    feeds = {}
+    try:
+        from gnews import GNews
+        kw_map = {
+            "加密幣":   ("crypto bitcoin",    "zh-Hant", "TW"),
+            "投資/股票": ("台股 投資",          "zh-Hant", "TW"),
+            "業務/客戶": ("吉他 樂器市場",       "zh-Hant", "TW"),
+            "學習/成長": ("個人成長 學習",        "zh-Hant", "TW"),
+            "AI/工具":  ("AI tools news",     "en",      "US"),
+            "其他":     ("科技新聞",            "zh-Hant", "TW"),
+        }
+        for cat in top_cats[:2]:
+            kw, lang, country = kw_map.get(cat, ("科技新聞", "zh-Hant", "TW"))
+            g = GNews(language=lang, country=country, max_results=4)
+            feeds[cat] = g.get_news(kw)
+    except Exception:
+        pass
+    return feeds
+
+with tab_dispatch:
+    st.header("🧭 AI 派遣台")
+
+    _dp_sub = st.radio("", ["📋 派遣 & 待辦", "🕓 歷史記錄", "📊 分析", "📡 智慧推送", "📌 速查表"],
+                       horizontal=True, label_visibility="collapsed", key="dp_sub")
+
+    # ════════ 派遣 & 待辦 ════════
+    if _dp_sub == "📋 派遣 & 待辦":
+        st.caption("輸入問題，自動分配 AI 平台，加入優先序清單。")
+        _dq_text = st.text_area("輸入問題 / 想法", placeholder="例如：為什麼今天 BTC 跌了？｜幫我分析投資組合｜翻譯這段英文", height=80, key="dq_input")
+        _dc1, _dc2, _dc3 = st.columns([2, 2, 1])
+        with _dc1:
+            _dq_priority = st.selectbox("緊急程度", list(_PRIORITY_MAP.keys()), key="dq_priority")
+        with _dc2:
+            _dq_category = st.selectbox("類型（可選）", ["自動判斷", "加密幣", "投資/股票", "業務/客戶", "程式/技術", "學習/成長", "AI/工具", "其他"], key="dq_cat")
+        with _dc3:
+            st.write(""); st.write("")
+            _dq_add = st.button("➕ 加入", use_container_width=True)
+
+        if _dq_text and _dq_add:
+            _ai, _color, _reason = _route_question(_dq_text)
+            _cat = _dq_category if _dq_category != "自動判斷" else _categorize(_dq_text)
+            _override_ai = {"加密幣": ("派網 AI", "🔶", "加密幣問題"), "業務/客戶": ("GPT", "🟤", "業務寫作"), "程式/技術": ("Claude Code", "🟣", "程式問題")}
+            if _dq_category != "自動判斷" and _dq_category in _override_ai:
+                _ai, _color, _reason = _override_ai[_dq_category]
+            st.success(f"**建議：{_color} {_ai}** ── {_reason}")
+            _new_item = {
+                "id": f"{int(time.time())}",
+                "text": _dq_text, "ai": _ai, "category": _cat,
+                "priority": _PRIORITY_MAP[_dq_priority], "priority_label": _dq_priority,
+                "added": datetime.now().strftime("%Y-%m-%d %H:%M"), "done": False,
+            }
+            _q = _load_queue(); _q.append(_new_item); _q.sort(key=lambda x: x["priority"])
+            _save_queue(_q)
+            _append_history({**_new_item, "done": False})
+            st.rerun()
+
+        st.divider()
+        _queue = _load_queue()
+        _pending = [q for q in _queue if not q.get("done")]
+        _done_q  = [q for q in _queue if q.get("done")]
+        _hcol1, _hcol2 = st.columns([4, 1])
+        with _hcol1: st.subheader(f"📋 待辦 ({len(_pending)})")
+        with _hcol2:
+            if st.button("🗑️ 清除已完成", key="clear_done"): _save_queue(_pending); st.rerun()
+
+        if not _pending:
+            st.info("目前沒有待辦，有任何問題都可以加進來！")
+
+        for _qi, _item in enumerate(_pending):
+            _pc = {"🔴 現在馬上": "#ef4444", "🟡 今天": "#f59e0b", "🟢 本週內": "#22c55e", "⚪ 可以等": "#6c6c78"}.get(_item["priority_label"], "#6c6c78")
+            _ac = _AI_COLORS.get(_item["ai"], "#94a3b8")
+            _cc = _CAT_COLORS.get(_item.get("category","其他"), "#6c6c78")
+            _cm, _cb = st.columns([7, 1])
+            with _cm:
+                st.markdown(
+                    f"<div style='background:#1a1a20;border-radius:10px;padding:12px 16px;margin:5px 0;border-left:4px solid {_pc}'>"
+                    f"<div style='display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px'>"
+                    f"<span style='font-size:11px;background:{_pc}22;color:{_pc};padding:2px 8px;border-radius:99px'>{_item['priority_label']}</span>"
+                    f"<span style='font-size:11px;background:{_ac}22;color:{_ac};padding:2px 8px;border-radius:99px'>→ {_item['ai']}</span>"
+                    f"<span style='font-size:11px;background:{_cc}22;color:{_cc};padding:2px 8px;border-radius:99px'>{_item.get('category','')}</span>"
+                    f"<span style='font-size:10px;color:#6c6c78'>{_item.get('added','')[:10]}</span></div>"
+                    f"<div style='font-size:14px;color:#e9e9ec'>{_item['text']}</div></div>", unsafe_allow_html=True)
+            with _cb:
+                st.write("")
+                if st.button("✅", key=f"done_{_qi}", help="完成"):
+                    _queue[_queue.index(_item)]["done"] = True; _save_queue(_queue); st.rerun()
+
+        if _done_q:
+            with st.expander(f"✅ 已完成 ({len(_done_q)})"):
+                for _item in reversed(_done_q[-15:]):
+                    _ac = _AI_COLORS.get(_item["ai"], "#94a3b8")
+                    st.markdown(f"<span style='color:#6c6c78;font-size:13px'>~~{_item['text']}~~ <span style='color:{_ac}'>{_item['ai']}</span> · {_item.get('added','')[:10]}</span>", unsafe_allow_html=True)
+
+    # ════════ 歷史記錄 ════════
+    elif _dp_sub == "🕓 歷史記錄":
+        _hist = _load_history()
+        st.caption(f"共 {len(_hist)} 筆問題記錄")
+        if not _hist:
+            st.info("還沒有記錄，先去派遣頁加入問題。")
+        else:
+            _hf1, _hf2, _hf3 = st.columns(3)
+            with _hf1:
+                _filter_cat = st.selectbox("分類篩選", ["全部"] + list(_CAT_COLORS.keys()), key="hf_cat")
+            with _hf2:
+                _filter_ai  = st.selectbox("AI 篩選", ["全部", "Claude", "Claude Code", "Gemini", "GPT", "派網 AI"], key="hf_ai")
+            with _hf3:
+                _search_kw  = st.text_input("關鍵字搜尋", key="hf_kw", placeholder="搜尋問題內容...")
+
+            _filtered = list(reversed(_hist))
+            if _filter_cat != "全部": _filtered = [h for h in _filtered if h.get("category") == _filter_cat]
+            if _filter_ai  != "全部": _filtered = [h for h in _filtered if h.get("ai") == _filter_ai]
+            if _search_kw:            _filtered = [h for h in _filtered if _search_kw.lower() in h.get("text","").lower()]
+
+            st.caption(f"顯示 {len(_filtered)} 筆")
+            for _item in _filtered[:50]:
+                _ac = _AI_COLORS.get(_item["ai"], "#94a3b8")
+                _cc = _CAT_COLORS.get(_item.get("category","其他"), "#6c6c78")
+                st.markdown(
+                    f"<div style='background:#1a1a20;border-radius:8px;padding:10px 14px;margin:4px 0'>"
+                    f"<div style='display:flex;gap:6px;margin-bottom:4px'>"
+                    f"<span style='font-size:10px;background:{_ac}22;color:{_ac};padding:1px 7px;border-radius:99px'>{_item['ai']}</span>"
+                    f"<span style='font-size:10px;background:{_cc}22;color:{_cc};padding:1px 7px;border-radius:99px'>{_item.get('category','')}</span>"
+                    f"<span style='font-size:10px;color:#6c6c78'>{_item.get('added','')[:16]}</span></div>"
+                    f"<div style='font-size:13px;color:#e9e9ec'>{_item['text']}</div></div>", unsafe_allow_html=True)
+
+    # ════════ 分析 ════════
+    elif _dp_sub == "📊 分析":
+        _hist = _load_history()
+        if len(_hist) < 3:
+            st.info("需要至少 3 筆記錄才能分析，先去派遣頁加入問題。")
+        else:
+            st.subheader("📊 你最常問什麼")
+            from collections import Counter as _Ctr
+            _cat_cnt = _Ctr(h.get("category", "其他") for h in _hist)
+            _ai_cnt  = _Ctr(h.get("ai", "Claude") for h in _hist)
+            _pri_cnt = _Ctr(h.get("priority_label", "⚪ 可以等") for h in _hist)
+
+            _an1, _an2 = st.columns(2)
+            with _an1:
+                _df_cat = pd.DataFrame({"類別": list(_cat_cnt.keys()), "次數": list(_cat_cnt.values())}).sort_values("次數", ascending=False)
+                fig_cat = px.bar(_df_cat, x="類別", y="次數", title="問題分類分佈",
+                                 color="類別", color_discrete_map={k: v for k, v in _CAT_COLORS.items()})
+                fig_cat.update_layout(paper_bgcolor="#0b0b0d", plot_bgcolor="#0b0b0d", font_color="#e9e9ec",
+                                      showlegend=False, height=300, margin=dict(l=10,r=10,t=40,b=10))
+                st.plotly_chart(fig_cat, use_container_width=True)
+            with _an2:
+                _df_ai = pd.DataFrame({"AI": list(_ai_cnt.keys()), "次數": list(_ai_cnt.values())}).sort_values("次數", ascending=False)
+                fig_ai = px.pie(_df_ai, names="AI", values="次數", title="使用 AI 分佈",
+                                color="AI", color_discrete_map={k: v for k, v in _AI_COLORS.items()})
+                fig_ai.update_layout(paper_bgcolor="#0b0b0d", plot_bgcolor="#0b0b0d", font_color="#e9e9ec",
+                                     height=300, margin=dict(l=10,r=10,t=40,b=10))
+                st.plotly_chart(fig_ai, use_container_width=True)
+
+            st.subheader("📅 提問時間軸")
+            try:
+                _df_time = pd.DataFrame([{"日期": h["added"][:10], "類別": h.get("category","其他")} for h in _hist if h.get("added")])
+                _df_time["日期"] = pd.to_datetime(_df_time["日期"])
+                _df_grp = _df_time.groupby(["日期","類別"]).size().reset_index(name="次數")
+                fig_tl = px.bar(_df_grp, x="日期", y="次數", color="類別",
+                                color_discrete_map={k: v for k, v in _CAT_COLORS.items()},
+                                title="每日提問量（按類別）")
+                fig_tl.update_layout(paper_bgcolor="#0b0b0d", plot_bgcolor="#0b0b0d", font_color="#e9e9ec",
+                                     height=280, margin=dict(l=10,r=10,t=40,b=10), xaxis=dict(gridcolor="#24242c"),
+                                     yaxis=dict(gridcolor="#24242c"))
+                st.plotly_chart(fig_tl, use_container_width=True)
+            except Exception:
+                pass
+
+            st.subheader("🔑 高頻關鍵字")
+            _all_words = " ".join(h.get("text","") for h in _hist)
+            _stopwords = {"的","了","我","你","他","是","在","有","和","與","也","就","都","要","不","可以","嗎","嗯","這","那","什麼","怎麼","為什麼","幫我","請問","一個"}
+            _word_freq = _Ctr(w for w in _all_words.replace("？","").replace("！","").replace("，","").split() if len(w)>1 and w not in _stopwords)
+            _top_words = _word_freq.most_common(20)
+            if _top_words:
+                _wdf = pd.DataFrame(_top_words, columns=["關鍵字","次數"])
+                fig_w = px.bar(_wdf, x="次數", y="關鍵字", orientation="h",
+                               color="次數", color_continuous_scale=["#24242c","#8b5cf6"])
+                fig_w.update_layout(paper_bgcolor="#0b0b0d", plot_bgcolor="#0b0b0d", font_color="#e9e9ec",
+                                    height=350, margin=dict(l=10,r=10,t=10,b=10),
+                                    xaxis=dict(gridcolor="#24242c"), yaxis=dict(gridcolor="#24242c"),
+                                    coloraxis_showscale=False)
+                st.plotly_chart(fig_w, use_container_width=True)
+
+    # ════════ 智慧推送 ════════
+    elif _dp_sub == "📡 智慧推送":
+        _hist = _load_history()
+        st.caption("根據你的提問習慣，自動爬取相關資訊。")
+        if not _hist:
+            st.info("還沒有歷史記錄，先去派遣頁加入問題，系統才能分析你的偏好。")
+        else:
+            from collections import Counter as _Ctr2
+            _top_cats = [c for c, _ in _Ctr2(h.get("category","其他") for h in _hist).most_common(3)]
+            st.markdown(f"**你最關注的主題：** " + "　".join(f"<span style='color:{_CAT_COLORS.get(c,'#94a3b8')}'>{c}</span>" for c in _top_cats), unsafe_allow_html=True)
+            st.divider()
+
+            with st.spinner("爬取相關資訊中..."):
+                _feeds = _dispatch_smart_feed(tuple(_top_cats))
+
+            if not _feeds:
+                st.warning("目前無法爬取資訊，稍後重試。")
+            else:
+                for _cat, _articles in _feeds.items():
+                    _cc2 = _CAT_COLORS.get(_cat, "#94a3b8")
+                    st.markdown(f"<div style='font-size:15px;font-weight:700;color:{_cc2};margin:16px 0 8px'>● {_cat} 最新動態</div>", unsafe_allow_html=True)
+                    for _art in _articles:
+                        _title = _art.get("title","")
+                        _pub   = _art.get("published date","")[:16]
+                        _src   = _art.get("publisher",{}).get("title","") if isinstance(_art.get("publisher"),dict) else ""
+                        st.markdown(
+                            f"<div style='background:#1a1a20;border-radius:8px;padding:10px 14px;margin:4px 0;border-left:3px solid {_cc2}'>"
+                            f"<div style='font-size:13px;color:#e9e9ec;font-weight:500'>{_title}</div>"
+                            f"<div style='font-size:11px;color:#6c6c78;margin-top:3px'>{_src} · {_pub}</div>"
+                            f"</div>", unsafe_allow_html=True)
+
+            st.divider()
+            st.caption("💡 加密幣即時補充")
+            try:
+                import requests as _req2
+                _cg = _req2.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true", timeout=5).json()
+                _sp1, _sp2, _sp3 = st.columns(3)
+                for _col, (_cid, _sym) in zip([_sp1, _sp2, _sp3], [("bitcoin","BTC"),("ethereum","ETH"),("solana","SOL")]):
+                    _info = _cg.get(_cid, {})
+                    _chg  = _info.get("usd_24h_change", 0)
+                    _chgc = "#22c55e" if _chg >= 0 else "#ef4444"
+                    _col.markdown(f"<div style='background:#1a1a20;border-radius:8px;padding:10px;text-align:center'><div style='font-weight:700'>{_sym}</div><div style='font-size:18px;font-family:monospace'>${_info.get('usd',0):,.0f}</div><div style='color:{_chgc};font-size:12px'>{_chg:+.2f}%</div></div>", unsafe_allow_html=True)
+            except Exception:
+                pass
+            st.caption("每 15 分鐘更新 · 資料來源：Google News + CoinGecko")
+
+    # ════════ 速查表 ════════
+    elif _dp_sub == "📌 速查表":
+        st.subheader("📌 AI 平台速查")
+        _map_data = [
+            ("🔶 派網 AI",     "加密幣策略、派網機器人設定、幣種分析",         "派網 App → AI 助理"),
+            ("🟣 Claude",      "投資分析、策略規劃、複雜推理、長文件",           "claude.ai"),
+            ("🟣 Claude Code", "程式/Dashboard 修改、功能新增、Bug 修復",      "這個視窗"),
+            ("🔵 Gemini",      "即時搜尋、Google 服務、YouTube、行事曆",        "gemini.google.com"),
+            ("🟤 GPT",         "翻譯、圖片生成、輕量寫作、雜問（省額度）",       "chatgpt.com"),
+        ]
+        for _iname, _use, _where in _map_data:
+            st.markdown(
+                f"<div style='background:#1a1a20;border-radius:8px;padding:12px 16px;margin:5px 0;display:flex;gap:16px;align-items:flex-start'>"
+                f"<div style='min-width:120px;font-weight:700;font-size:14px'>{_iname}</div>"
+                f"<div style='flex:1;font-size:13px;color:#e9e9ec'>{_use}</div>"
+                f"<div style='min-width:140px;font-size:11px;color:#6c6c78;text-align:right'>{_where}</div>"
+                f"</div>", unsafe_allow_html=True)
+        st.divider()
+        st.subheader("⚡ 額度保護原則")
+        _rules = [
+            ("簡單/重複的事", "GPT 免費版", "#10b981"),
+            ("需要即時網路資訊", "Gemini", "#3b82f6"),
+            ("加密幣投資問題", "派網 AI", "#f59e0b"),
+            ("深度分析 / 策略", "Claude", "#8b5cf6"),
+            ("程式 / Dashboard", "Claude Code（這裡）", "#7c3aed"),
+        ]
+        for _task, _ai_rec, _color in _rules:
+            st.markdown(f"<div style='display:flex;gap:12px;align-items:center;padding:6px 0'><span style='font-size:13px;color:#94a3b8;min-width:160px'>{_task}</span><span style='font-size:13px;font-weight:600;color:{_color}'>→ {_ai_rec}</span></div>", unsafe_allow_html=True)
+
 st.divider()
 c1, c2 = st.columns([1, 5])
 with c1:

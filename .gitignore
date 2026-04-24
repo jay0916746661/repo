@@ -1,6 +1,8 @@
-# 敏感 / 個人資料
+# 敏感 / 個人資料（不能上傳 GitHub）
 .env
+config.json
 fb_cookies.json
+pionex_manual.json
 holdings.json
 portfolio_history.csv
 deals.json
