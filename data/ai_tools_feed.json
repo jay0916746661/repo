@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "hv-analysis",
+    "repo": "KKKKhazix/khazix-skills",
+    "category": "研究",
+    "desc": "橫縱分析法深度研究：自動聯網收集資訊，輸出 PDF 研究報告。研究股票、品牌、市場都很適合。",
+    "install": "已安裝 ✅",
+    "status": "installed",
+    "added": "2026-04-22"
+  },
+  {
+    "id": 2,
+    "name": "notebooklm-py",
+    "repo": "teng-lin/notebooklm-py",
+    "category": "知識庫",
+    "desc": "Google NotebookLM 完整 API，可建立筆記本、加入來源、生成 podcast/報告。已整合你的投資指南。",
+    "install": "已安裝 ✅",
+    "status": "installed",
+    "added": "2026-04-22"
+  },
+  {
+    "id": 3,
+    "name": "khazix-writer",
+    "repo": "KKKKhazix/khazix-skills",
+    "category": "寫作",
+    "desc": "長文寫作 Skill，含完整風格規則與自檢體系。適合日後寫投資分析文章或品牌內容。",
+    "install": "npx skills add KKKKhazix/khazix-skills",
+    "status": "pending",
+    "added": "2026-04-22"
+  },
+  {
+    "id": 4,
+    "name": "n8n",
+    "repo": "n8n-io/n8n",
+    "category": "自動化",
+    "desc": "無程式碼自動化平台，可串接 LINE、Gmail、Notion、股票 API 等。Level 2 的核心工具。",
+    "install": "npm install n8n -g",
+    "status": "pending",
+    "added": "2026-04-22"
+  },
+  {
+    "id": 5,
+    "name": "browser-use",
+    "repo": "browser-use/browser-use",
+    "category": "Agent",
+    "desc": "讓 AI Agent 自動操作瀏覽器：自動登入、抓資料、填表單。可用來自動抓 FB Marketplace 數據。",
+    "install": "pip install browser-use",
+    "status": "pending",
+    "added": "2026-04-22"
+  }
+]
