@@ -465,6 +465,46 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .reading-footer { font-size: 11px; gap: 10px; flex-wrap: wrap; }
 }
 
+/* ── 閱讀器增強：TOC + 浮動導航 + AI 分頁 ── */
+.reading-layout { grid-template-columns: 190px minmax(0, 1fr) 260px; }
+.reading-toc { position: sticky; top: 24px; max-height: calc(100vh - 80px); overflow-y: auto; border-right: 1px solid var(--line); padding-right: 14px; }
+.reading-toc-head { font-family: var(--sans); font-size: 10px; letter-spacing: 0.24em; color: var(--ink-mute); font-weight: 700; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.reading-toc-list { display: flex; flex-direction: column; }
+.reading-toc-item { font-family: var(--sans); font-size: 12px; line-height: 1.45; padding: 7px 8px 7px 10px; color: var(--ink-soft); cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; text-align: left; width: 100%; }
+.reading-toc-item:hover { color: var(--ink); border-left-color: var(--line-strong); background: var(--bg-alt); }
+.reading-toc-item.toc-active { color: var(--accent); border-left-color: var(--accent); font-weight: 700; background: var(--bg-alt); }
+.reading-toc-item.toc-done { color: var(--ink-mute); }
+.reading-toc-num { font-family: var(--mono); font-size: 9px; color: var(--ink-mute); letter-spacing: 0.1em; display: block; margin-bottom: 2px; }
+.reading-top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.reading-top-nav-info { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.1em; }
+.reading-float-nav { position: fixed; bottom: 36px; z-index: 3100; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.reading-float-nav.float-left { left: 16px; }
+.reading-float-nav.float-right { right: 16px; }
+.reading-float-btn { width: 40px; height: 40px; border: 1px solid var(--line-strong); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--ink-soft); transition: all 0.18s; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+.reading-float-btn:hover:not(:disabled) { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.reading-float-btn:disabled { opacity: 0.18; cursor: not-allowed; }
+.reading-float-label { font-family: var(--mono); font-size: 9px; color: var(--ink-mute); letter-spacing: 0.06em; text-align: center; }
+.ai-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.ai-tab { font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em; padding: 8px 11px; color: var(--ink-mute); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; flex: 1; }
+.ai-tab:hover { color: var(--ink); }
+.ai-tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 700; }
+.ai-apply-area { margin-bottom: 10px; padding: 12px 14px; border: 1px solid var(--line); background: rgba(255,255,255,0.18); }
+.ai-apply-label { font-family: var(--sans); font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.ai-apply-desc { font-family: var(--sans); font-size: 11px; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.55; }
+.ai-copy-btn { width: 100%; font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; padding: 8px 12px; border: 1px solid var(--line-strong); color: var(--ink-soft); transition: all 0.15s; text-align: center; font-weight: 600; }
+.ai-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ai-copy-btn.copied { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.ai-quick-note-btn { width: 100%; font-family: var(--sans); font-size: 11px; padding: 7px 10px; border: 1px solid var(--line); color: var(--ink-soft); text-align: left; margin-bottom: 5px; transition: all 0.15s; line-height: 1.45; }
+.ai-quick-note-btn:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 1100px) {
+  .reading-layout { grid-template-columns: minmax(0, 1fr) 240px; }
+  .reading-toc { display: none; }
+  .reading-float-nav { display: none; }
+}
+@media (max-width: 980px) {
+  .reading-layout { grid-template-columns: 1fr; }
+}
+
 /* ── YouTube 選片台 ── */
 .youtube-page { min-height: 100vh; padding: 80px 60px 120px; }
 .youtube-header { max-width: 1400px; margin: 0 auto 32px; display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
@@ -1374,8 +1414,8 @@ function CoverPreviewModal({ book, onClose }) {
   if (!book) return null;
   return (
     <div className="cover-preview-overlay" onClick={onClose}>
-      <button className="cover-preview-close" onClick={onClose}>×</button>
       <div className="cover-preview-inner" onClick={(e) => e.stopPropagation()}>
+        <button className="cover-preview-close" onClick={onClose}>×</button>
         <div className="cover-preview-book" style={{ background: book.color }}>
           <BookCoverArt book={book} />
         </div>
@@ -1893,9 +1933,60 @@ async function translateParagraphs(paragraphs = [], mode = "original") {
 }
 
 /* ──────────────────────────────────────────
+   ReadingApplyPanel — 應用提問產生器
+   ────────────────────────────────────────── */
+function ReadingApplyPanel({ book, chapter, chapterIndex, keyPoints }) {
+  const [copiedArea, setCopiedArea] = useState(null);
+  const areas = [
+    { id: "invest", icon: "📈", label: "投資決策", desc: "把這章概念應用到資產配置與投資判斷" },
+    { id: "biz",    icon: "🎸", label: "業務銷售", desc: "應用到樂器業務的客戶溝通與成交策略" },
+    { id: "create", icon: "📸", label: "創作思維", desc: "連結到影像創作與個人品牌建立" },
+  ];
+  const buildPrompt = (area) => {
+    const kpText = keyPoints.slice(0, 5).map(p => `• ${p}。`).join("\n");
+    return `我剛讀完《${book.title}》第 ${chapterIndex + 1} 章「${chapter.title}」。\n\n這章的核心重點：\n${kpText || "（本章為純閱讀章節）"}\n\n請幫我找出 2-3 個可以具體應用到「${area.label}」（${area.desc}）的行動方案。\n要求：\n1. 具體且立即可執行\n2. 用繁體中文回答\n3. 每個方案簡短說明怎麼做`;
+  };
+  const copy = (area) => {
+    navigator.clipboard.writeText(buildPrompt(area)).then(() => {
+      setCopiedArea(area.id);
+      setTimeout(() => setCopiedArea(null), 2000);
+    });
+  };
+  return (
+    <div>
+      <div className="ai-panel">
+        <div className="ai-label" style={{ marginBottom: 8 }}>✦ 複製提問給 AI</div>
+        <div style={{ fontFamily: "var(--sans)", fontSize: 12, color: "var(--ink-soft)", lineHeight: 1.7, marginBottom: 14 }}>
+          選一個方向，複製後貼給 Claude / ChatGPT
+        </div>
+        {areas.map(area => (
+          <div key={area.id} className="ai-apply-area">
+            <div className="ai-apply-label">{area.icon} {area.label}</div>
+            <div className="ai-apply-desc">{area.desc}</div>
+            <button className={`ai-copy-btn ${copiedArea === area.id ? "copied" : ""}`} onClick={() => copy(area)}>
+              {copiedArea === area.id ? "✓ 已複製！" : "複製提問 →"}
+            </button>
+          </div>
+        ))}
+      </div>
+      {keyPoints.length > 0 && (
+        <div className="ai-panel">
+          <div className="ai-label" style={{ marginBottom: 10 }}>✦ 本章重點（供參）</div>
+          {keyPoints.map((p, i) => (
+            <div key={i} style={{ marginBottom: 9, paddingLeft: 12, borderLeft: "2px solid var(--accent)", fontSize: 12, fontFamily: "var(--sans)", lineHeight: 1.65, color: "var(--ink)" }}>
+              {p}。
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────
    ReadingModal 閱讀全章 Modal
    ────────────────────────────────────────── */
-function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, onProgress }) {
+function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, onProgress, onJumpChapter }) {
   const [showSummary, setShowSummary] = useState(false);
   const theme = getThemeForBook(book);
   const fontPrefKey = `reader_font_size`;
@@ -1926,6 +2017,7 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
   });
   const [displayParagraphs, setDisplayParagraphs] = useState([]);
   const [translateState, setTranslateState] = useState({ loading: false, error: "" });
+  const [aiMode, setAiMode] = useState("summary");
 
   const keyPoints = extractKeyPoints(chapter.desc);
   const summary = autoSummary(chapter.desc);
@@ -2769,6 +2861,7 @@ function App() {
   };
 
   const openBook = (id) => {
+    setPreviewBook(null);
     setActiveBookId(id);
     setView("detail");
     window.scrollTo(0, 0);
@@ -2781,15 +2874,19 @@ function App() {
     downloadText(`jim-library-ai-context-${new Date().toISOString().slice(0,10)}.md`, text);
   };
 
+  useEffect(() => {
+    setPreviewBook(null);
+  }, [view]);
+
   return (
     <div className="app-shell">
       {previewBook && <CoverPreviewModal book={previewBook} onClose={() => setPreviewBook(null)} />}
       {view === "cover" && (
-        <MagazineCover books={allBooks} readingProgress={readingProgress} onEnter={() => setView("shelf")} onOpenBook={openBook} onExportAI={exportAIContext} onPreview={setPreviewBook} />
+        <MagazineCover books={allBooks} readingProgress={readingProgress} onEnter={() => { setPreviewBook(null); setView("shelf"); }} onOpenBook={openBook} onExportAI={exportAIContext} onPreview={setPreviewBook} />
       )}
       {view === "shelf" && (
         <Bookshelf books={allBooks} onOpenBook={openBook} bookmarks={bookmarks} readingProgress={readingProgress}
-          onBackToCover={() => setView("cover")} onAddBook={addBook} onDeleteBook={removeFromPanel}
+          onBackToCover={() => { setPreviewBook(null); setView("cover"); }} onAddBook={addBook} onDeleteBook={removeFromPanel}
           onPreview={setPreviewBook}
           onOpenYoutube={() => setView("youtube")} />
       )}
