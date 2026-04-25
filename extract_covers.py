@@ -4,6 +4,7 @@
 """
 import os, re, sys, json, hashlib, zipfile
 from pathlib import Path
+from datetime import datetime
 
 BASE     = Path(__file__).parent
 COVERS   = BASE / "data" / "covers"
@@ -147,8 +148,7 @@ def scan(folder: Path = DEFAULT_FOLDER, verbose: bool = True) -> list:
                 "cover_path":   str(cover_path) if cover_extracted else '',
                 "status":       "待讀",
                 "tags":         [],
-                "added_date":   fp.stat().st_mtime and
-                                __import__('datetime').datetime.fromtimestamp(fp.stat().st_mtime).strftime('%Y-%m-%d'),
+                "added_date":   datetime.now().strftime('%Y-%m-%d'),
                 "folder":       "本機",
             })
             added += 1

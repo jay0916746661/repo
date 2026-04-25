@@ -59,6 +59,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .feature-author { font-family: var(--sans); font-size: 12px; letter-spacing: 0.15em; opacity: 0.7; margin-bottom: 12px; }
 .feature-desc { font-size: 14px; line-height: 1.55; opacity: 0.85; margin-bottom: 16px; }
 .feature-cta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; }
+.cover-new-arrivals { margin-top: 24px; max-width: 520px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.18); }
+.cover-new-title { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; color: rgba(255,255,255,0.72); margin-bottom: 12px; }
+.cover-new-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+.cover-new-item { border: 1px solid rgba(255,255,255,0.15); padding: 10px 12px; transition: border-color 0.15s, transform 0.15s; }
+.cover-new-item:hover { border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+.cover-new-book { font-size: 13px; font-weight: 700; line-height: 1.35; margin-bottom: 4px; }
+.cover-new-meta { font-size: 10px; letter-spacing: 0.14em; color: rgba(255,255,255,0.62); }
 .cover-index { padding: 28px 0 0 32px; border-left: 1px solid var(--line); margin-left: -40px; font-family: var(--sans); }
 .index-title { font-family: var(--display); font-size: 18px; font-weight: 700; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 20px; letter-spacing: 0.02em; }
 .index-list { list-style: none; margin-bottom: 32px; }
@@ -93,6 +100,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .shelf-add { font-family: var(--sans); font-size: 12px; letter-spacing: 0.1em; padding: 10px 18px; background: var(--ink); color: var(--bg); border-radius: 999px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .shelf-add:hover { background: var(--accent); }
 .add-plus { font-size: 16px; line-height: 1; font-weight: 300; }
+.shelf-new-strip { max-width: 1400px; margin: 0 auto 34px; padding: 22px 24px 24px; background: linear-gradient(135deg, rgba(122,46,43,0.05), rgba(122,46,43,0.02)); border: 1px solid var(--line); }
+.shelf-new-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.shelf-new-kicker { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; color: var(--accent); font-weight: 700; }
+.shelf-new-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
+.shelf-new-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.shelf-new-card { padding: 14px 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.26); transition: transform 0.15s, border-color 0.15s; }
+.shelf-new-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.shelf-new-name { font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1.15; margin-bottom: 6px; letter-spacing: -0.02em; }
+.shelf-new-meta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.14em; color: var(--ink-mute); margin-bottom: 8px; }
+.shelf-new-theme { font-family: var(--sans); font-size: 11px; color: var(--ink-soft); }
 .shelf-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px 48px; }
 .book-card { display: grid; grid-template-columns: 160px 1fr; gap: 20px; cursor: pointer; padding: 20px 0; border-top: 1px solid var(--line); transition: all 0.25s; position: relative; }
 .book-card:hover { transform: translateY(-2px); }
@@ -101,6 +118,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .book-card:hover .card-cover { transform: translateY(-4px) rotate(-0.5deg); box-shadow: 0 20px 40px rgba(0,0,0,0.24); }
 .card-meta { display: flex; flex-direction: column; overflow: hidden; }
 .card-issue { font-family: var(--sans); font-size: 10px; letter-spacing: 0.25em; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+.card-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.card-badge { font-family: var(--sans); font-size: 10px; letter-spacing: 0.12em; padding: 4px 8px; background: var(--bg-alt); color: var(--ink-soft); border-radius: 999px; }
+.card-badge.new { background: var(--accent); color: var(--bg); }
 .card-title { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; transition: color 0.2s; letter-spacing: -0.02em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .card-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; letter-spacing: 0.01em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .card-author-row { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
@@ -586,6 +606,30 @@ function formatMinutes(total = 0) {
   return rem ? `${hrs}h ${rem}m` : `${hrs}h`;
 }
 
+function getThemeMeta(book = {}) {
+  const key = getThemeForBook(book);
+  const labels = {
+    finance: "財富主題",
+    tech: "科技主題",
+    psyche: "心理主題",
+    spirit: "靈性主題",
+    negotiation: "溝通主題",
+    growth: "成長主題",
+    classical: "經典主題",
+  };
+  return { key, label: labels[key] || "編輯主題" };
+}
+
+function isNewArrival(book = {}, days = 21) {
+  if (book.userAdded) return true;
+  const raw = book.addedDate || book.added_date || "";
+  if (!raw) return false;
+  const dt = new Date(raw);
+  if (Number.isNaN(dt.getTime())) return false;
+  const diff = Date.now() - dt.getTime();
+  return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+}
+
 function getEstimatedRemainingPages(book, progress) {
   const totalPages = Number(book.pages || 0);
   const currentPage = Number(progress?.currentPage || 0);
@@ -737,6 +781,11 @@ function adaptBook(b, i) {
   const title = cleanTitle(rawTitle);
   const subtitle = extractSubtitle(rawTitle);
   const cat = b.category || "其他";
+  const themeMeta = getThemeMeta({
+    rawCategory: cat,
+    title,
+    summary: b.intro || b.summary || "",
+  });
   const chapters = (b.chapters || []).slice(0, 20).map((ch, j) => ({
     num: CH_NUMS[j] || String(j + 1),
     title: ch.title || `第 ${j + 1} 章`,
@@ -768,6 +817,9 @@ function adaptBook(b, i) {
     rawStatus: status,
     fullReading: b.fullReading || null,
     pageImages: b.pageImages || [],
+    addedDate: b.added_date || b.addedDate || "",
+    themeKey: themeMeta.key,
+    themeLabel: themeMeta.label,
   };
 }
 
@@ -1101,6 +1153,7 @@ function BookCard({ book, index, onOpen, onDelete, progress }) {
   const currentPage = Number(progress?.currentPage || 0);
   const percent = totalPages ? Math.min(100, Math.round((currentPage / totalPages) * 100)) : 0;
   const remaining = getEstimatedRemainingPages(book, progress);
+  const newArrival = isNewArrival(book);
   return (
     <article className="book-card" onClick={onOpen}>
       {onDelete && (
@@ -1111,6 +1164,10 @@ function BookCard({ book, index, onOpen, onDelete, progress }) {
       </div>
       <div className="card-meta">
         <div className="card-issue">{book.issue} · {book.category}</div>
+        <div className="card-badges">
+          {newArrival && <span className="card-badge new">NEW</span>}
+          <span className="card-badge">{book.themeLabel || "編輯主題"}</span>
+        </div>
         <h3 className="card-title">{book.title}</h3>
         {book.subtitle && <div className="card-sub">{book.subtitle}</div>}
         <div className="card-author-row">
@@ -1147,6 +1204,7 @@ function BookCard({ book, index, onOpen, onDelete, progress }) {
    ────────────────────────────────────────── */
 function MagazineCover({ books, onEnter, onOpenBook }) {
   const candidates = books.filter((b) => !shouldAutoHideBook(b) && (getBookContentScore(b) > 500 || (b.pageImages || []).length > 0));
+  const newArrivals = books.filter((b) => isNewArrival(b)).slice(0, 4);
   const [featuredId, setFeaturedId] = useState(() => {
     const base = candidates.length ? candidates : books;
     return base.length ? base[Math.floor(Math.random() * base.length)].id : null;
@@ -1206,6 +1264,19 @@ function MagazineCover({ books, onEnter, onOpenBook }) {
                   setFeaturedId(next.id);
                 }}>換一本</button>
               </div>
+              {newArrivals.length > 0 && (
+                <div className="cover-new-arrivals">
+                  <div className="cover-new-title">NEW ARRIVALS · 新書上架</div>
+                  <div className="cover-new-grid">
+                    {newArrivals.map((book) => (
+                      <div key={book.id} className="cover-new-item" onClick={(e) => { e.stopPropagation(); onOpenBook(book.id); }}>
+                        <div className="cover-new-book">{book.title}</div>
+                        <div className="cover-new-meta">{book.themeLabel} · {book.author !== "—" ? book.author : book.rawCategory}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1250,10 +1321,12 @@ function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, 
   const [showUpload, setShowUpload] = useState(false);
 
   const rawCats = [...new Set(books.map(b => b.rawCategory))].sort();
-  const categories = ["全部", "★ 書籤", ...rawCats];
+  const newArrivals = useMemo(() => books.filter((b) => isNewArrival(b)), [books]);
+  const categories = ["全部", "新書上架", "★ 書籤", ...rawCats];
 
   const filtered = useMemo(() => {
     let list = filter === "全部" ? books
+             : filter === "新書上架" ? books.filter(b => isNewArrival(b))
              : filter === "★ 書籤" ? books.filter(b => bookmarks.includes(b.id))
              : books.filter(b => b.rawCategory === filter);
     if (search.trim()) {
@@ -1300,6 +1373,24 @@ function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, 
           </button>
         </div>
       </header>
+
+      {newArrivals.length > 0 && (
+        <section className="shelf-new-strip">
+          <div className="shelf-new-head">
+            <div className="shelf-new-kicker">NEW ARRIVALS · 新書上架</div>
+            <div className="shelf-new-sub">最近 21 天新進書籍 · 自動套用對應主題設計</div>
+          </div>
+          <div className="shelf-new-grid">
+            {newArrivals.slice(0, 6).map((b) => (
+              <button key={b.id} className="shelf-new-card" onClick={() => onOpenBook(b.id)}>
+                <div className="shelf-new-name">{b.title}</div>
+                <div className="shelf-new-meta">{b.author !== "—" ? b.author : b.rawCategory}</div>
+                <div className="shelf-new-theme">{b.themeLabel} · {b.pages ? `${b.pages} 頁` : "頁數待補"}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="shelf-grid">
         {filtered.map((b, i) => (
