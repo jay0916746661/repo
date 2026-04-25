@@ -1,0 +1,203 @@
+{
+  "id": "local_af53053c7c65",
+  "title": "Peak",
+  "category": "其他",
+  "total_pages": 288,
+  "toc": [
+    {
+      "level": 1,
+      "title": "Title Page",
+      "page": 2
+    },
+    {
+      "level": 1,
+      "title": "Contents",
+      "page": 3
+    },
+    {
+      "level": 1,
+      "title": "Copyright",
+      "page": 4
+    },
+    {
+      "level": 1,
+      "title": "Dedication",
+      "page": 5
+    },
+    {
+      "level": 1,
+      "title": "Authors’ Note",
+      "page": 6
+    },
+    {
+      "level": 1,
+      "title": "Introduction: The Gift",
+      "page": 7
+    },
+    {
+      "level": 1,
+      "title": "The Power of Purposeful Practice",
+      "page": 17
+    },
+    {
+      "level": 1,
+      "title": "Harnessing Adaptability",
+      "page": 36
+    },
+    {
+      "level": 1,
+      "title": "Mental Representations",
+      "page": 54
+    },
+    {
+      "level": 1,
+      "title": "The Gold Standard",
+      "page": 80
+    },
+    {
+      "level": 1,
+      "title": "Principles of Deliberate Practice on the Job",
+      "page": 103
+    },
+    {
+      "level": 1,
+      "title": "Principles of Deliberate Practice in Everyday Life",
+      "page": 126
+    },
+    {
+      "level": 1,
+      "title": "The Road to Extraordinary",
+      "page": 153
+    },
+    {
+      "level": 1,
+      "title": "But What About Natural Talent?",
+      "page": 173
+    },
+    {
+      "level": 1,
+      "title": "Where Do We Go from Here?",
+      "page": 200
+    },
+    {
+      "level": 1,
+      "title": "Acknowledgments",
+      "page": 213
+    },
+    {
+      "level": 1,
+      "title": "Notes",
+      "page": 215
+    },
+    {
+      "level": 1,
+      "title": "Index",
+      "page": 248
+    },
+    {
+      "level": 1,
+      "title": "About the Authors",
+      "page": 287
+    }
+  ],
+  "intro": "Contents Title Page Contents Copyright Dedication Authors’ Note Introduction: The Gift The Power of Purposeful Practice Harnessing Adaptability Mental Representations The Gold Standard Principles of Deliberate Practice on the Job Principles of Deliberate Practice in Everyday Life The Road to Extraordinary But What About Natural Talent? Where Do We Go from Here? Acknowledgments Notes Index About the Authors Copyright © 2016 by K. Anders Ericsson and Robert Pool All rights reserved. For information about permission to reproduce selections from this book, write to trade.permissions@hmhco.com or to Permissions, Houghton Mifflin Harcourt Publishing Company, 3 Park Avenue, 19th Floor, New York, New York . www.hmhco.com Library of Congress Cataloging-in-Publication Data Names: Ericsson, K. Anders (Karl Anders), date, author. Title: Peak : secrets from the new science of expertise / Anders Ericsson and Robert Pool. Description: Boston : Houghton Mifflin Harcourt, 2016. | “An Eamon Dolan book.” | Includes bibliographical references and index. Identifiers: LCCN (print) | LCCN (ebook) | ISBN 978-0-544--5 (hardcover) | ISBN 978-0-544--3 (trade paper) | ISBN 978-0-544--9 (ebook) Subjects: LCSH: Expertise. | Ability. | Performance—Psychological aspects. Classification: LCC BF378.E94 E(print) | LCC BF378.E94 (ebook) | DDC 153.9—dc23 LC record available at http://lccn.loc.gov/Cover design by Brian Moore v1.0416 To my wife, Natalie, for facilitating and encouraging my efforts to keep pushing beyond my current level of understanding of expert performance and getting closer to the peak. —A. E. To my soul mate and my muse, Deanne, who taught me much of what I know about writing, most of what I know about living, and all of what I know about love. —R. P. Authors’ Note This book is the product of a collaboration between two people, a psychological scientist and a science writer. We began talking regularly about the subject—expert performers and “deliberate practice”—more than a decade ago and began serious work on the book more than five years ago. During that time the book grew in the give-and-take between the two of us to the point that it is now difficult even for us to tell exactly who is responsible for which piece of it. What we do know is that it is a much better—and different— book than either of us would have produced alone. However, while the book is a collaboration, the story that it tells is the story of just one of us (Ericsson), who has spent his adult life studying the secrets of extraordinary performers. Thus, we chose to write the book from his point of view, and the “I” in the text should be understood as referring to him. Nonetheless, the book is our joint effort to describe this exceptionally important topic and its implications. Anders Ericsson Robert Pool October 2015",
+  "chapters": [
+    {
+      "title": "Title Page",
+      "page": 2,
+      "excerpt": "Contents Title Page Contents Copyright Dedication Authors’ Note Introduction: The Gift The Power of Purposeful Practice Harnessing Adaptability Mental Representations The Gold Standard Principles of Deliberate Practice on the Job Principles of Deliberate Practice in Everyday Life The Road to Extraordinary But What About Natural Talent? Where Do We Go from Here? Acknowledgments Notes Index About the Authors"
+    },
+    {
+      "title": "Contents",
+      "page": 3,
+      "excerpt": "Contents Title Page Contents Copyright Dedication Authors’ Note Introduction: The Gift The Power of Purposeful Practice Harnessing Adaptability Mental Representations The Gold Standard Principles of Deliberate Practice on the Job Principles of Deliberate Practice in Everyday Life The Road to Extraordinary But What About Natural Talent? Where Do We Go from Here? Acknowledgments Notes Index About the Authors Copyright © 2016 by K. Anders Ericsson and Robert Pool All rights reserved. For information about permission to reproduce selections from this book, write to trade.permissions@hmhco.com or to Permissions, Houghton Mifflin Harcourt Publishing Company, 3 Park Avenue, 19th Floor, New York, New York . www.hmhco.com Library of Congress Cataloging-in-Publication Data Names: Ericsson, K. Anders (Karl Anders), date, author. Title: Peak : secrets from the new science of expertise / Anders Ericsson and Robert Pool. Description: Boston : Houghton Mifflin Harcourt, 2016. | “An Eamon Dolan book.” | Includes bibliographical references and index. Identifiers: LCCN (print) | LCCN (ebook) | ISBN 978-0-544--5 (hardcover) | ISBN 978-0-544--3 (trade paper) | ISBN 978-0-544--9 (ebook) Subjects: LCSH: Expertise. | Ability. | Performance—Psychological aspects. Classification: LCC BF378.E94 E(print) | LCC BF378.E94 (ebook) | DDC 153.9—dc23 LC record available at http://lccn.loc.gov/Cover design by Brian Moore v1.0416"
+    },
+    {
+      "title": "Copyright",
+      "page": 4,
+      "excerpt": "Copyright © 2016 by K. Anders Ericsson and Robert Pool All rights reserved. For information about permission to reproduce selections from this book, write to trade.permissions@hmhco.com or to Permissions, Houghton Mifflin Harcourt Publishing Company, 3 Park Avenue, 19th Floor, New York, New York . www.hmhco.com Library of Congress Cataloging-in-Publication Data Names: Ericsson, K. Anders (Karl Anders), date, author. Title: Peak : secrets from the new science of expertise / Anders Ericsson and Robert Pool. Description: Boston : Houghton Mifflin Harcourt, 2016. | “An Eamon Dolan book.” | Includes bibliographical references and index. Identifiers: LCCN (print) | LCCN (ebook) | ISBN 978-0-544--5 (hardcover) | ISBN 978-0-544--3 (trade paper) | ISBN 978-0-544--9 (ebook) Subjects: LCSH: Expertise. | Ability. | Performance—Psychological aspects. Classification: LCC BF378.E94 E(print) | LCC BF378.E94 (ebook) | DDC 153.9—dc23 LC record available at http://lccn.loc.gov/Cover design by Brian Moore v1.0416 To my wife, Natalie, for facilitating and encouraging my efforts to keep pushing beyond my current level of understanding of expert performance and getting closer to the peak. —A. E. To my soul mate and my muse, Deanne, who taught me much of what I know about writing, most of what I know about living, and all of what I know about love. —R. P."
+    },
+    {
+      "title": "Dedication",
+      "page": 5,
+      "excerpt": "To my wife, Natalie, for facilitating and encouraging my efforts to keep pushing beyond my current level of understanding of expert performance and getting closer to the peak. —A. E. To my soul mate and my muse, Deanne, who taught me much of what I know about writing, most of what I know about living, and all of what I know about love. —R. P. Authors’ Note This book is the product of a collaboration between two people, a psychological scientist and a science writer. We began talking regularly about the subject—expert performers and “deliberate practice”—more than a decade ago and began serious work on the book more than five years ago. During that time the book grew in the give-and-take between the two of us to the point that it is now difficult even for us to tell exactly who is responsible for which piece of it. What we do know is that it is a much better—and different— book than either of us would have produced alone. However, while the book is a collaboration, the story that it tells is the story of just one of us (Ericsson), who has spent his adult life studying the secrets of extraordinary performers. Thus, we chose to write the book from his point of view, and the “I” in the text should be understood as referring to him. Nonetheless, the book is our joint effort to describe this exceptionally important topic and its implications. Anders Ericsson Robert Pool October 2015"
+    },
+    {
+      "title": "Authors’ Note",
+      "page": 6,
+      "excerpt": "Authors’ Note This book is the product of a collaboration between two people, a psychological scientist and a science writer. We began talking regularly about the subject—expert performers and “deliberate practice”—more than a decade ago and began serious work on the book more than five years ago. During that time the book grew in the give-and-take between the two of us to the point that it is now difficult even for us to tell exactly who is responsible for which piece of it. What we do know is that it is a much better—and different— book than either of us would have produced alone. However, while the book is a collaboration, the story that it tells is the story of just one of us (Ericsson), who has spent his adult life studying the secrets of extraordinary performers. Thus, we chose to write the book from his point of view, and the “I” in the text should be understood as referring to him. Nonetheless, the book is our joint effort to describe this exceptionally important topic and its implications. Anders Ericsson Robert Pool October 2015 Introduction: The Gift WHY ARE SOME PEOPLE so amazingly good at what they do? Anywhere you look, from competitive sports and musical performance to science, medicine, and business, there always seem to be a few exceptional sorts who dazzle us with what they can do and how well they do it. And when we are confronted with such an exceptional person, we naturally tend to conclude that this person was born with something a little extra. “He is s"
+    },
+    {
+      "title": "Introduction: The Gift",
+      "page": 7,
+      "excerpt": "Introduction: The Gift WHY ARE SOME PEOPLE so amazingly good at what they do? Anywhere you look, from competitive sports and musical performance to science, medicine, and business, there always seem to be a few exceptional sorts who dazzle us with what they can do and how well they do it. And when we are confronted with such an exceptional person, we naturally tend to conclude that this person was born with something a little extra. “He is so gifted,” we say, or, “She has a real gift.” But is that really so? For more than thirty years I have studied these people, the special ones who stand out as experts in their fields— athletes, musicians, chess players, doctors, salespeople, teachers, and more. I have delved into the nuts and bolts of what they do and how they do it. I have observed, interviewed, and tested them. I have explored the psychology, the physiology, and the neuroanatomy of these extraordinary people. And over time I’ve come to understand that, yes, these people do have an extraordinary gift, which lies at the heart of their capabilities. But it is not the gift that people usually assume it to be, and it is even more powerful than we imagine. Most importantly, it is a gift that every one of us is born with and can, with the right approach, take advantage of. THE LESSON OF PERFECT PITCH The year is 1763, and a young Wolfgang Amadeus Mozart is about to embark on a tour around Europe that will jump-start the Mozart legend. Just seven years old and barely tall enough"
+    },
+    {
+      "title": "The Power of Purposeful Practice",
+      "page": 17,
+      "excerpt": "1 The Power of Purposeful Practice IN JUST OUR FOURTH SESSION together, Steve was already beginning to sound discouraged. It was Thursday of the first week of an experiment that I had expected to last for two or three months, but from what Steve was telling me, it might not make much sense to go on. “There appears to be a limit for me somewhere around eight or nine digits,” he told me, his words captured by the tape recorder that ran throughout each of our sessions. “With nine digits especially, it’s very difficult to get regardless of what pattern I use—you know, my own kind of strategies. It really doesn’t matter what I use—it seems very difficult to get.” Steve, an undergraduate at Carnegie Mellon University, where I was teaching at the time, had been hired to come in several times a week and work on a simple task: memorizing strings of numbers. I would read him a series of digits at a rate of about one per second—“Seven . . . four . . . zero . . . one . . . one . . . nine . . .” and so on—and Steve would try to remember them all and repeat them back to me once I was done. One goal was simply to see how much Steve could improve with practice. Now, after four of the hour-long sessions, he could reliably recall seven-digit strings—the length of a local phone number —and he usually got the eight-digit strings right, but nine digits was hit or miss, and he had never managed to remember a ten-digit string at all. And at this point, given his frustrating experience over the firs"
+    },
+    {
+      "title": "Harnessing Adaptability",
+      "page": 36,
+      "excerpt": "2 Harnessing Adaptability IF YOU’RE A BODYBUILDER or just someone lifting weights to add some muscle, it is easy to track the results as you challenge your biceps, triceps, quadriceps, pecs, delts, lats, traps, abs, glutes, calves, and hamstrings. A tape measure works, or you can simply look in the mirror and admire your progress. If you’re running or biking or swimming to increase your endurance, you can track your progress by your heart rate, your breathing, and how long you can keep going until your muscles falter due to lactic acid buildup. But if your challenge is mental—becoming proficient at calculus, say, or learning how to play a musical instrument or speak a new language—it’s different. There is no easy way to observe the resulting changes in your brain as it adapts to the increasing demands being placed on it. There is no soreness in your cortex the day after a particularly tough training session. You don’t have to go out and buy new hats because the old ones are now too small. You don’t develop a six-pack on your forehead. And because you can’t see any changes in your brain, it’s easy to assume that there really isn’t much going on. That would be a mistake, however. There is a growing body of evidence that both the structure and the function of the brain change in response to various sorts of mental training, in much the same way as your muscles and cardiovascular system respond to physical training. With the help of such brain-imaging techniques as magnetic reson"
+    },
+    {
+      "title": "Mental Representations",
+      "page": 54,
+      "excerpt": "3 Mental Representations ON APRIL 27, 1924, shortly before 2:00 p.m., the Russian grandmaster Alexander Alekhine settled into a comfortable leather chair at the front of a large room in the Hotel Alamac in New York City and prepared to play twenty-six of the best chess players in the area. The challengers sat at two long tables behind Alekhine. In front of each challenger was a chessboard on which that player’s game with Alekhine would be played out. Alekhine could see none of the boards. Each time a player made a move, a runner would call out the board number and the move loudly enough that Alekhine could hear it, and then, once Alekhine announced his response, the runner would make Alekhine’s move for him on the appropriate board. Twenty-six boards, 832 individual pieces, and 1,664 individual squares to keep track of—all without taking notes or having any sort of memory aid—and yet Alekhine never stumbled. The demonstration went on for more than twelve hours, with a short break for dinner, and when the last game was finished, shortly after two o’clock in the morning, Alekhine had won sixteen, lost five, and played to a draw in five more. This sort of chess game, in which one of the players—and sometimes both—cannot see the chessboard and must play from memory, is called “blindfold chess” even if there is no literal blindfold involved. Chess masters have been playing blindfolded for more than a thousand years, mostly as a way of showing off, although sometimes as a way of ha"
+    },
+    {
+      "title": "The Gold Standard",
+      "page": 80,
+      "excerpt": "4 The Gold Standard WHAT IS MISSING from purposeful practice? What is required beyond simply focusing and pushing beyond one’s comfort zone? Let’s talk about it. As we saw in chapter 1, purposeful practice as done by different people can have very different results. Steve Faloon reached the point where he could remember up to eighty-two digits, while Renée, working just as hard as Steve, was unable to get beyond twenty. The difference lay in the details of the types of practice that Steve and Renée used to improve their memory. Since Steve first demonstrated that it is possible to memorize long strings of numbers, dozens of memory competitors have developed digit memories beyond what Steve achieved. According to the World Memory Sports Council, which oversees international memory competitions, there are now at least five people who have managed to remember 300 or more digits in a memory competition, and several dozen who have memorized at least 100 digits. As of November 2015 the world record in this event was held by Tsogbadrakh Saikhanbayar of Mongolia, who recalled 432 digits at the 2015 Taiwan Open Adult Memory Competition. That’s more than five times as many digits as Steve’s record. As with the disparity between Renée and Steve, the key difference between Steve’s performance and that of the new generation of memory whizzes lies in the details of their training. This is part of a general pattern. In every area, some approaches to training are more effective than others. "
+    },
+    {
+      "title": "Principles of Deliberate Practice on the Job",
+      "page": 103,
+      "excerpt": "5 Principles of Deliberate Practice on the Job IT WAS 1968, AND THE VIETNAM WAR was in full swing. U.S. fighter pilots from the navy and air force were regularly engaging Soviet- trained North Vietnamese airmen flying Russian-made MiG fighter planes in dogfights, and the Americans weren’t doing so well. In the previous three years, the pilots of both the navy and the air force had been winning about two-thirds of their dogfights: they downed two North Vietnamese jets for every one jet they lost. But in the first five months of 1968 the ratio for the navy pilots had dropped down to about one-to-one: the U.S. Navy had shot down nine MiGs, but lost ten of its own jets. Furthermore, over the summer of 1968, navy pilots had fired more than fifty air-to-air missiles without shooting down a single MiG. The navy’s brass decided that something had to be done. That something turned out to be the establishment of the now- famous Top Gun school, properly known as the U.S. Navy Strike Fighter Tactics Instructor Program (and originally the U.S. Navy Fighter Weapons School). The school would teach navy pilots how to fight more effectively and, it was hoped, increase their success rate in dogfights. The program that the navy designed had many of the elements of deliberate practice. In particular, it gave the student pilots a chance to try different things in different situations, get feedback on their performance, and then apply what they had learned. The navy picked its best pilots to be th"
+    },
+    {
+      "title": "Principles of Deliberate Practice in Everyday Life",
+      "page": 126,
+      "excerpt": "6 Principles of Deliberate Practice in Everyday Life IN 2010 I GOT AN E-MAIL from a man named Dan McLaughlin from Portland, Oregon. He had read about my deliberate-practice research in various places, including Geoff Colvin’s book Talent Is Overrated, and he wanted to use it in his efforts to become a professional golfer. To understand just how audacious this was, you need to know a little about Dan. He had not played on his high school or college golf team. In fact, he’d never really played golf at all. He’d been to a driving range with friends a few times, but he’d never played a full eighteen-hole round of golf in his life. Indeed, at thirty years old, he had never been a competitive athlete of any sort. But he had a plan, and he was serious about it: he would quit his job as a commercial photographer and spend the next six or so years learning to play golf. Having read Malcolm Gladwell’s book Outliers and taken “the ten-thousand-hour rule” at face value, Dan figured he would put in ten thousand hours of deliberate practice and become a good enough player to join the Professional Golfers’ Association tour. To get on the tour, he’d have to first gain admission to the PGA Tour Qualifying Tournament and then do well enough in that tournament to receive a PGA Tour card. This would allow him to compete in PGA tournaments. A year and a half after starting his project, which he called “the Dan Plan,” he gave an interview to Golf magazine. When the writer asked him why he was doin"
+    },
+    {
+      "title": "The Road to Extraordinary",
+      "page": 153,
+      "excerpt": "7 The Road to Extraordinary IN THE LATE 1960S the Hungarian psychologist László Polgár and his wife, Klara, embarked on a grand experiment that would consume their lives for the next quarter century. László had studied hundreds of people who were considered geniuses in one field or another, and he’d concluded that with the proper rearing any child could be turned into a genius. When he was wooing Klara, he outlined his theories and explained that he was looking for a wife who would collaborate with him to test his theories on their own children. Klara, a teacher from Ukraine, must have been a very special woman, for she responded positively to this unorthodox courtship and agreed to László’s proposals (for marriage and for turning their future children into geniuses). László was so sure his training program would work for any area that he wasn’t picky about which particular one he and Klara would target, and the two of them discussed various options. Languages were one option: Just how many languages might it be possible to teach a child? Mathematics was another possibility. Top-flight mathematicians were highly regarded in Eastern Europe at the time, as the Communist regimes sought ways to prove their superiority over the decadent West. Mathematics would have the added advantage that there were no top-level female mathematicians at the time, so, assuming that he and Klara had a daughter, László would prove his claim even more convincingly. But he and Klara settled on a third"
+    },
+    {
+      "title": "But What About Natural Talent?",
+      "page": 173,
+      "excerpt": "8 But What About Natural Talent? WHENEVER I WRITE OR SPEAK about deliberate practice and expertise I am invariably asked, But what about natural talent? In my articles and my talks I always offer the same basic message that I have here: Expert performers develop their extraordinary abilities through years and years of dedicated practice, improving step by step in a long, laborious process. There are no shortcuts. Various sorts of practice can be effective, but the most effective of all is deliberate practice. Deliberate practice takes advantage of the natural adaptability of the human brain and body to create new abilities. Most of these abilities are created with the help of detailed mental representations, which allow us to analyze and respond to situations much more effectively than we could otherwise. Fine, some people will reply, we understand all that. But, even so, aren’t there some people who don’t have to work as hard and can still be better than everyone else? And aren’t there some people who are born without any talent for something—say, music or math or sports —so that no matter how hard they try, they’ll never be any good at it? It is one of the most enduring and deep-seated of all beliefs about human nature—that natural talent plays a major role in determining ability. This belief holds that some people are born with natural endowments that make it easier for them to become outstanding athletes or musicians or chess players or writers or mathematicians or whatev"
+    },
+    {
+      "title": "Where Do We Go from Here?",
+      "page": 200,
+      "excerpt": "9 Where Do We Go from Here? CALL IT A GLIMPSE. For one week a group of students enrolled in a traditional freshman physics class got a look at what the future of learning physics might look like. It was just one section on electromagnetic waves that was taught toward the end of a two- semester course, but in that one section the results were almost magical. The students who were taught the material with a method inspired by the principles of deliberate practice learned more than twice as much as those students taught with the traditional approach. By one measure it was the largest effect ever seen in an educational intervention. This glimpse came courtesy of three researchers associated with the University of British Columbia: Louis Deslauriers, Ellen Schelew, and Carl Wieman. Wieman, who won the Nobel Prize in Physics in 2001, has made a second career out of working to improve undergraduate science education. Using part of his Nobel Prize winnings, in 2002 he created the Physics Education Technology Project at the University of Colorado, and later he established the Carl Wieman Science Education Initiative at the University of British Columbia. In all this he has been driven by the conviction that there is a better way to teach science than the traditional fifty-minute classroom lectures. And this is what he and his two colleagues set out to demonstrate in that bastion of traditional teaching, the freshman physics course. The class at UBC had 850 students in three sections. "
+    },
+    {
+      "title": "Acknowledgments",
+      "page": 213,
+      "excerpt": "Acknowledgments The research that I have completed was possible because of the factors that I have described in this book. My parents provided me with a safe environment, where I was encouraged to pursue any type of project as long as I was willing to do whatever it took. At the University of Stockholm in Sweden I was supervised by Professor Gunnar Goude, who was willing to encourage and support my interest in research on thinking while his interests were focused on research on animals, thus forcing me to think independently. Herbert Simon and Bill Chase at Carnegie Mellon showed me how to find and study important problems and helped me get a job as a professor in psychology in the University of Colorado in the United States. Paul Baltes at the Max Planck Institute for Human Development in Berlin gave me the opportunity and resources to conduct the research on the music students in collaboration with Ralf Krampe and Clemens Tesch-Römer. I want to thank my many students and postdoctoral fellows and other collaborators, especially Andreas Lehmann. I want to thank the many experts and participants who shared their thinking and allowed the study of their performances. Finally I want to thank and acknowledge the participants in the long-term training studies, in particular, Steve Faloon, Dario Donatelli, John Conrad, and Rajan Mahadevan. My research has been supported by grants from the Office of Naval Research as principal investigator (N-84-K-0250) and co- principal investigator"
+    },
+    {
+      "title": "Notes",
+      "page": 215,
+      "excerpt": "Notes Introduction: The Gift [>] rather breathless letter: The letter describing Mozart’s perfect pitch can be found in Otto Erich Deutsch, Mozart: A Documentary Biography, 3rd ed. (London: Simon and Schuster, 1990), 21. See also Diana Deutsch, “Absolute pitch,” in The Psychology of Music, ed. Diana Deutsch, 3rd ed. (San Diego: Elsevier, 1990), 141–182. [>] only about one in every ten thousand people: See, for example, William Lee Adams, “The mysteries of perfect pitch,” Psychology Today, July 1, 2006, https://www.psychologytoday.com/ articles//the-mysteries-perfect-pitch (accessed February 25, 2015). [>] around three to five years old: Robert J. Zatorre, “Absolute pitch: A model for understanding the influence of genes and development on neural and cognitive function,” Nature Neuroscience 6, no. 7 (2003): 692–695. See also Siamak Baharloo, Paul A. Johnston, Susan K. Service, Jane Gitschier, and Nelson B. Freimer, “Absolute pitch: An approach for identification of genetic and nongenetic components,” American Journal of Human Genetics 62 (1998): 224–231. [>] other ethnicities to have perfect pitch: Diana Deutsch, Kevin Dooley, Trevor Henthorn, and Brian Head, “Absolute pitch among students in an American music conservatory: Association with tone language fluency,” Journal of the Acoustical Society of America 125 (2009): 2398–2403. [>] pretty much what we knew: My own review of evidence for the acquired nature of perfect pitch is summarized in K. Anders Ericsson and Irene Faivr"
+    },
+    {
+      "title": "Index",
+      "page": 248,
+      "excerpt": "Index A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z A ability in chess players, 56 practice and, 8, 9, 43 talent, see talent See also brain adaptability; purposeful practice absolute pitch. See perfect pitch “acceptable” performance level, 12–14 See also comfort zone action, 130–37 active learning task, 246 adaptability, 26–49 age and, 195–99 age-related farsightedness and, 36–37 in blind or deaf subjects, 34–35 body vs. brain, 33–34 homeostasis, 37–41 introduction to, 26–27 London cabbie studies, 27–33, 46, 47, 59 potential and, 47–49 adaptive thinking, 142–43 Addis, Barnett, 221–22 after-action reports, 117 age benefits of, 194–99 brain adaptability and, 45 chess playing, 227–33 hockey advantage, 239–40 mental representations, 254–55 perfect pitch, 199 violin practice and, 94 Alekhine, Alexander, 50–54 Allen, Ray, xviii–xix American Association of Medical Colleges, 126 American Journal of Psychology, 3 Anang Ibibio, 224 ankle injury library, 127–28 anti-prodigies, 222–25 Armstrong, Cole, 152 artistic image, 80 athletics. See physical activity; specific sports attention. See focus"
+    },
+    {
+      "title": "About the Authors",
+      "page": 287,
+      "excerpt": "About the Authors ANDERS ERICSSON, Ph.D., is a Conradi Eminent Scholar and professor of psychology at Florida State University. His work has been cited in bestsellers from Moonwalking with Einstein to Outliers to How Children Succeed. He lives in Florida. ROBERT POOL has worked at Science and Nature, and has been published in Discover and Technology Review, among others. His books include Eve’s Rib: Searching for the Biological Roots of Sex Differences and Beyond Engineering: How Society Shapes Technology. He holds a Ph.D. in mathematics from Rice University."
+    }
+  ],
+  "has_toc": true,
+  "extracted_at": "2026-04-25"
+}
