@@ -321,6 +321,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .color-chip { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line-strong); cursor: pointer; transition: all 0.15s; }
 .color-chip.active { box-shadow: 0 0 0 2px var(--ink); transform: scale(1.1); }
 .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line); margin-top: 10px; }
+.edit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); z-index: 2600; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.edit-modal { background: var(--bg); width: 100%; max-width: 760px; max-height: calc(100vh - 80px); overflow-y: auto; border: 1px solid var(--line-strong); box-shadow: 0 40px 100px rgba(0,0,0,0.28); padding: 34px; }
+.edit-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.edit-title { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
+.edit-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-mute); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 6px; }
+.edit-close { font-family: var(--serif); font-size: 28px; background: transparent; border: none; color: var(--ink-soft); cursor: pointer; }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.edit-grid .fld.full { grid-column: 1 / -1; }
+.image-gallery { margin-top: 28px; }
+.image-gallery-label { font-family: var(--sans); font-size: 11px; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 14px; }
+.image-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.image-gallery-grid img { width: 100%; display: block; border: 1px solid var(--line); background: #fff; }
 
 /* ── Responsive ── */
 @media (max-width: 980px) {
@@ -338,10 +350,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .hero-cover { max-width: 200px; }
   .hero-title { font-size: 38px; }
   .related-grid { grid-template-columns: 1fr; }
+  .image-gallery-grid { grid-template-columns: 1fr; }
   .about-block { grid-template-columns: 1fr; }
   .detail-lead { padding: 28px 24px; }
   .upload-form-body { grid-template-columns: 1fr; }
   .form-preview { max-width: 180px; margin: 0 auto; }
+  .edit-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -368,6 +382,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 <!-- Book data -->
 <script src="books_data.js"></script>
+<script src="library_manifest.js"></script>
 <script src="ai_content.js"></script>
 <script src="full_reading.js"></script>
 
@@ -400,7 +415,6 @@ const CAT_COLORS = {
 };
 
 const COVER_STYLES = ["a","b","c","d","e","f"];
-const CLOUD_SOURCES = ["../data/local_books.json", "../data/books.json"];
 const MAX_UPLOAD_PDF_PAGES = 120;
 const MAX_UPLOAD_EPUB_DOCS = 80;
 
@@ -661,12 +675,13 @@ function adaptBook(b, i) {
     color: CAT_COLORS[cat] || "#4A453E",
     coverStyle: COVER_STYLES[i % COVER_STYLES.length],
     coverImage: resolveRepoAssetPath(b.cover || b.coverImage || b.cover_path) || null,
-    summary: (b.intro || "（尚未填寫簡介）").slice(0, 500),
+    summary: (b.intro || b.summary || ((b.pageImages && b.pageImages.length) ? "此書以圖像頁與版面內容為主，建議直接進入閱讀頁查看書中圖片與掃描頁面。" : "（尚未填寫簡介）")).slice(0, 500),
     chapters: chapters.length ? chapters : [{ num: "壹", title: "第一章", desc: "請閱讀全書以獲取更多內容。", page: 1 }],
     quotes: extractQuotes(b.intro),
     userAdded: b.userAdded || false,
     rawStatus: status,
     fullReading: b.fullReading || null,
+    pageImages: b.pageImages || [],
   };
 }
 
@@ -894,6 +909,76 @@ function UploadModal({ onClose, onAdd }) {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function EditBookModal({ book, onClose, onSave, onRemove }) {
+  const [form, setForm] = useState({
+    title: book.title || "",
+    subtitle: book.subtitle || "",
+    author: book.author || "",
+    year: book.year || "",
+    category: book.rawCategory || "其他",
+    summary: book.summary || "",
+    tags: (book.tags || []).join(", "),
+    rawStatus: book.rawStatus || "待讀",
+  });
+
+  return (
+    <div className="edit-overlay" onClick={onClose}>
+      <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="edit-head">
+          <div>
+            <div className="edit-title">編輯書籍資料</div>
+            <div className="edit-sub">Edit Metadata · Local override</div>
+          </div>
+          <button className="edit-close" onClick={onClose}>×</button>
+        </div>
+        <div className="edit-grid">
+          <label className="fld full"><span>書名</span>
+            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </label>
+          <label className="fld full"><span>副標題</span>
+            <input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} />
+          </label>
+          <label className="fld"><span>作者</span>
+            <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} />
+          </label>
+          <label className="fld"><span>年份</span>
+            <input value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} />
+          </label>
+          <label className="fld"><span>分類</span>
+            <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+          </label>
+          <label className="fld"><span>狀態</span>
+            <select value={form.rawStatus} onChange={(e) => setForm({ ...form, rawStatus: e.target.value })}>
+              <option>待讀</option>
+              <option>在讀</option>
+              <option>已讀</option>
+            </select>
+          </label>
+          <label className="fld full"><span>標籤</span>
+            <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+          </label>
+          <label className="fld full"><span>簡介</span>
+            <textarea rows="5" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} />
+          </label>
+        </div>
+        <div className="form-actions">
+          <button className="btn-ghost" onClick={onRemove}>{book.userAdded ? "刪除這本書" : "從面板移除"}</button>
+          <button className="btn-primary" onClick={() => onSave({
+            title: form.title,
+            subtitle: form.subtitle,
+            author: form.author,
+            year: form.year,
+            rawCategory: form.category,
+            summary: form.summary,
+            tags: form.tags.split(/[,，]\s*|\s+/).filter(Boolean),
+            rawStatus: form.rawStatus,
+          })}>儲存變更</button>
+        </div>
       </div>
     </div>
   );
@@ -1136,25 +1221,6 @@ function autoSummary(text) {
   return pts.length ? pts.join("。\n") + "。" : text.slice(0, 200) + "…";
 }
 
-async function loadCloudBooksData() {
-  const results = await Promise.allSettled(
-    CLOUD_SOURCES.map(async (url) => {
-      const resp = await fetch(url, { cache: "no-store" });
-      if (!resp.ok) throw new Error(`${url} ${resp.status}`);
-      const data = await resp.json();
-      return Array.isArray(data) ? data : [];
-    })
-  );
-
-  const merged = [];
-  results.forEach((res, i) => {
-    if (res.status !== "fulfilled") return;
-    const source = i === 0 ? "cloud_local" : "cloud_drive";
-    res.value.forEach((item, idx) => merged.push(toManifestBook(item, source, idx)));
-  });
-  return merged;
-}
-
 function getFullReading(book, chapterIndex, fallback) {
   if (book?.fullReading?.[chapterIndex]) return book.fullReading[chapterIndex];
   if (!window.FULL_READING || !window.FULL_READING[book.id]) return fallback || "";
@@ -1216,6 +1282,17 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
           ))}
         </div>
 
+        {book.pageImages && book.pageImages.length > 0 && (
+          <div className="image-gallery">
+            <div className="image-gallery-label">書中圖片 · Page Images</div>
+            <div className="image-gallery-grid">
+              {book.pageImages.slice(0, 8).map((src, idx) => (
+                <img key={idx} src={src} alt={`${book.title} 內頁 ${idx + 1}`} loading="lazy" />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 重點整理（免費，自動抽取）*/}
         {keyPoints.length > 0 && (
           <div className="ai-panel" style={{ marginTop: "40px" }}>
@@ -1258,15 +1335,24 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
 /* ──────────────────────────────────────────
    BookDetail 書籍詳情頁
    ────────────────────────────────────────── */
-function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark }) {
+function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark, onUpdateBook, onRemoveBook }) {
   const [tab, setTab] = useState("chapters");
   const [openChapter, setOpenChapter] = useState(0);
   const [readingChapter, setReadingChapter] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
   const isBookmarked = bookmarks.includes(book.id);
   const others = books.filter(b => b.id !== book.id && b.rawCategory === book.rawCategory).slice(0, 3);
 
   return (
     <div className="detail-page">
+      {showEdit && (
+        <EditBookModal
+          book={book}
+          onClose={() => setShowEdit(false)}
+          onSave={(patch) => { onUpdateBook(book.id, patch); setShowEdit(false); }}
+          onRemove={() => { setShowEdit(false); onRemoveBook(book.id); }}
+        />
+      )}
       {readingChapter !== null && (
         <ReadingModal
           book={book}
@@ -1314,6 +1400,7 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
             >
               {isBookmarked ? "★ 已加書籤" : "☆ 加入書籤"}
             </button>
+            <button className="btn-ghost" onClick={() => setShowEdit(true)}>編輯 / 刪除</button>
           </div>
           <div className="hero-tags">
             {book.tags.map(t => <span key={t} className="hero-tag">{t}</span>)}
@@ -1326,6 +1413,17 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
         <p className="lead-text">{book.summary}</p>
         <div className="lead-sig">— Jim 書庫</div>
       </section>
+
+      {book.pageImages && book.pageImages.length > 0 && (
+        <section className="image-gallery">
+          <div className="image-gallery-label">書內圖像頁 · Visual Pages</div>
+          <div className="image-gallery-grid">
+            {book.pageImages.slice(0, 8).map((src, idx) => (
+              <img key={idx} src={src} alt={`${book.title} 第 ${idx + 1} 張頁面圖`} loading="lazy" />
+            ))}
+          </div>
+        </section>
+      )}
 
       <nav className="detail-tabs">
         {[
@@ -1437,7 +1535,6 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
 function App() {
   const [view, setView] = useState("cover");
   const [activeBookId, setActiveBookId] = useState(null);
-  const [cloudBooks, setCloudBooks] = useState([]);
   const [userBooks, setUserBooks] = useState(() => {
     try { return JSON.parse(localStorage.getItem("user_books") || "[]"); }
     catch { return []; }
@@ -1446,27 +1543,33 @@ function App() {
     try { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }
     catch { return []; }
   });
-  const baseBooks = useMemo(() =>
-    (window.BOOKS_DATA || []).map((b, i) => adaptBook(b, i)), []);
+  const [bookOverrides, setBookOverrides] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("book_overrides") || "{}"); }
+    catch { return {}; }
+  });
+  const [hiddenBookIds, setHiddenBookIds] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("hidden_books") || "[]"); }
+    catch { return []; }
+  });
+  const sourceBooks = useMemo(() =>
+    ((window.LIBRARY_MANIFEST && window.LIBRARY_MANIFEST.length ? window.LIBRARY_MANIFEST : window.BOOKS_DATA) || []).map((b, i) => adaptBook(b, i)),
+  []);
 
-  useEffect(() => {
-    let active = true;
-    loadCloudBooksData()
-      .then((items) => {
-        if (!active) return;
-        setCloudBooks(items.map((b, i) => adaptBook(b, i)));
-      })
-      .catch(() => {
-        if (!active) return;
-        setCloudBooks([]);
-      });
-    return () => { active = false; };
-  }, []);
-
-  const allBooks = useMemo(
-    () => mergeBooksById(baseBooks, cloudBooks, userBooks),
-    [baseBooks, cloudBooks, userBooks]
-  );
+  const allBooks = useMemo(() => {
+    const merged = mergeBooksById(sourceBooks, userBooks).map((book) => {
+      const override = bookOverrides[book.id] || {};
+      const next = { ...book, ...override };
+      if (override.rawCategory) {
+        next.rawCategory = override.rawCategory;
+        next.category = CAT_MAP[override.rawCategory] || `${override.rawCategory} · OTHER`;
+      }
+      if (override.tags) next.tags = override.tags;
+      if (override.summary) next.summary = override.summary;
+      if (override.rawStatus) next.rawStatus = override.rawStatus;
+      return next;
+    });
+    return merged.filter((book) => !hiddenBookIds.includes(book.id));
+  }, [sourceBooks, userBooks, bookOverrides, hiddenBookIds]);
 
   const addBook = (book) => {
     const updated = [...userBooks, book];
@@ -1478,6 +1581,34 @@ function App() {
     const updated = userBooks.filter(b => b.id !== id);
     setUserBooks(updated);
     localStorage.setItem("user_books", JSON.stringify(updated));
+  };
+
+  const updateBook = (id, patch) => {
+    const isUserBook = userBooks.some((b) => b.id === id);
+    if (isUserBook) {
+      const updated = userBooks.map((b) => b.id === id ? { ...b, ...patch, category: patch.rawCategory || b.rawCategory || b.category } : b);
+      setUserBooks(updated);
+      localStorage.setItem("user_books", JSON.stringify(updated));
+      return;
+    }
+    const updated = { ...bookOverrides, [id]: { ...(bookOverrides[id] || {}), ...patch } };
+    setBookOverrides(updated);
+    localStorage.setItem("book_overrides", JSON.stringify(updated));
+  };
+
+  const removeFromPanel = (id) => {
+    const isUserBook = userBooks.some((b) => b.id === id);
+    if (isUserBook) {
+      deleteBook(id);
+      return;
+    }
+    const updated = [...new Set([...hiddenBookIds, id])];
+    setHiddenBookIds(updated);
+    localStorage.setItem("hidden_books", JSON.stringify(updated));
+    if (activeBookId === id) {
+      setView("shelf");
+      setActiveBookId(null);
+    }
   };
 
   const toggleBookmark = (id) => {
@@ -1508,6 +1639,8 @@ function App() {
           book={activeBook} books={allBooks}
           onBack={() => setView("shelf")} onOpenBook={openBook}
           bookmarks={bookmarks} onToggleBookmark={toggleBookmark}
+          onUpdateBook={updateBook}
+          onRemoveBook={removeFromPanel}
         />
       )}
     </div>
