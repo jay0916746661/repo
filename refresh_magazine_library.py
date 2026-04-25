@@ -5,12 +5,13 @@ import sys
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
+PYTHON = sys.executable
 
 STEPS = [
-    ["python3", "extract_covers.py"],
-    ["python3", "extract_books.py"],
-    ["python3", "generate_full_reading.py"],
-    ["python3", "generate_library_manifest.py"],
+    [PYTHON, "extract_covers.py"],
+    [PYTHON, "extract_books.py"],
+    [PYTHON, "generate_full_reading.py"],
+    [PYTHON, "generate_library_manifest.py"],
 ]
 
 
