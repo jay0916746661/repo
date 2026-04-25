@@ -62,8 +62,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .cover-new-arrivals { margin-top: 24px; max-width: 520px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.18); }
 .cover-new-title { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; color: rgba(255,255,255,0.72); margin-bottom: 12px; }
 .cover-new-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
-.cover-new-item { border: 1px solid rgba(255,255,255,0.15); padding: 10px 12px; transition: border-color 0.15s, transform 0.15s; }
+.cover-new-item { border: 1px solid rgba(255,255,255,0.15); padding: 10px 12px; transition: border-color 0.15s, transform 0.15s; display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; }
 .cover-new-item:hover { border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+.cover-new-thumb { width: 52px; aspect-ratio: 2 / 3; overflow: hidden; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); }
+.cover-new-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cover-new-book { font-size: 13px; font-weight: 700; line-height: 1.35; margin-bottom: 4px; }
 .cover-new-meta { font-size: 10px; letter-spacing: 0.14em; color: rgba(255,255,255,0.62); }
 .cover-index { padding: 28px 0 0 32px; border-left: 1px solid var(--line); margin-left: -40px; font-family: var(--sans); }
@@ -132,8 +134,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .shelf-new-kicker { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; color: var(--accent); font-weight: 700; }
 .shelf-new-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
 .shelf-new-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-.shelf-new-card { padding: 14px 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.26); transition: transform 0.15s, border-color 0.15s; }
+.shelf-new-card { padding: 14px 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.26); transition: transform 0.15s, border-color 0.15s; display: grid; grid-template-columns: 70px 1fr; gap: 14px; align-items: start; text-align: left; }
 .shelf-new-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.shelf-new-cover { width: 70px; aspect-ratio: 2 / 3; overflow: hidden; background: var(--bg-alt); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.shelf-new-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shelf-new-name { font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1.15; margin-bottom: 6px; letter-spacing: -0.02em; }
 .shelf-new-meta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.14em; color: var(--ink-mute); margin-bottom: 8px; }
 .shelf-new-theme { font-family: var(--sans); font-size: 11px; color: var(--ink-soft); }
@@ -1421,7 +1425,12 @@ function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI }) {
             {newArrivals.map((book) => (
               <button key={book.id} className="progress-item" onClick={() => onOpenBook(book.id)}>
                 <div className="progress-top">
-                  <div className="progress-name">{book.title}</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "44px 1fr", gap: "12px", alignItems: "center", width: "100%" }}>
+                    <div className="cover-new-thumb" style={{ width: "44px" }}>
+                      {book.coverImage ? <img src={book.coverImage} alt={book.title} /> : <BookCoverArt book={book} />}
+                    </div>
+                    <div className="progress-name">{book.title}</div>
+                  </div>
                   <div className="progress-meta">NEW</div>
                 </div>
                 <div className="progress-meta">{book.themeLabel} · {book.author !== "—" ? book.author : book.rawCategory}</div>
@@ -1535,8 +1544,13 @@ function MagazineCover({ books, readingProgress, onEnter, onOpenBook, onExportAI
                   <div className="cover-new-grid">
                     {newArrivals.map((book) => (
                       <div key={book.id} className="cover-new-item" onClick={(e) => { e.stopPropagation(); onOpenBook(book.id); }}>
-                        <div className="cover-new-book">{book.title}</div>
-                        <div className="cover-new-meta">{book.themeLabel} · {book.author !== "—" ? book.author : book.rawCategory}</div>
+                        <div className="cover-new-thumb">
+                          {book.coverImage ? <img src={book.coverImage} alt={book.title} /> : <BookCoverArt book={book} />}
+                        </div>
+                        <div>
+                          <div className="cover-new-book">{book.title}</div>
+                          <div className="cover-new-meta">{book.themeLabel} · {book.author !== "—" ? book.author : book.rawCategory}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1649,9 +1663,14 @@ function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, 
           <div className="shelf-new-grid">
             {newArrivals.slice(0, 6).map((b) => (
               <button key={b.id} className="shelf-new-card" onClick={() => onOpenBook(b.id)}>
-                <div className="shelf-new-name">{b.title}</div>
-                <div className="shelf-new-meta">{b.author !== "—" ? b.author : b.rawCategory}</div>
-                <div className="shelf-new-theme">{b.themeLabel} · {b.pages ? `${b.pages} 頁` : "頁數待補"}</div>
+                <div className="shelf-new-cover" style={{ background: b.color }}>
+                  <BookCoverArt book={b} />
+                </div>
+                <div>
+                  <div className="shelf-new-name">{b.title}</div>
+                  <div className="shelf-new-meta">{b.author !== "—" ? b.author : b.rawCategory}</div>
+                  <div className="shelf-new-theme">{b.themeLabel} · {b.pages ? `${b.pages} 頁` : "頁數待補"}</div>
+                </div>
               </button>
             ))}
           </div>
