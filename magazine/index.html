@@ -940,11 +940,6 @@ function getBestStartChapter(book) {
    ────────────────────────────────────────── */
 function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) {
   const [showSummary, setShowSummary] = useState(false);
-  const [showAI, setShowAI] = useState(false);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem("claude_api_key") || "");
-  const [aiResult, setAiResult] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [tmpKey, setTmpKey] = useState("");
 
   const keyPoints = extractKeyPoints(chapter.desc);
   const summary = autoSummary(chapter.desc);
@@ -953,33 +948,6 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
   const preGenerated = window.AI_CONTENT && window.AI_CONTENT[book.id]
     ? window.AI_CONTENT[book.id][chapterIndex] || null : null;
   const fullReading = getFullReading(book, chapterIndex, chapter.desc);
-
-  const callAI = async (prompt) => {
-    if (!apiKey) { setShowAI(true); return; }
-    setAiLoading(true);
-    setAiResult("");
-    try {
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": apiKey, "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001", max_tokens: 800,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-      const data = await resp.json();
-      if (data.error) throw new Error(data.error.message);
-      setAiResult(data.content[0].text);
-    } catch (e) {
-      setAiResult("錯誤：" + e.message);
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   return (
     <div className="reading-overlay">
@@ -1024,83 +992,10 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
           </div>
         )}
 
-        {/* 進階 AI（需要 API Key）*/}
-        <div className="ai-panel" style={{ marginTop: "16px" }}>
-          <div className="ai-panel-head">
-            <div className="ai-label">✦ 進階 AI 解析（選用）</div>
-            <div className="ai-actions">
-              <button className="ai-btn primary" onClick={() => callAI(`請用繁體中文深度解析《${book.title}》章節「${chapter.title}」的核心論點、重要觀念、實際應用，並給一句話精華：\n\n${chapter.desc}`)}>
-                深度解析
-              </button>
-              <button className="ai-btn" onClick={() => callAI(`用3句話濃縮以下段落精華：\n\n${chapter.desc}`)}>
-                摘要
-              </button>
-            </div>
-          </div>
-          {aiLoading && (
-            <div className="ai-loading">
-              <div className="ai-dot"></div><div className="ai-dot"></div><div className="ai-dot"></div>
-              <span>解析中…</span>
-            </div>
-          )}
-          {aiResult && <div className="ai-result">{aiResult}</div>}
-          {showAI && !apiKey && (
-            <div style={{ marginTop: "10px" }}>
-              <div style={{ fontFamily: "var(--sans)", fontSize: "12px", color: "var(--ink-mute)", marginBottom: "8px" }}>
-                輸入 Claude API Key 啟用（Key 僅存在本機）
-              </div>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <input className="ai-key-input" type="password" value={tmpKey}
-                  onChange={e => setTmpKey(e.target.value)} placeholder="sk-ant-..." />
-                <button className="ai-btn primary" onClick={() => {
-                  setApiKey(tmpKey); localStorage.setItem("claude_api_key", tmpKey); setShowAI(false);
-                }}>儲存</button>
-              </div>
-            </div>
-          )}
-          {!aiResult && !aiLoading && !showAI && (
-            <div style={{ fontFamily: "var(--sans)", fontSize: "11px", color: "var(--ink-mute)", letterSpacing: "0.05em" }}>
-              {apiKey ? "已設定 API Key，點上方按鈕使用" : "不設定也可使用上方免費功能"}
-            </div>
-          )}
-        </div>
-
         <div className="reading-footer">
-          <button className="btn-link" onClick={onPrev} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
+          <button className="btn-link" onClick={onPrev} disabled={chapterIndex === 0} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
           <span>第 {chapterIndex + 1} 章 / 共 {book.chapters.length} 章</span>
-          <button className="btn-link" onClick={onNext} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────
-   SettingsModal API Key 設定
-   ────────────────────────────────────────── */
-function SettingsModal({ apiKey, onSave, onClose }) {
-  const [key, setKey] = useState(apiKey);
-  return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-modal" onClick={e => e.stopPropagation()}>
-        <div className="settings-title">⚙ 設定</div>
-        <div className="settings-sub">設定後即可使用 AI 翻譯 · 解析 · 摘要功能</div>
-        <div className="settings-field">
-          <label className="settings-label">Claude API Key</label>
-          <input
-            className="settings-input"
-            type="password"
-            value={key}
-            onChange={e => setKey(e.target.value)}
-            placeholder="sk-ant-..."
-          />
-          <div className="settings-hint">
-            於 <strong>console.anthropic.com</strong> 取得。Key 儲存於本機瀏覽器，不會上傳任何地方。
-          </div>
-        </div>
-        <div className="settings-actions">
-          <button className="btn-ghost" onClick={onClose}>取消</button>
-          <button className="btn-primary" onClick={() => { onSave(key.trim()); onClose(); }}>儲存</button>
+          <button className="btn-link" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
         </div>
       </div>
     </div>
@@ -1110,7 +1005,7 @@ function SettingsModal({ apiKey, onSave, onClose }) {
 /* ──────────────────────────────────────────
    BookDetail 書籍詳情頁
    ────────────────────────────────────────── */
-function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark, apiKey, onNeedKey }) {
+function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark }) {
   const [tab, setTab] = useState("chapters");
   const [openChapter, setOpenChapter] = useState(0);
   const [readingChapter, setReadingChapter] = useState(null);
@@ -1125,8 +1020,8 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
           chapter={book.chapters[readingChapter]}
           chapterIndex={readingChapter}
           onClose={() => setReadingChapter(null)}
-          apiKey={apiKey}
-          onNeedKey={onNeedKey}
+          onPrev={() => setReadingChapter((n) => Math.max(0, n - 1))}
+          onNext={() => setReadingChapter((n) => Math.min(book.chapters.length - 1, n + 1))}
         />
       )}
 
@@ -1159,7 +1054,6 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
             <div><div className="stat-num">{book.quotes.length}</div><div className="stat-lbl">摘句</div></div>
           </div>
           <div className="hero-actions">
-            <button className="btn-primary" onClick={() => setReadingChapter(0)}>開始閱讀</button>
             <button className="btn-primary" onClick={() => setReadingChapter(getBestStartChapter(book))}>開始閱讀</button>
             <button
               className={`bookmark-btn ${isBookmarked ? "active" : ""}`}
@@ -1298,9 +1192,6 @@ function App() {
     try { return JSON.parse(localStorage.getItem("bookmarks") || "[]"); }
     catch { return []; }
   });
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem("claude_api_key") || "");
-  const [showSettings, setShowSettings] = useState(false);
-
   const baseBooks = useMemo(() =>
     (window.BOOKS_DATA || []).map((b, i) => adaptBook(b, i)), []);
 
@@ -1322,11 +1213,6 @@ function App() {
     const updated = bookmarks.includes(id) ? bookmarks.filter(x => x !== id) : [...bookmarks, id];
     setBookmarks(updated);
     localStorage.setItem("bookmarks", JSON.stringify(updated));
-  };
-
-  const saveApiKey = (key) => {
-    setApiKey(key);
-    localStorage.setItem("claude_api_key", key);
   };
 
   const openBook = (id) => {
@@ -1351,15 +1237,7 @@ function App() {
           book={activeBook} books={allBooks}
           onBack={() => setView("shelf")} onOpenBook={openBook}
           bookmarks={bookmarks} onToggleBookmark={toggleBookmark}
-          apiKey={apiKey} onNeedKey={() => setShowSettings(true)}
         />
-      )}
-
-      {/* 浮動設定按鈕 */}
-      <button className="fab-settings" onClick={() => setShowSettings(true)} title="設定 API Key">⚙</button>
-
-      {showSettings && (
-        <SettingsModal apiKey={apiKey} onSave={saveApiKey} onClose={() => setShowSettings(false)} />
       )}
     </div>
   );
