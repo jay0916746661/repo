@@ -64,7 +64,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .cover-new-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
 .cover-new-item { border: 1px solid rgba(255,255,255,0.15); padding: 10px 12px; transition: border-color 0.15s, transform 0.15s; display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; }
 .cover-new-item:hover { border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
-.cover-new-thumb { width: 52px; aspect-ratio: 2 / 3; overflow: hidden; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); }
+.cover-new-thumb { width: 52px; aspect-ratio: 2 / 3; overflow: hidden; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); position: relative; }
 .cover-new-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cover-new-book { font-size: 13px; font-weight: 700; line-height: 1.35; margin-bottom: 4px; }
 .cover-new-meta { font-size: 10px; letter-spacing: 0.14em; color: rgba(255,255,255,0.62); }
@@ -136,7 +136,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .shelf-new-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
 .shelf-new-card { padding: 14px 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.26); transition: transform 0.15s, border-color 0.15s; display: grid; grid-template-columns: 70px 1fr; gap: 14px; align-items: start; text-align: left; }
 .shelf-new-card:hover { transform: translateY(-2px); border-color: var(--accent); }
-.shelf-new-cover { width: 70px; aspect-ratio: 2 / 3; overflow: hidden; background: var(--bg-alt); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.shelf-new-cover { width: 70px; aspect-ratio: 2 / 3; overflow: hidden; background: var(--bg-alt); box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative; }
 .shelf-new-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shelf-new-name { font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1.15; margin-bottom: 6px; letter-spacing: -0.02em; }
 .shelf-new-meta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.14em; color: var(--ink-mute); margin-bottom: 8px; }
@@ -2163,10 +2163,31 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
           <div className="reading-stat"><strong>本次</strong>{formatSeconds(sessionSeconds)}</div>
           <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
         </div>
-        <div className="reading-ch-num">{chapter.num} · {chapter.page ? `P. ${chapter.page}` : ""}</div>
-        <div className="reading-ch-title">{chapter.title}</div>
         <div className="reading-layout">
+          {/* 左側：章節目錄 */}
+          <aside className="reading-toc">
+            <div className="reading-toc-head">目錄 · {(book.chapters || []).length} 章</div>
+            <div className="reading-toc-list">
+              {(book.chapters || []).map((ch, idx) => (
+                <button key={idx}
+                  className={`reading-toc-item${idx === chapterIndex ? " toc-active" : idx < chapterIndex ? " toc-done" : ""}`}
+                  onClick={() => onJumpChapter && onJumpChapter(idx)}>
+                  <span className="reading-toc-num">{ch.num}</span>
+                  {ch.title}
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          {/* 中央：正文 */}
           <div className="reading-main">
+            <div className="reading-top-nav">
+              <button className="btn-link" onClick={onPrev} disabled={chapterIndex === 0} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
+              <span className="reading-top-nav-info">{chapterIndex + 1} / {(book.chapters || []).length} 章</span>
+              <button className="btn-link" onClick={onNext} disabled={chapterIndex >= (book.chapters || []).length - 1} style={{ opacity: chapterIndex >= (book.chapters || []).length - 1 ? 0.3 : 1 }}>下一章 →</button>
+            </div>
+            <div className="reading-ch-num">{chapter.num} · {chapter.page ? `P. ${chapter.page}` : ""}</div>
+            <div className="reading-ch-title">{chapter.title}</div>
             <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02, fontFamily: readerFonts[fontFamily] || 'var(--sans)' }}>
               {(displayParagraphs.length ? displayParagraphs : readingParagraphs).map((para, idx) => (
                 <p key={idx} className={`reading-paragraph ${idx === 0 ? "drop-paragraph" : ""}`}>
@@ -2176,7 +2197,6 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
                 </p>
               ))}
             </div>
-
             {book.pageImages && book.pageImages.length > 0 && (
               <div className="image-gallery">
                 <div className="image-gallery-label">書中圖片 · Page Images</div>
@@ -2189,69 +2209,101 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
             )}
           </div>
 
+          {/* 右側：AI 功能分頁 */}
           <aside className="reading-side">
-            <div className="ai-panel">
-              <div className="ai-panel-head">
-                <div className="ai-label">✦ 翻譯面板</div>
-              </div>
-              <div className="translation-panel-desc">這裡會直接影響正文顯示，適合英文翻中文或簡體轉繁體。</div>
-              <div className="story-actions">
-                <button className={`reading-tool-btn ${translateMode === "original" ? "active" : ""}`} onClick={() => setTranslateMode("original")}>原文</button>
-                <button className={`reading-tool-btn ${translateMode === "zh-hant" ? "active" : ""}`} onClick={() => setTranslateMode("zh-hant")}>轉繁體</button>
-                <button className={`reading-tool-btn ${translateMode === "en-zh" ? "active" : ""}`} onClick={() => setTranslateMode("en-zh")}>英翻中</button>
-              </div>
-              {(translateState.loading || translateState.error || translateMode !== "original") && (
-                <div className="reading-translate-note" style={{ marginTop: "12px", marginBottom: 0 }}>
-                  {translateState.loading
-                    ? "翻譯中，正在處理這一章內容…"
-                    : translateState.error
-                      ? `翻譯暫時失敗，先顯示原文。${translateState.error}`
-                      : translateMode === "zh-hant"
-                        ? "目前顯示：繁體中文閱讀版"
-                        : "目前顯示：英文翻中文閱讀版"}
-                </div>
-              )}
+            <div className="ai-tabs">
+              {[["摘要", "summary"], ["重點", "points"], ["應用", "apply"], ["筆記", "notes"]].map(([lbl, key]) => (
+                <button key={key} className={`ai-tab ${aiMode === key ? "active" : ""}`} onClick={() => setAiMode(key)}>{lbl}</button>
+              ))}
             </div>
 
-            {keyPoints.length > 0 && (
-              <div className="ai-panel">
-                <div className="ai-panel-head">
-                  <div className="ai-label">✦ 重點整理</div>
-                  <button className="ai-btn" onClick={() => setShowSummary(s => !s)}>
-                    {showSummary ? "收起" : "展開"}
-                  </button>
+            {aiMode === "summary" && (
+              <div>
+                <div className="ai-panel">
+                  <div className="ai-label" style={{ marginBottom: 10 }}>✦ 語言切換</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <button className={`reading-tool-btn ${translateMode === "original" ? "active" : ""}`} onClick={() => setTranslateMode("original")}>原文</button>
+                    <button className={`reading-tool-btn ${translateMode === "zh-hant" ? "active" : ""}`} onClick={() => setTranslateMode("zh-hant")}>轉繁體</button>
+                    <button className={`reading-tool-btn ${translateMode === "en-zh" ? "active" : ""}`} onClick={() => setTranslateMode("en-zh")}>英翻中</button>
+                  </div>
+                  {(translateState.loading || translateState.error || translateMode !== "original") && (
+                    <div className="reading-translate-note" style={{ marginTop: 10, marginBottom: 0 }}>
+                      {translateState.loading ? "翻譯中…" : translateState.error ? `翻譯失敗：${translateState.error}` : translateMode === "zh-hant" ? "顯示：繁體中文" : "顯示：英翻中文"}
+                    </div>
+                  )}
                 </div>
-                {showSummary && (
-                  <div className="ai-result">
-                    {keyPoints.map((p, i) => (
-                      <div key={i} style={{ marginBottom: "10px", paddingLeft: "14px", borderLeft: "2px solid var(--accent)" }}>
-                        {p}。
-                      </div>
+                {preGenerated && (
+                  <div className="ai-panel">
+                    <div className="ai-label" style={{ marginBottom: 10 }}>✦ AI 精讀筆記</div>
+                    <div className="ai-result" style={{ fontSize: 13, lineHeight: 1.75 }}>{preGenerated}</div>
+                  </div>
+                )}
+                {summary && (
+                  <div className="ai-panel">
+                    <div className="ai-panel-head">
+                      <div className="ai-label">✦ 章節摘要</div>
+                      <button className="ai-btn" onClick={() => navigator.clipboard.writeText(summary)}>複製</button>
+                    </div>
+                    <div className="ai-result" style={{ fontSize: 13, lineHeight: 1.75 }}>{summary}</div>
+                  </div>
+                )}
+                <div className="ai-panel">
+                  <div className="ai-label" style={{ marginBottom: 10 }}>✦ 閱讀時間</div>
+                  <div style={{ fontFamily: "var(--sans)", fontSize: 13, lineHeight: 2.2 }}>
+                    <div>本次 <strong style={{ fontFamily: "var(--mono)" }}>{formatSeconds(sessionSeconds)}</strong></div>
+                    <div>累積 <strong style={{ fontFamily: "var(--mono)" }}>{formatSeconds(totalSeconds)}</strong></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {aiMode === "points" && (
+              <div>
+                {keyPoints.length > 0 ? (
+                  <div className="ai-panel">
+                    <div className="ai-panel-head">
+                      <div className="ai-label">✦ 重點整理</div>
+                      <button className="ai-btn" onClick={() => navigator.clipboard.writeText(keyPoints.map((p, i) => `${i + 1}. ${p}。`).join("\n"))}>全部複製</button>
+                    </div>
+                    <div className="ai-result">
+                      {keyPoints.map((p, i) => (
+                        <div key={i} style={{ marginBottom: 10, paddingLeft: 14, borderLeft: "2px solid var(--accent)", fontSize: 13, lineHeight: 1.7 }}>{p}。</div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="ai-panel"><div className="ai-result" style={{ color: "var(--ink-mute)", fontSize: 13 }}>本章節未能提取重點，請查看「摘要」頁。</div></div>
+                )}
+              </div>
+            )}
+
+            {aiMode === "apply" && (
+              <ReadingApplyPanel book={book} chapter={chapter} chapterIndex={chapterIndex} keyPoints={keyPoints} />
+            )}
+
+            {aiMode === "notes" && (
+              <div>
+                <div className="reading-notes">
+                  <div className="reading-notes-head">
+                    <div className="reading-notes-title">閱讀筆記 · Notes</div>
+                    <div className="reading-notes-hint">自動儲存</div>
+                  </div>
+                  <textarea className="reading-notes-textarea" value={notes} onChange={(e) => setNotes(e.target.value)}
+                    placeholder="記下這章的重點、你想到的應用、或明天要回來看的關鍵句。" />
+                </div>
+                {keyPoints.length > 0 && (
+                  <div className="ai-panel" style={{ marginTop: 12 }}>
+                    <div className="ai-label" style={{ marginBottom: 8 }}>✦ 快速插入重點</div>
+                    {keyPoints.slice(0, 4).map((p, i) => (
+                      <button key={i} className="ai-quick-note-btn"
+                        onClick={() => setNotes(n => n ? n + "\n• " + p + "。" : "• " + p + "。")}>
+                        + {p.slice(0, 42)}{p.length > 42 ? "…" : ""}。
+                      </button>
                     ))}
                   </div>
                 )}
               </div>
             )}
-
-            {preGenerated && (
-              <div className="ai-panel">
-                <div className="ai-label" style={{ marginBottom: "12px" }}>✦ 精讀筆記</div>
-                <div className="ai-result">{preGenerated}</div>
-              </div>
-            )}
-
-            <div className="reading-notes">
-              <div className="reading-notes-head">
-                <div className="reading-notes-title">閱讀筆記 · Notes</div>
-                <div className="reading-notes-hint">自動儲存到這台裝置</div>
-              </div>
-              <textarea
-                className="reading-notes-textarea"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="記下這章的重點、你想到的應用、或明天要回來看的關鍵句。"
-              />
-            </div>
           </aside>
         </div>
 
@@ -2261,6 +2313,14 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
           <button className="btn-link" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
         </div>
       </div>
+    </div>
+    <div className="reading-float-nav float-left">
+      <button className="reading-float-btn" onClick={onPrev} disabled={chapterIndex === 0} title="上一章">‹</button>
+      <div className="reading-float-label">上章</div>
+    </div>
+    <div className="reading-float-nav float-right">
+      <button className="reading-float-btn" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} title="下一章">›</button>
+      <div className="reading-float-label">下章</div>
     </div>
   );
 }
@@ -2297,6 +2357,7 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
           onClose={() => setReadingChapter(null)}
           onPrev={() => setReadingChapter((n) => Math.max(0, n - 1))}
           onNext={() => setReadingChapter((n) => Math.min(book.chapters.length - 1, n + 1))}
+          onJumpChapter={(idx) => setReadingChapter(idx)}
           onProgress={onProgress}
         />
       )}
