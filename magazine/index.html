@@ -270,7 +270,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .reading-tool-label { font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-mute); text-transform: uppercase; }
 .reading-tool-btn { min-width: 34px; padding: 8px 10px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.35); font-family: var(--sans); font-size: 12px; transition: all 0.15s; }
 .reading-tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+.reading-tool-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .reading-tool-value { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); min-width: 52px; text-align: center; }
+.reading-tool-select { min-width: 124px; padding: 8px 10px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.45); font-family: var(--sans); font-size: 12px; color: var(--ink); outline: none; }
+.reading-tool-select:focus { border-color: var(--accent); }
+.reading-translate-note { margin: -6px 0 20px; font-family: var(--sans); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.05em; }
 .reading-stats { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
 .reading-stat strong { color: var(--ink); font-family: var(--mono); margin-right: 6px; }
 .reading-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; align-items: start; }
@@ -1462,6 +1466,27 @@ function getBestStartChapter(book) {
   return 0;
 }
 
+async function translateParagraphs(paragraphs = [], mode = "original") {
+  if (mode === "original") return paragraphs;
+  const blocks = paragraphs.map((p) => (p || "").trim()).filter(Boolean);
+  if (!blocks.length) return [];
+
+  const source = mode === "en-zh" ? "en" : "zh-CN";
+  const target = "zh-TW";
+  const translated = [];
+
+  for (const block of blocks) {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(source)}&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(block)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error("翻譯服務暫時無法使用");
+    const data = await resp.json();
+    const text = Array.isArray(data?.[0]) ? data[0].map((item) => item?.[0] || "").join("") : "";
+    translated.push(text || block);
+  }
+
+  return translated;
+}
+
 /* ──────────────────────────────────────────
    ReadingModal 閱讀全章 Modal
    ────────────────────────────────────────── */
@@ -1469,11 +1494,21 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
   const [showSummary, setShowSummary] = useState(false);
   const theme = getThemeForBook(book);
   const fontPrefKey = `reader_font_size`;
+  const fontFamilyKey = `reader_font_family`;
+  const translatePrefKey = `reader_translate_mode`;
   const noteKey = `reader_notes_${book.id}_${chapterIndex}`;
   const timerKey = `reader_time_${book.id}`;
   const [fontSize, setFontSize] = useState(() => {
     try { return Number(localStorage.getItem(fontPrefKey) || "18"); }
     catch { return 18; }
+  });
+  const [fontFamily, setFontFamily] = useState(() => {
+    try { return localStorage.getItem(fontFamilyKey) || "sans"; }
+    catch { return "sans"; }
+  });
+  const [translateMode, setTranslateMode] = useState(() => {
+    try { return localStorage.getItem(translatePrefKey) || "original"; }
+    catch { return "original"; }
   });
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [totalSeconds, setTotalSeconds] = useState(() => {
@@ -1484,6 +1519,8 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
     try { return localStorage.getItem(noteKey) || ""; }
     catch { return ""; }
   });
+  const [displayParagraphs, setDisplayParagraphs] = useState([]);
+  const [translateState, setTranslateState] = useState({ loading: false, error: "" });
 
   const keyPoints = extractKeyPoints(chapter.desc);
   const summary = autoSummary(chapter.desc);
@@ -1494,9 +1531,23 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
   const fullReading = getFullReading(book, chapterIndex, chapter.desc);
   const readingParagraphs = normalizeReadingText(fullReading || chapter.desc || "");
 
+  const readerFonts = {
+    sans: 'var(--sans)',
+    serif: 'var(--serif)',
+    song: '"Noto Serif TC", "Source Han Serif TC", "PMingLiU", serif',
+  };
+
   useEffect(() => {
     localStorage.setItem(fontPrefKey, String(fontSize));
   }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem(fontFamilyKey, fontFamily);
+  }, [fontFamily]);
+
+  useEffect(() => {
+    localStorage.setItem(translatePrefKey, translateMode);
+  }, [translateMode]);
 
   useEffect(() => {
     localStorage.setItem(noteKey, notes);
@@ -1531,6 +1582,42 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
     });
   }, [book.id, book.pages, book.chapters.length, chapter.page, chapterIndex, totalSeconds, onProgress]);
 
+  useEffect(() => {
+    let active = true;
+    const key = `${book.id}:${chapterIndex}:${translateMode}`;
+    ReadingModal._translateCache = ReadingModal._translateCache || {};
+
+    async function run() {
+      if (translateMode === "original") {
+        if (!active) return;
+        setTranslateState({ loading: false, error: "" });
+        setDisplayParagraphs(readingParagraphs);
+        return;
+      }
+      if (ReadingModal._translateCache[key]) {
+        if (!active) return;
+        setTranslateState({ loading: false, error: "" });
+        setDisplayParagraphs(ReadingModal._translateCache[key]);
+        return;
+      }
+      setTranslateState({ loading: true, error: "" });
+      try {
+        const output = await translateParagraphs(readingParagraphs, translateMode);
+        ReadingModal._translateCache[key] = output;
+        if (!active) return;
+        setDisplayParagraphs(output);
+        setTranslateState({ loading: false, error: "" });
+      } catch (err) {
+        if (!active) return;
+        setDisplayParagraphs(readingParagraphs);
+        setTranslateState({ loading: false, error: err?.message || "翻譯失敗" });
+      }
+    }
+
+    run();
+    return () => { active = false; };
+  }, [book.id, chapterIndex, translateMode, fullReading]);
+
   return (
     <div className="reading-overlay" data-theme={theme}>
       <div className="reading-inner">
@@ -1545,11 +1632,36 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
             <span className="reading-tool-value">{fontSize}px</span>
             <button className="reading-tool-btn" onClick={() => setFontSize((s) => Math.min(28, s + 1))}>A+</button>
           </div>
+          <div className="reading-tool-group">
+            <span className="reading-tool-label">字體</span>
+            <select className="reading-tool-select" value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
+              <option value="sans">黑體閱讀</option>
+              <option value="serif">襯線閱讀</option>
+              <option value="song">宋體閱讀</option>
+            </select>
+          </div>
+          <div className="reading-tool-group">
+            <span className="reading-tool-label">翻譯</span>
+            <button className={`reading-tool-btn ${translateMode === "original" ? "active" : ""}`} onClick={() => setTranslateMode("original")}>原文</button>
+            <button className={`reading-tool-btn ${translateMode === "zh-hant" ? "active" : ""}`} onClick={() => setTranslateMode("zh-hant")}>轉繁體</button>
+            <button className={`reading-tool-btn ${translateMode === "en-zh" ? "active" : ""}`} onClick={() => setTranslateMode("en-zh")}>英翻中</button>
+          </div>
           <div className="reading-stats">
             <div className="reading-stat"><strong>本次</strong>{formatSeconds(sessionSeconds)}</div>
             <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
           </div>
         </div>
+        {(translateState.loading || translateState.error || translateMode !== "original") && (
+          <div className="reading-translate-note">
+            {translateState.loading
+              ? "翻譯中，正在處理這一章內容…"
+              : translateState.error
+                ? `翻譯暫時失敗，先顯示原文。${translateState.error}`
+                : translateMode === "zh-hant"
+                  ? "目前顯示：繁體中文閱讀版"
+                  : "目前顯示：英文翻中文閱讀版"}
+          </div>
+        )}
         <div className="reading-mobile-stats">
           <div className="reading-stat"><strong>本次</strong>{formatSeconds(sessionSeconds)}</div>
           <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
@@ -1558,8 +1670,8 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
         <div className="reading-ch-title">{chapter.title}</div>
         <div className="reading-layout">
           <div className="reading-main">
-            <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02 }}>
-              {readingParagraphs.map((para, idx) => (
+            <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02, fontFamily: readerFonts[fontFamily] || 'var(--sans)' }}>
+              {(displayParagraphs.length ? displayParagraphs : readingParagraphs).map((para, idx) => (
                 <p key={idx} className={`reading-paragraph ${idx === 0 ? "drop-paragraph" : ""}`}>
                   {idx === 0
                     ? <><span className="drop">{para.charAt(0)}</span>{para.slice(1)}</>
