@@ -14,18 +14,17 @@ def run(cmd: list[str]) -> None:
 
 
 def maybe_push() -> None:
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
+    run(["git", "add", "data/books.json", "magazine/library_manifest.js"])
+    staged = subprocess.run(
+        ["git", "diff", "--cached", "--quiet", "--", "data/books.json", "magazine/library_manifest.js"],
         cwd=BASE,
         text=True,
         capture_output=True,
-        check=True,
+        check=False,
     )
-    changed = [line for line in status.stdout.splitlines() if line.strip()]
-    if not changed:
+    if staged.returncode == 0:
         print("沒有新的 Drive 書籍變更")
         return
-    run(["git", "add", "data/books.json", "magazine/library_manifest.js"])
     commit = subprocess.run(
         ["git", "commit", "-m", "Auto sync Google Drive books"],
         cwd=BASE,
