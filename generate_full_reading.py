@@ -12,6 +12,8 @@ OUT_JS = BASE / "magazine" / "full_reading.js"
 
 MAX_CHARS = 5000
 MAX_PAGES_PER_CHAPTER = 6
+MIN_TARGET_CHARS = 1200
+EXTEND_PAGES_IF_SHORT = 10
 
 
 def clean_text(text: str) -> str:
@@ -48,6 +50,15 @@ def extract_full_chapters(pdf_path: str, chapters: list[dict], total_pages: int)
             except Exception:
                 continue
         merged = clean_text(" ".join(text))[:MAX_CHARS]
+        if len(merged) < MIN_TARGET_CHARS:
+            fallback_end = min(total_pages, start_page + EXTEND_PAGES_IF_SHORT)
+            more_text = []
+            for pno in range(start_page, fallback_end):
+                try:
+                    more_text.append(doc[pno].get_text())
+                except Exception:
+                    continue
+            merged = clean_text(" ".join(more_text))[:MAX_CHARS]
         results.append(merged or ch.get("excerpt", ""))
     doc.close()
     return results

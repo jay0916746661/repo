@@ -909,6 +909,32 @@ function autoSummary(text) {
   return pts.length ? pts.join("。\n") + "。" : text.slice(0, 200) + "…";
 }
 
+function getFullReading(book, chapterIndex, fallback) {
+  if (!window.FULL_READING || !window.FULL_READING[book.id]) return fallback || "";
+  return window.FULL_READING[book.id][chapterIndex] || fallback || "";
+}
+
+function isFrontMatter(title = "") {
+  return /目次|目录|前言|引言|推薦序|推荐序|序章|版权|版權|扉页|封面|出版|作者簡介/i.test(title);
+}
+
+function getBestStartChapter(book) {
+  const chapters = book.chapters || [];
+  for (let i = 0; i < chapters.length; i++) {
+    const ch = chapters[i];
+    const full = getFullReading(book, i, ch.desc || "");
+    if (!isFrontMatter(ch.title || "") && (full.length >= 1200 || (ch.desc || "").length >= 800)) {
+      return i;
+    }
+  }
+  for (let i = 0; i < chapters.length; i++) {
+    const ch = chapters[i];
+    const full = getFullReading(book, i, ch.desc || "");
+    if (full.length >= 800 || (ch.desc || "").length >= 500) return i;
+  }
+  return 0;
+}
+
 /* ──────────────────────────────────────────
    ReadingModal 閱讀全章 Modal
    ────────────────────────────────────────── */
@@ -926,9 +952,7 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
   // 預先生成內容（如有 window.AI_CONTENT）
   const preGenerated = window.AI_CONTENT && window.AI_CONTENT[book.id]
     ? window.AI_CONTENT[book.id][chapterIndex] || null : null;
-  const fullReading = window.FULL_READING && window.FULL_READING[book.id]
-    ? window.FULL_READING[book.id][chapterIndex] || chapter.desc
-    : chapter.desc;
+  const fullReading = getFullReading(book, chapterIndex, chapter.desc);
 
   const callAI = async (prompt) => {
     if (!apiKey) { setShowAI(true); return; }
@@ -1136,6 +1160,7 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
           </div>
           <div className="hero-actions">
             <button className="btn-primary" onClick={() => setReadingChapter(0)}>開始閱讀</button>
+            <button className="btn-primary" onClick={() => setReadingChapter(getBestStartChapter(book))}>開始閱讀</button>
             <button
               className={`bookmark-btn ${isBookmarked ? "active" : ""}`}
               onClick={() => onToggleBookmark(book.id)}
