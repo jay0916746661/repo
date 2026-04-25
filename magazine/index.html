@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📚 Jim 書庫 — 電子書雜誌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b0b12;
+  --bg2:#13131e;
+  --bg3:#1a1a28;
+  --border:#22222f;
+  --text:#e8e8f0;
+  --text2:#9090a8;
+  --text3:#5a5a6e;
+  --accent:#7c3aed;
+  --accent2:#a78bfa;
+  --gold:#d4a853;
+  --green:#22c55e;
+  --pink:#ec4899;
+  --cyan:#06b6d4;
+  --yellow:#f59e0b;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;height:100%}
+::-webkit-scrollbar{width:4px;background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.main{overflow-y:auto;display:grid;grid-template-rows:auto 1fr}
+
+/* ── Sidebar ── */
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.logo{font-size:11px;letter-spacing:.18em;color:var(--text3);text-transform:uppercase;font-weight:500;margin-bottom:6px}
+.logo-title{font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--text)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+.filters{padding:14px 16px;border-bottom:1px solid var(--border)}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px 8px 34px;font-size:12px;color:var(--text);font-family:inherit;
+  outline:none;transition:border-color .15s
+}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{
+  font-size:10px;padding:4px 10px;border-radius:99px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit
+}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.book-list{flex:1;overflow-y:auto;padding:8px}
+.book-item{
+  display:flex;gap:10px;padding:10px 10px;border-radius:8px;cursor:pointer;
+  transition:background .12s;align-items:flex-start;border:1px solid transparent;margin-bottom:2px
+}
+.book-item:hover{background:var(--bg3)}
+.book-item.active{background:var(--bg3);border-color:var(--accent)}
+.book-thumb{
+  width:38px;height:52px;border-radius:4px;object-fit:cover;flex-shrink:0;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+  font-size:18px;overflow:hidden
+}
+.book-thumb img{width:100%;height:100%;object-fit:cover}
+.book-meta{flex:1;min-width:0}
+.book-item-title{font-size:11.5px;font-weight:600;color:var(--text);line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.book-item-cat{font-size:10px;color:var(--text3);margin-top:3px}
+.book-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+
+.sidebar-stats{padding:10px 16px;border-top:1px solid var(--border);font-size:10px;color:var(--text3)}
+
+/* ── Main ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;border-bottom:1px solid var(--border);background:var(--bg)
+}
+.topbar-issue{font-size:10px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase}
+.topbar-date{font-size:12px;color:var(--text3)}
+.topbar-nav{display:flex;gap:4px}
+.nav-tab{
+  padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;
+  border:none;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s
+}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{background:var(--accent);color:#fff}
+
+.content-area{padding:32px;overflow-y:auto}
+
+/* ── Cover / Hero ── */
+.hero{
+  display:grid;grid-template-columns:340px 1fr;gap:40px;
+  background:var(--bg2);border-radius:16px;overflow:hidden;margin-bottom:32px;
+  border:1px solid var(--border)
+}
+.hero-cover{position:relative;overflow:hidden;background:var(--bg3)}
+.hero-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-cover-placeholder{
+  width:100%;height:460px;display:flex;align-items:center;justify-content:center;
+  font-size:80px;background:linear-gradient(135deg,#2a1a4a,#1a1a28)
+}
+.hero-info{padding:36px 36px 36px 0;display:flex;flex-direction:column;justify-content:center}
+.hero-issue-tag{
+  display:inline-block;font-size:10px;letter-spacing:.15em;color:var(--accent2);
+  border:1px solid var(--accent);padding:3px 10px;border-radius:4px;
+  text-transform:uppercase;margin-bottom:16px
+}
+.hero-title{
+  font-family:'Noto Sans TC',sans-serif;font-size:28px;font-weight:900;
+  line-height:1.3;letter-spacing:-.02em;color:var(--text);margin-bottom:12px
+}
+.hero-intro{font-size:13.5px;color:var(--text2);line-height:1.9;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:20px}
+.hero-meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.hero-badge{font-size:11px;padding:4px 12px;border-radius:99px}
+.hero-pages{font-size:12px;color:var(--text3)}
+.hero-status{font-size:11px;padding:4px 12px;border-radius:99px}
+.btn-primary{
+  margin-top:auto;padding:10px 24px;background:var(--accent);color:#fff;
+  border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:background .15s;display:inline-block;width:fit-content
+}
+.btn-primary:hover{background:#6d28d9}
+
+/* ── Grid ── */
+.section-label{
+  font-size:10px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;
+  margin-bottom:16px;font-weight:500
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:40px}
+.card{
+  background:var(--bg2);border-radius:10px;overflow:hidden;border:1px solid var(--border);
+  cursor:pointer;transition:transform .15s,border-color .15s
+}
+.card:hover{transform:translateY(-3px);border-color:#3a3a50}
+.card.active{border-color:var(--accent)}
+.card-cover{
+  width:100%;aspect-ratio:3/4;object-fit:cover;display:block;
+  background:var(--bg3)
+}
+.card-cover-ph{
+  width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;
+  font-size:36px;position:relative
+}
+.card-body{padding:10px}
+.card-title{font-size:11px;font-weight:700;color:var(--text);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:32px}
+.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.cat-badge{font-size:9px;padding:2px 7px;border-radius:99px}
+.st-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* ── Reader ── */
+.reader{display:grid;grid-template-columns:300px 1fr;gap:0;height:100%}
+.reader-sidebar{
+  border-right:1px solid var(--border);overflow-y:auto;padding:24px 0
+}
+.reader-main{overflow-y:auto;padding:32px 36px}
+.reader-cover-wrap{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.reader-cover-img{width:100%;border-radius:8px;display:block;box-shadow:0 8px 32px #0008}
+.reader-cover-ph{
+  width:100%;aspect-ratio:3/4;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:56px;background:var(--bg3)
+}
+.reader-info{padding:0 20px 16px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.reader-title{font-size:14px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:8px}
+.reader-badges{display:flex;gap:6px;flex-wrap:wrap}
+.toc-section{font-size:9px;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;
+  padding:10px 20px 6px;font-weight:600}
+.toc-item{
+  padding:7px 20px;font-size:12px;color:var(--text2);cursor:pointer;
+  transition:all .12s;border-left:2px solid transparent;display:flex;gap:8px;align-items:baseline
+}
+.toc-item:hover{background:var(--bg3);color:var(--text)}
+.toc-item.active{border-left-color:var(--accent);color:var(--accent2);background:var(--bg3)}
+.toc-pg{font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0}
+
+.reader-heading{font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px;line-height:1.3;letter-spacing:-.02em}
+.reader-sub{font-size:13px;color:var(--text3);margin-bottom:24px}
+.reader-tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0}
+.rtab{
+  padding:8px 16px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;
+  background:transparent;border:none;border-bottom:2px solid transparent;font-family:inherit;
+  transition:all .15s;margin-bottom:-1px
+}
+.rtab:hover{color:var(--text)}
+.rtab.active{color:var(--accent2);border-bottom-color:var(--accent)}
+
+.prose{font-size:14px;line-height:2;color:var(--text2);white-space:pre-wrap;
+  border-radius:10px;padding:20px 24px;background:var(--bg2);border:1px solid var(--border);
+  max-height:480px;overflow-y:auto}
+.ai-card{
+  background:#0d1a1a;border:1px solid #1a3a3a;border-radius:10px;padding:20px 24px;
+  font-size:13.5px;line-height:1.9;color:#c8e6e6
+}
+.ai-card h2{font-size:15px;font-weight:700;color:var(--accent2);margin:16px 0 6px}
+.ai-card h2:first-child{margin-top:0}
+.ai-card ul,ol{padding-left:20px}
+.ai-card li{margin-bottom:4px}
+.status-sel{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit
+}
+.upload-zone{
+  border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;
+  cursor:pointer;transition:all .15s;margin-bottom:24px
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:#1a1030}
+.upload-zone h3{font-size:14px;margin-bottom:6px}
+.upload-zone p{font-size:12px;color:var(--text3)}
+
+/* ── Empty ── */
+.empty{
+  height:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;color:var(--text3);gap:12px
+}
+.empty-icon{font-size:56px}
+.empty h2{font-size:16px;font-weight:700;color:var(--text2)}
+.empty p{font-size:13px;text-align:center}
+
+/* ── Utility ── */
+.hidden{display:none!important}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">The Anthology</div>
+      <div class="logo-title">📚 Jim 書庫</div>
+      <div class="logo-sub" id="sb-count">— 本電子書</div>
+    </div>
+    <div class="filters">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="搜尋書名...">
+      </div>
+      <div class="filter-row" id="cat-filters">
+        <button class="filter-btn active" data-cat="all">全部</button>
+      </div>
+    </div>
+    <div class="book-list" id="book-list"></div>
+    <div class="sidebar-stats" id="sidebar-stats"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-issue">Vol.1 · 2026</div>
+      <div class="topbar-nav" id="topbar-nav">
+        <button class="nav-tab active" data-view="shelf">📚 書架</button>
+        <button class="nav-tab" data-view="reader">📖 閱讀</button>
+        <button class="nav-tab" data-view="upload">⬆️ 上傳</button>
+      </div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </div>
+
+    <!-- SHELF VIEW -->
+    <div class="content-area" id="view-shelf">
+      <div id="hero-section"></div>
+      <div class="section-label" id="grid-label">全部書籍</div>
+      <div class="grid" id="main-grid"></div>
+    </div>
+
+    <!-- READER VIEW -->
+    <div class="reader hidden" id="view-reader">
+      <div class="reader-sidebar" id="reader-sidebar">
+        <div class="reader-cover-wrap" id="reader-cover-wrap"></div>
+        <div class="reader-info" id="reader-info"></div>
+        <div class="toc-section">章節目錄</div>
+        <div id="reader-toc"></div>
+      </div>
+      <div class="reader-main" id="reader-main">
+        <div class="empty"><div class="empty-icon">📖</div><h2>選一個章節開始閱讀</h2></div>
+      </div>
+    </div>
+
+    <!-- UPLOAD VIEW -->
+    <div class="content-area hidden" id="view-upload">
+      <div class="upload-zone" id="drop-zone">
+        <h3>⬆️ 上傳 PDF 電子書</h3>
+        <p>拖放 PDF 到這裡，或點擊選擇檔案<br>系統自動抽取封面、書名、章節</p>
+        <input type="file" id="file-input" accept=".pdf" multiple style="display:none">
+      </div>
+      <div id="upload-list"></div>
+    </div>
+  </main>
+</div>
+
+<script src="books_data.js"></script>
+<script>
+// ── Data & State ────────────────────────────────────
+const CAT_C = {
+  "AI/科技":"#06b6d4","投資/財富":"#22c55e","人性/心理":"#ec4899",
+  "商業/創業":"#f59e0b","生活/心智":"#8b5cf6","溝通/談判":"#3b82f6",
+  "關係/情緒":"#f472b6","其他":"#64748b"
+};
+const CAT_EM = {
+  "AI/科技":"🤖","投資/財富":"💰","人性/心理":"🧠","商業/創業":"🚀",
+  "生活/心智":"🌱","溝通/談判":"🤝","關係/情緒":"💞","其他":"📖"
+};
+const ST_C = {"待讀":"#64748b","讀中":"#f59e0b","已讀":"#22c55e"};
+
+let books = typeof window.BOOKS_DATA !== 'undefined' ? window.BOOKS_DATA : [];
+let state = {
+  view: 'shelf',
+  cat: 'all',
+  search: '',
+  selBook: null,
+  selChapter: 0,
+  readerTab: 'intro',
+  aiCache: {},
+};
+
+// ── Init ──────────────────────────────────────────────
+document.getElementById('topbar-date').textContent =
+  new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
+document.getElementById('sb-count').textContent = `${books.length} 本電子書`;
+
+// Category filters
+const cats = [...new Set(books.map(b=>b.category))].sort();
+const filterRow = document.getElementById('cat-filters');
+cats.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn';
+  btn.dataset.cat = cat;
+  btn.innerHTML = `${CAT_EM[cat]||'📖'} ${cat}`;
+  filterRow.appendChild(btn);
+});
+
+filterRow.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  filterRow.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.cat = btn.dataset.cat;
+  renderAll();
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  state.search = e.target.value.toLowerCase();
+  renderAll();
+});
+
+document.getElementById('topbar-nav').addEventListener('click', e => {
+  const tab = e.target.closest('.nav-tab');
+  if (!tab) return;
+  switchView(tab.dataset.view);
+});
+
+// ── Filter ──────────────────────────────────────────
+function filteredBooks() {
+  return books.filter(b =>
+    (state.cat === 'all' || b.category === state.cat) &&
+    (!state.search || b.title.toLowerCase().includes(state.search))
+  );
+}
+
+// ── View Switch ─────────────────────────────────────
+function switchView(v) {
+  state.view = v;
+  ['shelf','reader','upload'].forEach(id => {
+    const el = document.getElementById(`view-${id}`);
+    el.classList.toggle('hidden', id !== v);
+  });
+  document.querySelectorAll('.nav-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.view === v));
+}
+
+// ── Render All ──────────────────────────────────────
+function renderAll() {
+  renderSidebar();
+  renderHero();
+  renderGrid();
+  if (state.selBook) renderReader();
+}
+
+// ── Sidebar ─────────────────────────────────────────
+function renderSidebar() {
+  const list = document.getElementById('book-list');
+  const fb = filteredBooks();
+  list.innerHTML = fb.map(b => {
+    const cc = CAT_C[b.category]||'#64748b';
+    const em = CAT_EM[b.category]||'📖';
+    const active = state.selBook?.id === b.id ? ' active' : '';
+    const hasCover = b.cover ? `<img src="${b.cover}" style="width:100%;height:100%;object-fit:cover;border-radius:3px">` : em;
+    return `
+<div class="book-item${active}" onclick="selectBook('${b.id}')">
+  <div class="book-thumb">${hasCover}</div>
+  <div class="book-meta">
+    <div class="book-item-title">${b.title}</div>
+    <div class="book-item-cat" style="color:${cc}">${b.category}</div>
+  </div>
+  <div class="book-dot" style="background:${ST_C[b.status]||'#64748b'}"></div>
+</div>`;
+  }).join('');
+  document.getElementById('sidebar-stats').innerHTML =
+    `顯示 ${fb.length} / ${books.length} 本 · ` +
+    `待讀 ${books.filter(b=>b.status==='待讀').length} · ` +
+    `讀中 ${books.filter(b=>b.status==='讀中').length} · ` +
+    `已讀 ${books.filter(b=>b.status==='已讀').length}`;
+}
+
+// ── Hero ─────────────────────────────────────────────
+function renderHero() {
+  const fb = filteredBooks();
+  if (!fb.length) { document.getElementById('hero-section').innerHTML=''; return; }
+  const b = fb[0];
+  const cc = CAT_C[b.category]||'#64748b';
+  const em = CAT_EM[b.category]||'📖';
+  const coverHtml = b.cover
+    ? `<img src="${b.cover}" style="width:100%;height:460px;object-fit:cover;display:block">`
+    : `<div class="hero-cover-placeholder">${em}</div>`;
+  document.getElementById('hero-section').innerHTML = `
+<div class="hero">
+  <div class="hero-cover">${coverHtml}</div>
+  <div class="hero-info">
+    <div class="hero-issue-tag">${b.category}</div>
+    <h2 class="hero-title">${b.title}</h2>
+    <p class="hero-intro">${(b.intro||'暫無導讀').replace(/</g,'&lt;')}</p>
+    <div class="hero-meta">
+      <span class="hero-badge" style="background:${cc}22;color:${cc}">${b.category}</span>
+      ${b.total_pages ? `<span class="hero-pages">📄 ${b.total_pages} 頁</span>` : ''}
+      <span class="hero-status" style="background:${ST_C[b.status]||'#64748b'}22;color:${ST_C[b.status]||'#64748b'}">${b.status}</span>
+    </div>
+    <br>
+    <button class="btn-primary" onclick="selectBook('${b.id}')">開始閱讀 →</button>
+  </div>
+</div>`;
+  document.getElementById('grid-label').textContent =
+    state.cat==='all' ? '全部書籍' : `${CAT_EM[state.cat]||''} ${state.cat}`;
+}
+
+// ── Grid ─────────────────────────────────────────────
+function renderGrid() {
+  const fb = filteredBooks().slice(0, 100);
+  document.getElementById('main-grid').innerHTML = fb.map(b => {
+    const cc = CAT_C[b.category]||'#64748b';
+    const em = CAT_EM[b.category]||'📖';
+    const active = state.selBook?.id === b.id ? ' active' : '';
+    const coverHtml = b.cover
+      ? `<img class="card-cover" src="${b.cover}" loading="lazy">`
+      : `<div class="card-cover-ph" style="background:linear-gradient(135deg,${cc}28,${cc}08)">${em}</div>`;
+    return `
+<div class="card${active}" onclick="selectBook('${b.id}')">
+  ${coverHtml}
+  <div class="card-body">
+    <div class="card-title">${b.title}</div>
+    <div class="card-footer">
+      <span class="cat-badge" style="background:${cc}18;color:${cc}">${b.category}</span>
+      <span class="st-dot" style="background:${ST_C[b.status]||'#64748b'}" title="${b.status}"></span>
+    </div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+// ── Select Book ──────────────────────────────────────
+function selectBook(id) {
+  state.selBook = books.find(b=>b.id===id);
+  state.selChapter = 0;
+  state.readerTab = 'intro';
+  switchView('reader');
+  renderReader();
+  document.querySelectorAll('.book-item,.card').forEach(el => {
+    el.classList.toggle('active', el.dataset?.id === id || el.getAttribute('onclick')?.includes(`'${id}'`));
+  });
+}
+
+// ── Reader ───────────────────────────────────────────
+function renderReader() {
+  const b = state.selBook;
+  if (!b) return;
+  const cc = CAT_C[b.category]||'#64748b';
+  const em = CAT_EM[b.category]||'📖';
+
+  // Cover
+  document.getElementById('reader-cover-wrap').innerHTML = b.cover
+    ? `<img class="reader-cover-img" src="${b.cover}">`
+    : `<div class="reader-cover-ph" style="background:linear-gradient(135deg,${cc}28,${cc}08)">${em}</div>`;
+
+  // Info
+  document.getElementById('reader-info').innerHTML = `
+<div class="reader-title">${b.title}</div>
+<div class="reader-badges">
+  <span class="cat-badge" style="background:${cc}18;color:${cc};font-size:10px;padding:3px 8px;border-radius:99px">${b.category}</span>
+  ${b.total_pages?`<span style="font-size:10px;color:var(--text3)">📄 ${b.total_pages}p</span>`:''}
+  <select class="status-sel" onchange="updateStatus('${b.id}',this.value)">
+    ${['待讀','讀中','已讀'].map(s=>`<option value="${s}"${b.status===s?' selected':''}>${s}</option>`).join('')}
+  </select>
+</div>`;
+
+  // TOC
+  const chapters = b.chapters||[];
+  document.getElementById('reader-toc').innerHTML = chapters.map((ch,i)=>`
+<div class="toc-item${i===state.selChapter?' active':''}" onclick="selectChapter(${i})">
+  <span>${ch.title}</span>
+  ${ch.page?`<span class="toc-pg">p.${ch.page}</span>`:''}
+</div>`).join('') || '<div style="padding:10px 20px;font-size:12px;color:var(--text3)">暫無目錄</div>';
+
+  // Main content
+  renderReaderMain();
+}
+
+function renderReaderMain() {
+  const b = state.selBook;
+  const chapters = b.chapters||[];
+  const ch = chapters[state.selChapter];
+  const aiKey = `${b.id}_${state.selChapter}_${state.readerTab}`;
+
+  const tabs = [
+    {key:'intro',label:'📖 導讀'},
+    {key:'chapter',label:'📄 章節原文'},
+    {key:'ai',label:'🤖 AI 精讀'},
+  ];
+
+  let tabsHtml = tabs.map(t=>
+    `<button class="rtab${state.readerTab===t.key?' active':''}" onclick="setReaderTab('${t.key}')">${t.label}</button>`
+  ).join('');
+
+  let content = '';
+  if (state.readerTab==='intro') {
+    const intro = (b.intro||'').trim();
+    content = intro
+      ? `<div class="prose">${intro.replace(/</g,'&lt;')}</div>`
+      : '<p style="color:var(--text3)">此書暫無導讀文字（可能是掃描版 PDF）</p>';
+  } else if (state.readerTab==='chapter') {
+    if (ch) {
+      content = `
+<div style="margin-bottom:12px">
+  <h3 style="font-size:16px;font-weight:700;color:var(--accent2)">${ch.title}</h3>
+  <p style="font-size:12px;color:var(--text3);margin-top:4px">第 ${ch.page||'?'} 頁</p>
+</div>
+<div class="prose">${ch.excerpt.replace(/</g,'&lt;')}</div>`;
+    } else {
+      content = '<p style="color:var(--text3)">請從左側目錄選擇章節</p>';
+    }
+  } else if (state.readerTab==='ai') {
+    if (state.aiCache[aiKey]) {
+      content = `<div class="ai-card">${formatAI(state.aiCache[aiKey])}</div>
+<button class="btn-primary" style="margin-top:12px;font-size:11px;padding:6px 14px" onclick="clearAI('${aiKey}')">重新生成</button>`;
+    } else {
+      content = `
+<p style="color:var(--text3);font-size:13px;margin-bottom:16px">
+  AI 將根據${ch?'這個章節':'整本書'}的真實原文生成精讀報告。
+</p>
+<button class="btn-primary" onclick="generateAI('${b.id}',${state.selChapter},'${aiKey}')">
+  ✨ 生成 AI 精讀
+</button>
+<div id="ai-loading-${aiKey}" class="hidden" style="margin-top:12px;color:var(--text3);font-size:13px">
+  <span class="spinner"></span> 分析中（約10秒）...
+</div>`;
+    }
+  }
+
+  document.getElementById('reader-main').innerHTML = `
+<h2 class="reader-heading">${b.title}</h2>
+<p class="reader-sub">${b.category} · ${b.total_pages||'?'} 頁 · ${chapters.length} 個章節</p>
+<div class="reader-tabs">${tabsHtml}</div>
+${content}`;
+}
+
+function setReaderTab(tab) {
+  state.readerTab = tab;
+  renderReaderMain();
+}
+
+function selectChapter(i) {
+  state.selChapter = i;
+  state.readerTab = 'chapter';
+  document.querySelectorAll('.toc-item').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  renderReaderMain();
+}
+
+function updateStatus(id, status) {
+  const b = books.find(b=>b.id===id);
+  if (b) { b.status = status; renderAll(); }
+}
+
+// ── AI ────────────────────────────────────────────────
+async function generateAI(bookId, chIdx, cacheKey) {
+  const b = books.find(x=>x.id===bookId);
+  if (!b) return;
+  const apiKey = prompt('輸入 Anthropic API Key（只需輸入一次）：\n(留空則取消)');
+  if (!apiKey) return;
+
+  const loadEl = document.getElementById(`ai-loading-${cacheKey}`);
+  if (loadEl) loadEl.classList.remove('hidden');
+
+  const ch = (b.chapters||[])[chIdx];
+  const intro = (b.intro||'').slice(0,800);
+  let chText = '';
+  if (ch) chText = `【${ch.title}】\n${ch.excerpt.slice(0,800)}`;
+
+  const prompt = ch
+    ? `書名：《${b.title}》\n分類：${b.category}\n章節：${ch.title}\n原文：\n${chText}\n\n請用繁體中文整理：\n## 核心論點\n## 關鍵概念（3點）\n## 實際應用`
+    : `書名：《${b.title}》\n分類：${b.category}\n導讀原文：\n${intro}\n\n請用繁體中文生成：\n## 📖 書籍總覽\n## 🧠 五個關鍵概念\n## ⚡ 三個立即行動\n## 💡 最值得記住的一句話`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:600,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    if (data.content?.[0]?.text) {
+      state.aiCache[cacheKey] = data.content[0].text;
+    } else {
+      state.aiCache[cacheKey] = `錯誤：${JSON.stringify(data.error||data)}`;
+    }
+  } catch(e) {
+    state.aiCache[cacheKey] = `網路錯誤：${e.message}`;
+  }
+  renderReaderMain();
+}
+
+function clearAI(key) { delete state.aiCache[key]; renderReaderMain(); }
+
+function formatAI(txt) {
+  return txt
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3 style="font-size:13px;font-weight:700;color:var(--accent2);margin:12px 0 4px">$3</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
+}
+
+// ── Upload ────────────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('click', ()=>fileInput.click());
+dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('drag')});
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e=>handleFiles(e.target.files));
+
+async function handleFiles(files) {
+  const list = document.getElementById('upload-list');
+  for (const file of files) {
+    if (!file.name.endsWith('.pdf')) continue;
+    const div = document.createElement('div');
+    div.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:center';
+    div.innerHTML = `<div style="font-size:28px">📄</div><div style="flex:1"><div style="font-weight:700;font-size:13px">${file.name}</div><div style="font-size:11px;color:var(--text3)">處理中...</div></div>`;
+    list.prepend(div);
+    try {
+      // Use PDF.js to get cover (first page as canvas)
+      if (typeof pdfjsLib !== 'undefined') {
+        const url = URL.createObjectURL(file);
+        const pdfDoc = await pdfjsLib.getDocument(url).promise;
+        const page = await pdfDoc.getPage(1);
+        const scale = 1.5;
+        const vp = page.getViewport({scale});
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height;
+        await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+        const cover = canvas.toDataURL('image/jpeg', 0.8);
+        URL.revokeObjectURL(url);
+        const img = document.createElement('img');
+        img.src = cover;
+        img.style.cssText = 'width:52px;height:70px;object-fit:cover;border-radius:4px;flex-shrink:0';
+        div.replaceChild(img, div.firstChild);
+        const title = file.name.replace(/\.pdf$/i,'').replace(/_/g,' ').slice(0,60);
+        const newBook = {id:`upload_${Date.now()}`,title,category:'其他',status:'待讀',cover,intro:'',chapters:[],toc:[],total_pages:pdfDoc.numPages};
+        books.unshift(newBook);
+        div.querySelector('div:last-child').innerHTML = `<div style="font-weight:700;font-size:13px">${title}</div><div style="font-size:11px;color:var(--text3)">✅ 已加入書庫 · ${pdfDoc.numPages} 頁</div>`;
+        renderAll();
+      } else {
+        // No PDF.js — just add basic entry
+        const title = file.name.replace(/\.pdf$/i,'').replace(/_/g,' ').slice(0,60);
+        books.unshift({id:`upload_${Date.now()}`,title,category:'其他',status:'待讀',cover:'',intro:'',chapters:[],toc:[],total_pages:0});
+        div.innerHTML = `<div style="font-size:28px">📄</div><div><div style="font-weight:700;font-size:13px">${title}</div><div style="font-size:11px;color:var(--text3)">已加入（封面需 PDF.js 才能顯示）</div></div>`;
+        renderAll();
+      }
+    } catch(e) {
+      div.querySelector('div:last-child').innerHTML += `<br><span style="color:#f87171;font-size:11px">錯誤：${e.message}</span>`;
+    }
+  }
+}
+
+// ── Initial Render ───────────────────────────────────
+renderAll();
+</script>
+<!-- PDF.js for cover extraction on upload -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+</body>
+</html>

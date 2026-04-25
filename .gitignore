@@ -10,7 +10,6 @@ deals.json
 
 # data 資料夾：只擋敏感檔，其餘允許上傳
 data/youtube_token.json
-data/covers/
 data/ai_queue.json
 data/ai_history.json
 data/clients.json
