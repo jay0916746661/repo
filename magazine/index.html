@@ -110,8 +110,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .card-tags { display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--sans); font-size: 10px; color: var(--ink-mute); letter-spacing: 0.05em; margin-bottom: 10px; }
 .card-footer { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-mute); padding-top: 10px; border-top: 1px dotted var(--line-strong); }
 .card-cta { color: var(--accent); font-weight: 700; }
-.card-del { position: absolute; top: 28px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.4); color: white; font-size: 16px; line-height: 24px; text-align: center; opacity: 0; transition: all 0.15s; z-index: 5; }
-.book-card:hover .card-del { opacity: 1; }
+.card-progress { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 10px 0 12px; align-items: center; }
+.card-progress-track { height: 6px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
+.card-progress-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+.card-progress-meta { font-family: var(--sans); font-size: 10px; color: var(--ink-mute); letter-spacing: 0.08em; display: flex; gap: 8px; flex-wrap: wrap; }
+.card-del { position: absolute; top: 22px; right: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.48); color: white; font-size: 16px; line-height: 28px; text-align: center; opacity: 0.72; transition: all 0.15s; z-index: 5; }
+.book-card:hover .card-del { opacity: 1; transform: scale(1.06); }
 .card-del:hover { background: var(--accent); }
 .shelf-add-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; border: 2px dashed var(--line-strong); background: transparent; cursor: pointer; transition: all 0.2s; font-family: var(--sans); min-height: 200px; }
 .shelf-add-card:hover { border-color: var(--ink); background: var(--bg-alt); }
@@ -237,7 +241,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ── 閱讀 Modal ── */
 .reading-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 3000; overflow-y: auto; animation: fadeIn 0.2s; }
-.reading-inner { max-width: 680px; margin: 0 auto; padding: 60px 40px 100px; }
+.reading-inner { max-width: 1180px; margin: 0 auto; padding: 60px 40px 100px; }
 .reading-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; padding-bottom: 20px; border-bottom: 1px solid var(--line); font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-mute); }
 .reading-close { font-size: 28px; font-family: var(--serif); color: var(--ink-soft); transition: color 0.15s; }
 .reading-close:hover { color: var(--accent); }
@@ -249,6 +253,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .reading-tool-value { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); min-width: 52px; text-align: center; }
 .reading-stats { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
 .reading-stat strong { color: var(--ink); font-family: var(--mono); margin-right: 6px; }
+.reading-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; align-items: start; }
+.reading-main { min-width: 0; }
+.reading-side { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
 .reading-ch-num { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.2em; margin-bottom: 12px; }
 .reading-ch-title { font-family: var(--display); font-size: 38px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 32px; line-height: 1.15; }
 .reading-body { font-family: var(--sans); font-size: var(--reader-font-size, 18px); line-height: var(--reader-line-height, 2.05); color: var(--ink); letter-spacing: 0.015em; white-space: normal; }
@@ -262,6 +269,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .reading-notes-hint { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); }
 .reading-notes-textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.45); padding: 14px 16px; font-family: var(--sans); font-size: 14px; line-height: 1.8; color: var(--ink); outline: none; }
 .reading-notes-textarea:focus { border-color: var(--accent); }
+.reading-mobile-stats { display: none; }
 .reading-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-mute); }
 
 /* ── AI 翻譯面板 ── */
@@ -376,6 +384,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .upload-form-body { grid-template-columns: 1fr; }
   .form-preview { max-width: 180px; margin: 0 auto; }
   .edit-grid { grid-template-columns: 1fr; }
+  .reading-inner { padding: 32px 20px 72px; }
+  .reading-layout { grid-template-columns: 1fr; gap: 18px; }
+  .reading-side { position: static; }
+  .reading-tools { padding: 12px; }
+  .reading-tools .reading-stats { display: none; }
+  .reading-mobile-stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
+  .reading-ch-title { font-size: 30px; margin-bottom: 22px; }
+  .reading-body { font-size: calc(var(--reader-font-size, 18px) - 1px); line-height: 1.98; }
+  .reading-footer { font-size: 11px; gap: 10px; flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -559,6 +576,37 @@ function formatSeconds(total = 0) {
   const mins = Math.floor(total / 60);
   const secs = total % 60;
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function formatMinutes(total = 0) {
+  const mins = Math.floor(total / 60);
+  if (mins < 60) return `${mins} 分`;
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+  return rem ? `${hrs}h ${rem}m` : `${hrs}h`;
+}
+
+function getEstimatedRemainingPages(book, progress) {
+  const totalPages = Number(book.pages || 0);
+  const currentPage = Number(progress?.currentPage || 0);
+  if (!totalPages) return null;
+  return Math.max(0, totalPages - Math.max(0, currentPage));
+}
+
+function getBookContentScore(book) {
+  const summaryLen = (book.summary || "").replace(/（尚未填寫簡介）|此書以圖像頁為主，可直接在閱讀頁查看書內頁面。|此書以圖像頁與版面內容為主，建議直接進入閱讀頁查看書中圖片與掃描頁面。/g, "").length;
+  const chapterLen = (book.chapters || []).reduce((n, ch) => n + ((ch.desc || "").length), 0);
+  const fullLen = (book.fullReading || []).reduce((n, ch) => n + (ch || "").length, 0);
+  const imageCount = (book.pageImages || []).length;
+  return summaryLen + chapterLen + fullLen + imageCount * 250;
+}
+
+function shouldAutoHideBook(book) {
+  const pages = Number(book.pages || 0);
+  const imageCount = (book.pageImages || []).length;
+  if (pages > 0 && pages < 10) return true;
+  if (getBookContentScore(book) < 180 && imageCount < 2) return true;
+  return false;
 }
 
 function buildChaptersFromPageTexts(pageTexts = [], totalPages = 0) {
@@ -1047,8 +1095,12 @@ function BookCoverArt({ book }) {
 /* ──────────────────────────────────────────
    BookCard 書卡
    ────────────────────────────────────────── */
-function BookCard({ book, index, onOpen, onDelete }) {
+function BookCard({ book, index, onOpen, onDelete, progress }) {
   const statusClass = book.rawStatus === "在讀" ? "status-reading" : book.rawStatus === "已讀" ? "status-done" : "status-pending";
+  const totalPages = Number(book.pages || 0);
+  const currentPage = Number(progress?.currentPage || 0);
+  const percent = totalPages ? Math.min(100, Math.round((currentPage / totalPages) * 100)) : 0;
+  const remaining = getEstimatedRemainingPages(book, progress);
   return (
     <article className="book-card" onClick={onOpen}>
       {onDelete && (
@@ -1066,6 +1118,17 @@ function BookCard({ book, index, onOpen, onDelete }) {
           <span className="card-year">{book.year || book.pages + " 頁"}</span>
         </div>
         <div className="card-summary">{book.summary}</div>
+        <div className="card-progress">
+          <div className="card-progress-track">
+            <div className="card-progress-fill" style={{ width: `${percent}%` }} />
+          </div>
+          <div className="card-cta">{percent}%</div>
+        </div>
+        <div className="card-progress-meta">
+          <span>已看 {currentPage || 0} 頁</span>
+          {remaining !== null ? <span>剩 {remaining} 頁</span> : null}
+          <span>停留 {formatMinutes(progress?.totalSeconds || 0)}</span>
+        </div>
         <div className="card-tags">
           {book.tags.map(t => <span key={t}>#{t}</span>)}
           <span className={`status-badge ${statusClass}`}>{book.rawStatus}</span>
@@ -1083,7 +1146,19 @@ function BookCard({ book, index, onOpen, onDelete }) {
    MagazineCover 封面頁
    ────────────────────────────────────────── */
 function MagazineCover({ books, onEnter, onOpenBook }) {
-  const featured = books[0] || {};
+  const candidates = books.filter((b) => !shouldAutoHideBook(b) && (getBookContentScore(b) > 500 || (b.pageImages || []).length > 0));
+  const [featuredId, setFeaturedId] = useState(() => {
+    const base = candidates.length ? candidates : books;
+    return base.length ? base[Math.floor(Math.random() * base.length)].id : null;
+  });
+  useEffect(() => {
+    const base = candidates.length ? candidates : books;
+    if (!base.length) return;
+    if (!featuredId || !base.some((b) => b.id === featuredId)) {
+      setFeaturedId(base[Math.floor(Math.random() * base.length)].id);
+    }
+  }, [books.length]);
+  const featured = (candidates.length ? candidates : books).find((b) => b.id === featuredId) || (candidates.length ? candidates[0] : books[0]) || {};
   const allCats = [...new Set(books.map(b => b.rawCategory))];
   return (
     <div className="cover-page">
@@ -1117,11 +1192,20 @@ function MagazineCover({ books, onEnter, onOpenBook }) {
 
           {featured.id && (
             <div className="cover-feature-card" onClick={() => onOpenBook(featured.id)}>
-              <div className="feature-label">精選推薦</div>
+              <div className="feature-label">每次打開不同選書</div>
               <div className="feature-title">{featured.title}</div>
               <div className="feature-author">{featured.author !== "—" ? featured.author : featured.category}</div>
               <div className="feature-desc">{(featured.summary || "").slice(0, 80)}…</div>
-              <div className="feature-cta">閱讀全文 →</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                <div className="feature-cta">閱讀全文 →</div>
+                <button className="btn-ghost" style={{ padding: "8px 14px", color: "var(--bg)", borderColor: "rgba(255,255,255,0.28)" }} onClick={(e) => {
+                  e.stopPropagation();
+                  const base = candidates.length ? candidates : books;
+                  if (!base.length) return;
+                  const next = base[Math.floor(Math.random() * base.length)];
+                  setFeaturedId(next.id);
+                }}>換一本</button>
+              </div>
             </div>
           )}
         </div>
@@ -1160,7 +1244,7 @@ function MagazineCover({ books, onEnter, onOpenBook }) {
 /* ──────────────────────────────────────────
    Bookshelf 書架頁
    ────────────────────────────────────────── */
-function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, bookmarks }) {
+function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, bookmarks, readingProgress }) {
   const [filter, setFilter] = useState("全部");
   const [search, setSearch] = useState("");
   const [showUpload, setShowUpload] = useState(false);
@@ -1220,7 +1304,8 @@ function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, 
       <div className="shelf-grid">
         {filtered.map((b, i) => (
           <BookCard key={b.id} book={b} index={i} onOpen={() => onOpenBook(b.id)}
-            onDelete={b.userAdded ? () => { if (confirm(`刪除《${b.title}》?`)) onDeleteBook(b.id); } : null}
+            progress={readingProgress[b.id]}
+            onDelete={() => { if (confirm(`從書架移除《${b.title}》？`)) onDeleteBook(b.id); }}
           />
         ))}
         <button className="shelf-add-card" onClick={() => setShowUpload(true)}>
@@ -1289,7 +1374,7 @@ function getBestStartChapter(book) {
 /* ──────────────────────────────────────────
    ReadingModal 閱讀全章 Modal
    ────────────────────────────────────────── */
-function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) {
+function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, onProgress }) {
   const [showSummary, setShowSummary] = useState(false);
   const theme = getThemeForBook(book);
   const fontPrefKey = `reader_font_size`;
@@ -1343,6 +1428,18 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
     return () => clearInterval(id);
   }, [timerKey]);
 
+  useEffect(() => {
+    const totalPages = Number(book.pages || 0);
+    const currentPage = Number(chapter.page || Math.round(((chapterIndex + 1) / Math.max(1, book.chapters.length)) * totalPages) || 0);
+    onProgress && onProgress(book.id, {
+      currentChapter: chapterIndex,
+      currentPage,
+      totalPages,
+      totalSeconds,
+      updatedAt: new Date().toISOString(),
+    });
+  }, [book.id, book.pages, book.chapters.length, chapter.page, chapterIndex, totalSeconds, onProgress]);
+
   return (
     <div className="reading-overlay" data-theme={theme}>
       <div className="reading-inner">
@@ -1362,69 +1459,77 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
             <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
           </div>
         </div>
+        <div className="reading-mobile-stats">
+          <div className="reading-stat"><strong>本次</strong>{formatSeconds(sessionSeconds)}</div>
+          <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
+        </div>
         <div className="reading-ch-num">{chapter.num} · {chapter.page ? `P. ${chapter.page}` : ""}</div>
         <div className="reading-ch-title">{chapter.title}</div>
-        <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02 }}>
-          {readingParagraphs.map((para, idx) => (
-            <p key={idx} className={`reading-paragraph ${idx === 0 ? "drop-paragraph" : ""}`}>
-              {idx === 0
-                ? <><span className="drop">{para.charAt(0)}</span>{para.slice(1)}</>
-                : para}
-            </p>
-          ))}
-        </div>
-
-        {book.pageImages && book.pageImages.length > 0 && (
-          <div className="image-gallery">
-            <div className="image-gallery-label">書中圖片 · Page Images</div>
-            <div className="image-gallery-grid">
-              {book.pageImages.slice(0, 8).map((src, idx) => (
-                <img key={idx} src={src} alt={`${book.title} 內頁 ${idx + 1}`} loading="lazy" />
+        <div className="reading-layout">
+          <div className="reading-main">
+            <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02 }}>
+              {readingParagraphs.map((para, idx) => (
+                <p key={idx} className={`reading-paragraph ${idx === 0 ? "drop-paragraph" : ""}`}>
+                  {idx === 0
+                    ? <><span className="drop">{para.charAt(0)}</span>{para.slice(1)}</>
+                    : para}
+                </p>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* 重點整理（免費，自動抽取）*/}
-        {keyPoints.length > 0 && (
-          <div className="ai-panel" style={{ marginTop: "40px" }}>
-            <div className="ai-panel-head">
-              <div className="ai-label">✦ 重點整理（自動抽取）</div>
-              <button className="ai-btn" onClick={() => setShowSummary(s => !s)}>
-                {showSummary ? "收起" : "展開"}
-              </button>
-            </div>
-            {showSummary && (
-              <div className="ai-result">
-                {keyPoints.map((p, i) => (
-                  <div key={i} style={{ marginBottom: "10px", paddingLeft: "14px", borderLeft: "2px solid var(--accent)" }}>
-                    {p}。
-                  </div>
-                ))}
+            {book.pageImages && book.pageImages.length > 0 && (
+              <div className="image-gallery">
+                <div className="image-gallery-label">書中圖片 · Page Images</div>
+                <div className="image-gallery-grid">
+                  {book.pageImages.slice(0, 8).map((src, idx) => (
+                    <img key={idx} src={src} alt={`${book.title} 內頁 ${idx + 1}`} loading="lazy" />
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        )}
 
-        {/* 預先生成內容（如有執行過 generate_ai_content.py）*/}
-        {preGenerated && (
-          <div className="ai-panel" style={{ marginTop: "16px" }}>
-            <div className="ai-label" style={{ marginBottom: "12px" }}>✦ AI 精讀筆記（預先生成）</div>
-            <div className="ai-result">{preGenerated}</div>
-          </div>
-        )}
+          <aside className="reading-side">
+            {keyPoints.length > 0 && (
+              <div className="ai-panel">
+                <div className="ai-panel-head">
+                  <div className="ai-label">✦ 重點整理</div>
+                  <button className="ai-btn" onClick={() => setShowSummary(s => !s)}>
+                    {showSummary ? "收起" : "展開"}
+                  </button>
+                </div>
+                {showSummary && (
+                  <div className="ai-result">
+                    {keyPoints.map((p, i) => (
+                      <div key={i} style={{ marginBottom: "10px", paddingLeft: "14px", borderLeft: "2px solid var(--accent)" }}>
+                        {p}。
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-        <div className="reading-notes">
-          <div className="reading-notes-head">
-            <div className="reading-notes-title">閱讀筆記 · Notes</div>
-            <div className="reading-notes-hint">自動儲存到這台裝置</div>
-          </div>
-          <textarea
-            className="reading-notes-textarea"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="記下這章的重點、你想到的應用、或明天要回來看的關鍵句。"
-          />
+            {preGenerated && (
+              <div className="ai-panel">
+                <div className="ai-label" style={{ marginBottom: "12px" }}>✦ 精讀筆記</div>
+                <div className="ai-result">{preGenerated}</div>
+              </div>
+            )}
+
+            <div className="reading-notes">
+              <div className="reading-notes-head">
+                <div className="reading-notes-title">閱讀筆記 · Notes</div>
+                <div className="reading-notes-hint">自動儲存到這台裝置</div>
+              </div>
+              <textarea
+                className="reading-notes-textarea"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="記下這章的重點、你想到的應用、或明天要回來看的關鍵句。"
+              />
+            </div>
+          </aside>
         </div>
 
         <div className="reading-footer">
@@ -1440,13 +1545,15 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
 /* ──────────────────────────────────────────
    BookDetail 書籍詳情頁
    ────────────────────────────────────────── */
-function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark, onUpdateBook, onRemoveBook }) {
+function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookmark, onUpdateBook, onRemoveBook, readingProgress, onProgress }) {
   const [tab, setTab] = useState("chapters");
   const [openChapter, setOpenChapter] = useState(0);
   const [readingChapter, setReadingChapter] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const theme = getThemeForBook(book);
   const isBookmarked = bookmarks.includes(book.id);
+  const progress = readingProgress[book.id] || {};
+  const remainingPages = getEstimatedRemainingPages(book, progress);
   const others = books.filter(b => b.id !== book.id && b.rawCategory === book.rawCategory).slice(0, 3);
 
   return (
@@ -1467,6 +1574,7 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
           onClose={() => setReadingChapter(null)}
           onPrev={() => setReadingChapter((n) => Math.max(0, n - 1))}
           onNext={() => setReadingChapter((n) => Math.min(book.chapters.length - 1, n + 1))}
+          onProgress={onProgress}
         />
       )}
 
@@ -1494,9 +1602,9 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
           </div>
           <div className="hero-stats">
             <div><div className="stat-num">{book.pages || "—"}</div><div className="stat-lbl">頁數</div></div>
-            <div><div className="stat-num">{book.chapters.length}</div><div className="stat-lbl">章節</div></div>
-            <div><div className="stat-num">{book.readTime.replace("約 ", "").replace(" 小時", "h")}</div><div className="stat-lbl">閱讀</div></div>
-            <div><div className="stat-num">{book.quotes.length}</div><div className="stat-lbl">摘句</div></div>
+            <div><div className="stat-num">{progress.currentPage || 0}</div><div className="stat-lbl">已看頁數</div></div>
+            <div><div className="stat-num">{remainingPages ?? "—"}</div><div className="stat-lbl">剩餘頁數</div></div>
+            <div><div className="stat-num">{formatMinutes(progress.totalSeconds || 0)}</div><div className="stat-lbl">停留時間</div></div>
           </div>
           <div className="hero-actions">
             <button className="btn-primary" onClick={() => setReadingChapter(getBestStartChapter(book))}>開始閱讀</button>
@@ -1657,6 +1765,10 @@ function App() {
     try { return JSON.parse(localStorage.getItem("hidden_books") || "[]"); }
     catch { return []; }
   });
+  const [readingProgress, setReadingProgress] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("reading_progress") || "{}"); }
+    catch { return {}; }
+  });
   const sourceBooks = useMemo(() =>
     ((window.LIBRARY_MANIFEST && window.LIBRARY_MANIFEST.length ? window.LIBRARY_MANIFEST : window.BOOKS_DATA) || []).map((b, i) => adaptBook(b, i)),
   []);
@@ -1674,8 +1786,16 @@ function App() {
       if (override.rawStatus) next.rawStatus = override.rawStatus;
       return next;
     });
-    return merged.filter((book) => !hiddenBookIds.includes(book.id));
+    return merged.filter((book) => !hiddenBookIds.includes(book.id)).filter((book) => !shouldAutoHideBook(book));
   }, [sourceBooks, userBooks, bookOverrides, hiddenBookIds]);
+
+  const updateReadingProgress = (id, patch) => {
+    setReadingProgress((prev) => {
+      const next = { ...prev, [id]: { ...(prev[id] || {}), ...patch } };
+      localStorage.setItem("reading_progress", JSON.stringify(next));
+      return next;
+    });
+  };
 
   const addBook = (book) => {
     const updated = [...userBooks, book];
@@ -1737,8 +1857,8 @@ function App() {
         <MagazineCover books={allBooks} onEnter={() => setView("shelf")} onOpenBook={openBook} />
       )}
       {view === "shelf" && (
-        <Bookshelf books={allBooks} onOpenBook={openBook} bookmarks={bookmarks}
-          onBackToCover={() => setView("cover")} onAddBook={addBook} onDeleteBook={deleteBook} />
+        <Bookshelf books={allBooks} onOpenBook={openBook} bookmarks={bookmarks} readingProgress={readingProgress}
+          onBackToCover={() => setView("cover")} onAddBook={addBook} onDeleteBook={removeFromPanel} />
       )}
       {view === "detail" && activeBook && (
         <BookDetail
@@ -1747,6 +1867,8 @@ function App() {
           bookmarks={bookmarks} onToggleBookmark={toggleBookmark}
           onUpdateBook={updateBook}
           onRemoveBook={removeFromPanel}
+          readingProgress={readingProgress}
+          onProgress={updateReadingProgress}
         />
       )}
     </div>
