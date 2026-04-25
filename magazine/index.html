@@ -272,9 +272,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .settings-hint { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); margin-top: 6px; line-height: 1.6; }
 .settings-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
 
-/* ── 浮動設定按鈕 ── */
-.fab-settings { position: fixed; bottom: 28px; right: 28px; width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 1000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
-.fab-settings:hover { background: var(--accent); transform: scale(1.08); }
+/* ── 設定連結（放在書架頁頭部）── */
+.settings-link { font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-mute); display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); padding: 6px 12px; border-radius: 2px; transition: all 0.2s; }
+.settings-link:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ========== upload.css ========== */
 .upload-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.2s; }
@@ -365,6 +365,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 <!-- Book data -->
 <script src="books_data.js"></script>
+<script src="ai_content.js"></script>
 
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo } = React;
@@ -889,43 +890,64 @@ function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook, 
 }
 
 /* ──────────────────────────────────────────
+   自動抽取重點（不需要 API）
+   ────────────────────────────────────────── */
+function extractKeyPoints(text) {
+  if (!text || text.length < 20) return [];
+  const sentences = text
+    .split(/[。！？\n]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 20 && s.length < 200);
+  // 取前 4 句作為重點
+  return sentences.slice(0, 4);
+}
+
+function autoSummary(text) {
+  if (!text || text.length < 30) return "（此章節暫無摘錄內容）";
+  const pts = extractKeyPoints(text);
+  return pts.length ? pts.join("。\n") + "。" : text.slice(0, 200) + "…";
+}
+
+/* ──────────────────────────────────────────
    ReadingModal 閱讀全章 Modal
    ────────────────────────────────────────── */
-function ReadingModal({ book, chapter, chapterIndex, onClose, apiKey, onNeedKey }) {
+function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) {
+  const [showSummary, setShowSummary] = useState(false);
+  const [showAI, setShowAI] = useState(false);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem("claude_api_key") || "");
   const [aiResult, setAiResult] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiMode, setAiMode] = useState(""); // "translate" | "analyze" | "summary"
+  const [tmpKey, setTmpKey] = useState("");
 
-  const callAI = async (mode) => {
-    if (!apiKey) { onNeedKey(); return; }
-    setAiMode(mode);
+  const keyPoints = extractKeyPoints(chapter.desc);
+  const summary = autoSummary(chapter.desc);
+
+  // 預先生成內容（如有 window.AI_CONTENT）
+  const preGenerated = window.AI_CONTENT && window.AI_CONTENT[book.id]
+    ? window.AI_CONTENT[book.id][chapterIndex] || null : null;
+
+  const callAI = async (prompt) => {
+    if (!apiKey) { setShowAI(true); return; }
     setAiLoading(true);
     setAiResult("");
-    const prompts = {
-      translate: `請將以下書籍段落翻譯成流暢的繁體中文。如原文已是中文，請改寫成更易讀的白話版本。直接輸出翻譯內容，不需要前言：\n\n${chapter.desc}`,
-      analyze: `請針對以下書籍《${book.title}》的章節「${chapter.title}」進行深度解析：\n\n原文：${chapter.desc}\n\n請分析：1. 核心論點 2. 重要觀念 3. 實際應用 4. 一句話精華`,
-      summary: `請用 3-5 句話濃縮以下段落的精華，適合快速理解：\n\n${chapter.desc}`,
-    };
     try {
       const resp = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
+          "x-api-key": apiKey, "anthropic-version": "2023-06-01",
           "content-type": "application/json",
           "anthropic-dangerous-direct-browser-access": "true",
         },
         body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 1200,
-          messages: [{ role: "user", content: prompts[mode] }],
+          model: "claude-haiku-4-5-20251001", max_tokens: 800,
+          messages: [{ role: "user", content: prompt }],
         }),
       });
       const data = await resp.json();
       if (data.error) throw new Error(data.error.message);
       setAiResult(data.content[0].text);
     } catch (e) {
-      setAiResult("❌ 錯誤：" + e.message);
+      setAiResult("錯誤：" + e.message);
     } finally {
       setAiLoading(false);
     }
@@ -945,33 +967,80 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, apiKey, onNeedKey 
           {chapter.desc.slice(1)}
         </div>
 
-        {/* AI 功能列 */}
-        <div className="ai-panel" style={{ marginTop: "40px" }}>
+        {/* 重點整理（免費，自動抽取）*/}
+        {keyPoints.length > 0 && (
+          <div className="ai-panel" style={{ marginTop: "40px" }}>
+            <div className="ai-panel-head">
+              <div className="ai-label">✦ 重點整理（自動抽取）</div>
+              <button className="ai-btn" onClick={() => setShowSummary(s => !s)}>
+                {showSummary ? "收起" : "展開"}
+              </button>
+            </div>
+            {showSummary && (
+              <div className="ai-result">
+                {keyPoints.map((p, i) => (
+                  <div key={i} style={{ marginBottom: "10px", paddingLeft: "14px", borderLeft: "2px solid var(--accent)" }}>
+                    {p}。
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 預先生成內容（如有執行過 generate_ai_content.py）*/}
+        {preGenerated && (
+          <div className="ai-panel" style={{ marginTop: "16px" }}>
+            <div className="ai-label" style={{ marginBottom: "12px" }}>✦ AI 精讀筆記（預先生成）</div>
+            <div className="ai-result">{preGenerated}</div>
+          </div>
+        )}
+
+        {/* 進階 AI（需要 API Key）*/}
+        <div className="ai-panel" style={{ marginTop: "16px" }}>
           <div className="ai-panel-head">
-            <div className="ai-label">✦ AI 閱讀助手</div>
+            <div className="ai-label">✦ 進階 AI 解析（選用）</div>
             <div className="ai-actions">
-              <button className="ai-btn primary" onClick={() => callAI("translate")}>翻譯</button>
-              <button className="ai-btn" onClick={() => callAI("analyze")}>深度解析</button>
-              <button className="ai-btn" onClick={() => callAI("summary")}>一分鐘摘要</button>
+              <button className="ai-btn primary" onClick={() => callAI(`請用繁體中文深度解析《${book.title}》章節「${chapter.title}」的核心論點、重要觀念、實際應用，並給一句話精華：\n\n${chapter.desc}`)}>
+                深度解析
+              </button>
+              <button className="ai-btn" onClick={() => callAI(`用3句話濃縮以下段落精華：\n\n${chapter.desc}`)}>
+                摘要
+              </button>
             </div>
           </div>
           {aiLoading && (
             <div className="ai-loading">
               <div className="ai-dot"></div><div className="ai-dot"></div><div className="ai-dot"></div>
-              <span>AI 正在{aiMode === "translate" ? "翻譯" : aiMode === "analyze" ? "解析" : "摘要"}中…</span>
+              <span>解析中…</span>
             </div>
           )}
           {aiResult && <div className="ai-result">{aiResult}</div>}
-          {!apiKey && !aiLoading && !aiResult && (
-            <div style={{ color: "var(--ink-mute)", fontFamily: "var(--sans)", fontSize: "12px", letterSpacing: "0.05em" }}>
-              ↗ 設定 Claude API Key 後即可使用 AI 功能
+          {showAI && !apiKey && (
+            <div style={{ marginTop: "10px" }}>
+              <div style={{ fontFamily: "var(--sans)", fontSize: "12px", color: "var(--ink-mute)", marginBottom: "8px" }}>
+                輸入 Claude API Key 啟用（Key 僅存在本機）
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <input className="ai-key-input" type="password" value={tmpKey}
+                  onChange={e => setTmpKey(e.target.value)} placeholder="sk-ant-..." />
+                <button className="ai-btn primary" onClick={() => {
+                  setApiKey(tmpKey); localStorage.setItem("claude_api_key", tmpKey); setShowAI(false);
+                }}>儲存</button>
+              </div>
+            </div>
+          )}
+          {!aiResult && !aiLoading && !showAI && (
+            <div style={{ fontFamily: "var(--sans)", fontSize: "11px", color: "var(--ink-mute)", letterSpacing: "0.05em" }}>
+              {apiKey ? "已設定 API Key，點上方按鈕使用" : "不設定也可使用上方免費功能"}
             </div>
           )}
         </div>
 
         <div className="reading-footer">
-          <span>《{book.title}》</span>
+          <button className="btn-link" onClick={onPrev} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
           <span>第 {chapterIndex + 1} 章 / 共 {book.chapters.length} 章</span>
+          <button className="btn-link" onClick={onNext} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
         </div>
       </div>
     </div>
