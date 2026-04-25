@@ -2095,8 +2095,9 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
   }, [book.id, chapterIndex, translateMode, fullReading]);
 
   return (
-    <div className="reading-overlay" data-theme={theme}>
-      <div className="reading-inner">
+    <>
+      <div className="reading-overlay" data-theme={theme}>
+        <div className="reading-inner">
         <div className="reading-top">
           <span>《{book.title}》· {chapter.num}</span>
           <button className="reading-close" onClick={onClose}>×</button>
@@ -2286,21 +2287,22 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
           </aside>
         </div>
 
-        <div className="reading-footer">
-          <button className="btn-link" onClick={onPrev} disabled={chapterIndex === 0} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
-          <span>第 {chapterIndex + 1} 章 / 共 {book.chapters.length} 章</span>
-          <button className="btn-link" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
+          <div className="reading-footer">
+            <button className="btn-link" onClick={onPrev} disabled={chapterIndex === 0} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
+            <span>第 {chapterIndex + 1} 章 / 共 {book.chapters.length} 章</span>
+            <button className="btn-link" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} style={{ opacity: chapterIndex >= book.chapters.length - 1 ? 0.3 : 1 }}>下一章 →</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div className="reading-float-nav float-left">
-      <button className="reading-float-btn" onClick={onPrev} disabled={chapterIndex === 0} title="上一章">‹</button>
-      <div className="reading-float-label">上章</div>
-    </div>
-    <div className="reading-float-nav float-right">
-      <button className="reading-float-btn" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} title="下一章">›</button>
-      <div className="reading-float-label">下章</div>
-    </div>
+      <div className="reading-float-nav float-left">
+        <button className="reading-float-btn" onClick={onPrev} disabled={chapterIndex === 0} title="上一章">‹</button>
+        <div className="reading-float-label">上章</div>
+      </div>
+      <div className="reading-float-nav float-right">
+        <button className="reading-float-btn" onClick={onNext} disabled={chapterIndex >= book.chapters.length - 1} title="下一章">›</button>
+        <div className="reading-float-label">下章</div>
+      </div>
+    </>
   );
 }
 
