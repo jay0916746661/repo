@@ -2,7 +2,7 @@
 從 Google Drive 公開資料夾同步電子書書單到 data/books.json
 使用 gdown，不需要 OAuth 憑證
 """
-import json, re
+import json, re, time
 from pathlib import Path
 import gdown
 
@@ -40,7 +40,23 @@ def clean_title(raw: str) -> str:
     name = re.sub(r'\s*(Z-Library|Z_Library).*', '', name, flags=re.IGNORECASE)
     return name.strip()
 
+
+def load_existing() -> dict[str, dict]:
+    if not BOOKS_FILE.exists():
+        return {}
+    try:
+        items = json.loads(BOOKS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    out: dict[str, dict] = {}
+    for item in items:
+        title = (item.get("title") or "").strip()
+        if title:
+            out[title] = item
+    return out
+
 def sync():
+    existing = load_existing()
     books = []
     for folder_id, shelf in FOLDERS.items():
         url = f"https://drive.google.com/drive/folders/{folder_id}"
@@ -62,13 +78,27 @@ def sync():
             if not title or title in seen:
                 continue
             seen.add(title)
+            old = existing.get(title, {})
             books.append({
                 "title": title,
                 "shelf": shelf,
-                "category": guess_category(title),
+                "folder": shelf,
+                "category": old.get("category") or guess_category(title),
+                "author": old.get("author", ""),
+                "tags": old.get("tags", []),
+                "status": old.get("status", "待讀"),
+                "intro": old.get("intro", ""),
+                "chapters": old.get("chapters", []),
+                "total_pages": old.get("total_pages", 0),
+                "drive_id": old.get("drive_id", ""),
+                "added_date": old.get("added_date") or time.strftime("%Y-%m-%d"),
             })
         print(f"  ✅ {len(seen)} 本")
 
+    books.sort(key=lambda item: (
+        item.get("added_date", ""),
+        item.get("title", ""),
+    ), reverse=True)
     BOOKS_FILE.parent.mkdir(exist_ok=True)
     with open(BOOKS_FILE, "w", encoding="utf-8") as f:
         json.dump(books, f, ensure_ascii=False, indent=2)

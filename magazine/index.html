@@ -875,6 +875,124 @@ function buildAiContextText(books = [], readingProgress = {}) {
   return lines.join("\n");
 }
 
+function getLocalDateKey(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getWeekKeys(baseDate = new Date()) {
+  const current = new Date(baseDate);
+  current.setHours(0, 0, 0, 0);
+  const day = current.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const start = new Date(current);
+  start.setDate(current.getDate() + diff);
+  return Array.from({ length: 7 }, (_, idx) => {
+    const dt = new Date(start);
+    dt.setDate(start.getDate() + idx);
+    return getLocalDateKey(dt);
+  });
+}
+
+function buildWeeklyReadingSummary(books = [], readingProgress = {}, readingHistory = {}) {
+  const weekKeys = getWeekKeys();
+  const bookMap = Object.fromEntries(books.map(book => [book.id, book]));
+  const perBook = Object.entries(readingHistory || {}).map(([bookId, payload]) => {
+    const days = payload?.days || {};
+    const matched = weekKeys.map(key => days[key]).filter(Boolean);
+    if (!matched.length) return null;
+    const book = bookMap[bookId];
+    const seconds = matched.reduce((sum, item) => sum + Number(item.seconds || 0), 0);
+    const pageDelta = matched.reduce((sum, item) => sum + Number(item.pageDelta || 0), 0);
+    const currentPage = matched.reduce((max, item) => Math.max(max, Number(item.maxPage || 0)), 0);
+    return {
+      bookId,
+      title: payload.title || book?.title || "未知書籍",
+      themeLabel: payload.themeLabel || book?.themeLabel || book?.rawCategory || "其他",
+      seconds,
+      pageDelta,
+      currentPage,
+    };
+  }).filter(Boolean).sort((a, b) => b.seconds - a.seconds);
+
+  const fallbackBooks = !perBook.length
+    ? books
+        .filter((book) => {
+          const progress = readingProgress[book.id] || {};
+          const updatedAt = progress.updatedAt ? new Date(progress.updatedAt) : null;
+          if (!updatedAt || Number.isNaN(updatedAt.getTime())) return false;
+          return weekKeys.includes(getLocalDateKey(updatedAt));
+        })
+        .map((book) => {
+          const progress = readingProgress[book.id] || {};
+          return {
+            bookId: book.id,
+            title: book.title,
+            themeLabel: book.themeLabel || book.rawCategory,
+            seconds: Number(progress.totalSeconds || 0),
+            pageDelta: Number(progress.currentPage || 0),
+            currentPage: Number(progress.currentPage || 0),
+          };
+        })
+        .sort((a, b) => b.seconds - a.seconds)
+    : [];
+
+  const activeBooks = perBook.length ? perBook : fallbackBooks;
+  const totalSeconds = activeBooks.reduce((sum, item) => sum + Number(item.seconds || 0), 0);
+  const totalPageDelta = activeBooks.reduce((sum, item) => sum + Number(item.pageDelta || 0), 0);
+  const themeMap = {};
+  activeBooks.forEach((item) => {
+    themeMap[item.themeLabel] = (themeMap[item.themeLabel] || 0) + Number(item.seconds || 0);
+  });
+  const topThemes = Object.entries(themeMap).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+  return {
+    weekKeys,
+    totalSeconds,
+    totalPageDelta,
+    activeBooks,
+    topThemes,
+  };
+}
+
+function buildWeeklyReportText(books = [], readingProgress = {}, readingHistory = {}) {
+  const summary = buildWeeklyReadingSummary(books, readingProgress, readingHistory);
+  const lines = [
+    "# Jim 每週閱讀報告",
+    "",
+    `生成時間：${new Date().toLocaleString("zh-TW")}`,
+    `週期：${summary.weekKeys[0]} ~ ${summary.weekKeys[summary.weekKeys.length - 1]}`,
+    "",
+    `本週閱讀時間：${formatMinutes(summary.totalSeconds)}`,
+    `本週推進頁數：${summary.totalPageDelta} 頁`,
+    `本週活躍書籍：${summary.activeBooks.length} 本`,
+    "",
+    "## 本週重點書",
+  ];
+  if (!summary.activeBooks.length) {
+    lines.push("- 本週還沒有足夠的閱讀紀錄");
+  } else {
+    summary.activeBooks.slice(0, 8).forEach((item, idx) => {
+      lines.push(`${idx + 1}. ${item.title}`);
+      lines.push(`   - 主題：${item.themeLabel}`);
+      lines.push(`   - 本週時間：${formatMinutes(item.seconds)}`);
+      lines.push(`   - 本週推進：${item.pageDelta} 頁`);
+      lines.push(`   - 目前讀到：${item.currentPage} 頁`);
+    });
+  }
+  lines.push("", "## 主題分布");
+  if (!summary.topThemes.length) {
+    lines.push("- 本週尚無主題資料");
+  } else {
+    summary.topThemes.forEach(([theme, seconds]) => {
+      lines.push(`- ${theme}：${formatMinutes(seconds)}`);
+    });
+  }
+  return lines.join("\n");
+}
+
 function downloadText(filename, text) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -1480,7 +1598,7 @@ function BookCard({ book, index, onOpen, onDelete, onPreview, progress }) {
   );
 }
 
-function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI, onPreview }) {
+function ReadingDashboard({ books, readingProgress, readingHistory, onOpenBook, onExportAI, onPreview }) {
   const noteEntries = getSavedNotesForBooks(books);
   const storyCards = buildStoryCards(books);
   const inProgress = books
@@ -1496,6 +1614,7 @@ function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI, onPr
   const totalReadSeconds = Object.values(readingProgress).reduce((sum, item) => sum + Number(item?.totalSeconds || 0), 0);
   const totalPagesRead = Object.values(readingProgress).reduce((sum, item) => sum + Number(item?.currentPage || 0), 0);
   const newArrivals = books.filter((b) => isNewArrival(b)).slice(0, 4);
+  const weeklySummary = buildWeeklyReadingSummary(books, readingProgress, readingHistory);
 
   return (
     <section className="dashboard-shell">
@@ -1586,6 +1705,37 @@ function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI, onPr
       <div className="dashboard-card">
         <div className="dashboard-head">
           <div>
+            <div className="dashboard-kicker">WEEKLY REPORT</div>
+            <div className="dashboard-title">每週閱讀報告</div>
+          </div>
+          <div className="dashboard-sub">{weeklySummary.weekKeys[0]} ~ {weeklySummary.weekKeys[weeklySummary.weekKeys.length - 1]}</div>
+        </div>
+        <div className="dashboard-stats">
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{formatMinutes(weeklySummary.totalSeconds)}</div><div className="dashboard-stat-lbl">本週閱讀時間</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{weeklySummary.totalPageDelta}</div><div className="dashboard-stat-lbl">本週推進頁數</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{weeklySummary.activeBooks.length}</div><div className="dashboard-stat-lbl">活躍書籍</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{weeklySummary.topThemes[0]?.[0] || "—"}</div><div className="dashboard-stat-lbl">本週主題</div></div>
+        </div>
+        <div className="export-actions" style={{ marginTop: 16 }}>
+          <button className="btn-primary" onClick={() => downloadText(`jim-weekly-reading-report-${getLocalDateKey()}.md`, buildWeeklyReportText(books, readingProgress, readingHistory))}>匯出週報</button>
+          <button className="btn-ghost" onClick={() => copyText(buildWeeklyReportText(books, readingProgress, readingHistory))}>複製週報</button>
+        </div>
+        <div className="progress-list" style={{ marginTop: "18px" }}>
+          {weeklySummary.activeBooks.length ? weeklySummary.activeBooks.slice(0, 6).map((item) => (
+            <button key={item.bookId} className="progress-item" onClick={() => onOpenBook(item.bookId)}>
+              <div className="progress-top">
+                <div className="progress-name">{item.title}</div>
+                <div className="progress-meta">{item.themeLabel}</div>
+              </div>
+              <div className="progress-meta">本週 {formatMinutes(item.seconds)} · 推進 {item.pageDelta} 頁 · 目前 {item.currentPage} 頁</div>
+            </button>
+          )) : <div className="empty-note">本週還沒有足夠資料，先讀一本到閱讀頁，之後週報會自動長出來。</div>}
+        </div>
+      </div>
+
+      <div className="dashboard-card">
+        <div className="dashboard-head">
+          <div>
             <div className="dashboard-kicker">STORY CARDS</div>
             <div className="dashboard-title">摘句 / 筆記 / 章節卡片</div>
           </div>
@@ -1619,7 +1769,7 @@ function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI, onPr
 /* ──────────────────────────────────────────
    MagazineCover 封面頁
    ────────────────────────────────────────── */
-function MagazineCover({ books, readingProgress, onEnter, onOpenBook, onExportAI, onPreview }) {
+function MagazineCover({ books, readingProgress, readingHistory, onEnter, onOpenBook, onExportAI, onPreview }) {
   const candidates = books.filter((b) => !shouldAutoHideBook(b) && (getBookContentScore(b) > 500 || (b.pageImages || []).length > 0));
   const newArrivals = books.filter((b) => isNewArrival(b)).slice(0, 4);
   const [featuredId, setFeaturedId] = useState(() => {
@@ -1725,7 +1875,7 @@ function MagazineCover({ books, readingProgress, onEnter, onOpenBook, onExportAI
           </button>
         </footer>
       </div>
-      <ReadingDashboard books={books} readingProgress={readingProgress} onOpenBook={onOpenBook} onExportAI={onExportAI} onPreview={onPreview} />
+      <ReadingDashboard books={books} readingProgress={readingProgress} readingHistory={readingHistory} onOpenBook={onOpenBook} onExportAI={onExportAI} onPreview={onPreview} />
     </div>
   );
 }
@@ -2819,6 +2969,10 @@ function App() {
     try { return JSON.parse(localStorage.getItem("reading_progress") || "{}"); }
     catch { return {}; }
   });
+  const [readingHistory, setReadingHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("reading_history") || "{}"); }
+    catch { return {}; }
+  });
   const [ytWatched, setYtWatched] = useState(() => {
     try { return JSON.parse(localStorage.getItem("yt_watched") || "[]"); } catch { return []; }
   });
@@ -2850,8 +3004,35 @@ function App() {
 
   const updateReadingProgress = (id, patch) => {
     setReadingProgress((prev) => {
-      const next = { ...prev, [id]: { ...(prev[id] || {}), ...patch } };
+      const prevItem = prev[id] || {};
+      const nextItem = { ...prevItem, ...patch };
+      const next = { ...prev, [id]: nextItem };
       localStorage.setItem("reading_progress", JSON.stringify(next));
+      const deltaSeconds = Math.max(0, Number(nextItem.totalSeconds || 0) - Number(prevItem.totalSeconds || 0));
+      const deltaPages = Math.max(0, Number(nextItem.currentPage || 0) - Number(prevItem.currentPage || 0));
+      setReadingHistory((historyPrev) => {
+        const dateKey = getLocalDateKey();
+        const book = allBooks.find((item) => item.id === id);
+        const bookHistory = historyPrev[id] || { title: book?.title || "", themeLabel: book?.themeLabel || book?.rawCategory || "其他", days: {} };
+        const dayRecord = bookHistory.days?.[dateKey] || { seconds: 0, pageDelta: 0, maxPage: 0 };
+        const nextHistory = {
+          ...historyPrev,
+          [id]: {
+            title: book?.title || bookHistory.title,
+            themeLabel: book?.themeLabel || bookHistory.themeLabel,
+            days: {
+              ...(bookHistory.days || {}),
+              [dateKey]: {
+                seconds: Number(dayRecord.seconds || 0) + deltaSeconds,
+                pageDelta: Number(dayRecord.pageDelta || 0) + deltaPages,
+                maxPage: Math.max(Number(dayRecord.maxPage || 0), Number(nextItem.currentPage || 0)),
+              },
+            },
+          },
+        };
+        localStorage.setItem("reading_history", JSON.stringify(nextHistory));
+        return nextHistory;
+      });
       return next;
     });
   };
@@ -2924,7 +3105,7 @@ function App() {
     <div className="app-shell">
       {previewBook && <CoverPreviewModal book={previewBook} onClose={() => setPreviewBook(null)} />}
       {view === "cover" && (
-        <MagazineCover books={allBooks} readingProgress={readingProgress} onEnter={() => { setPreviewBook(null); setView("shelf"); }} onOpenBook={openBook} onExportAI={exportAIContext} onPreview={setPreviewBook} />
+        <MagazineCover books={allBooks} readingProgress={readingProgress} readingHistory={readingHistory} onEnter={() => { setPreviewBook(null); setView("shelf"); }} onOpenBook={openBook} onExportAI={exportAIContext} onPreview={setPreviewBook} />
       )}
       {view === "shelf" && (
         <Bookshelf books={allBooks} onOpenBook={openBook} bookmarks={bookmarks} readingProgress={readingProgress}

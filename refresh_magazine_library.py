@@ -8,6 +8,7 @@ BASE = Path(__file__).resolve().parent
 PYTHON = sys.executable
 
 STEPS = [
+    [PYTHON, "sync_books.py"],
     [PYTHON, "extract_covers.py"],
     [PYTHON, "extract_books.py"],
     [PYTHON, "generate_full_reading.py"],

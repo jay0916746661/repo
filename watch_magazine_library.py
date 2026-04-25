@@ -71,7 +71,7 @@ def git_autopush() -> None:
         log("沒有檔案變更，不需要 push")
         return
 
-    add = run(["git", "add", "data/local_books.json", "data/book_contents", "magazine/library_manifest.js", "magazine/full_reading.js", "magazine/page_images", "data/covers"])
+    add = run(["git", "add", "data/local_books.json", "data/books.json", "data/book_contents", "magazine/library_manifest.js", "magazine/full_reading.js", "magazine/page_images", "data/covers"])
     if add.returncode != 0:
         raise RuntimeError(add.stderr.strip() or "git add failed")
 
