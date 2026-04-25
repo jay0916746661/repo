@@ -24,6 +24,12 @@
 }
 [data-theme="classical"] { --bg: #EDE4D0; --bg-alt: #DCCFB0; --ink: #221A10; --accent: #6B2020; }
 [data-theme="minimal"] { --bg: #FAFAF7; --bg-alt: #F0EFEA; --ink: #0A0A08; --ink-soft: #3A3A36; --accent: #1A1A18; --line: rgba(0,0,0,0.08); }
+[data-theme="finance"] { --bg: #f2eddc; --bg-alt: #e4dcc3; --ink: #182019; --ink-soft: #435046; --ink-mute: #7a8376; --accent: #3f5b43; --line: rgba(24,32,25,0.14); --line-strong: rgba(24,32,25,0.38); }
+[data-theme="tech"] { --bg: #eef2f0; --bg-alt: #dde6e2; --ink: #11181b; --ink-soft: #3c4b50; --ink-mute: #77858b; --accent: #31586a; --line: rgba(17,24,27,0.14); --line-strong: rgba(17,24,27,0.35); }
+[data-theme="psyche"] { --bg: #f3ebe5; --bg-alt: #e8d8cf; --ink: #241915; --ink-soft: #5a473f; --ink-mute: #8b7a72; --accent: #8b4f44; --line: rgba(36,25,21,0.14); --line-strong: rgba(36,25,21,0.35); }
+[data-theme="spirit"] { --bg: #f0e8df; --bg-alt: #e0d3c6; --ink: #241b22; --ink-soft: #584b56; --ink-mute: #8a7b86; --accent: #7a5369; --line: rgba(36,27,34,0.14); --line-strong: rgba(36,27,34,0.35); }
+[data-theme="growth"] { --bg: #f1efdf; --bg-alt: #e0dcc1; --ink: #1e2117; --ink-soft: #50583e; --ink-mute: #80866d; --accent: #6b7041; --line: rgba(30,33,23,0.14); --line-strong: rgba(30,33,23,0.35); }
+[data-theme="negotiation"] { --bg: #f4eadf; --bg-alt: #ead8c3; --ink: #241a14; --ink-soft: #5b4435; --ink-mute: #8f7767; --accent: #9a6738; --line: rgba(36,26,20,0.14); --line-strong: rgba(36,26,20,0.35); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; font-weight: 400; -webkit-font-smoothing: antialiased; }
 #root { min-height: 100vh; }
@@ -235,13 +241,27 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .reading-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; padding-bottom: 20px; border-bottom: 1px solid var(--line); font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-mute); }
 .reading-close { font-size: 28px; font-family: var(--serif); color: var(--ink-soft); transition: color 0.15s; }
 .reading-close:hover { color: var(--accent); }
+.reading-tools { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; padding: 14px 16px; background: var(--bg-alt); border: 1px solid var(--line); }
+.reading-tool-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.reading-tool-label { font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em; color: var(--ink-mute); text-transform: uppercase; }
+.reading-tool-btn { min-width: 34px; padding: 8px 10px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.35); font-family: var(--sans); font-size: 12px; transition: all 0.15s; }
+.reading-tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+.reading-tool-value { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); min-width: 52px; text-align: center; }
+.reading-stats { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
+.reading-stat strong { color: var(--ink); font-family: var(--mono); margin-right: 6px; }
 .reading-ch-num { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.2em; margin-bottom: 12px; }
 .reading-ch-title { font-family: var(--display); font-size: 38px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 32px; line-height: 1.15; }
-.reading-body { font-family: var(--sans); font-size: 18px; line-height: 2.05; color: var(--ink); letter-spacing: 0.015em; white-space: normal; }
+.reading-body { font-family: var(--sans); font-size: var(--reader-font-size, 18px); line-height: var(--reader-line-height, 2.05); color: var(--ink); letter-spacing: 0.015em; white-space: normal; }
 .reading-paragraph { margin: 0 0 1.1em; text-align: justify; }
 .reading-paragraph.drop-paragraph { text-indent: 0; }
 .reading-paragraph:not(.drop-paragraph) { text-indent: 2em; }
 .reading-body .drop { font-size: 64px; font-weight: 400; float: left; line-height: 0.85; margin: 8px 12px 0 0; color: var(--accent); font-family: var(--serif); }
+.reading-notes { margin-top: 24px; border: 1px solid var(--line-strong); background: var(--bg-alt); padding: 22px 24px; }
+.reading-notes-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; }
+.reading-notes-title { font-family: var(--sans); font-size: 11px; letter-spacing: 0.24em; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+.reading-notes-hint { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); }
+.reading-notes-textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.45); padding: 14px 16px; font-family: var(--sans); font-size: 14px; line-height: 1.8; color: var(--ink); outline: none; }
+.reading-notes-textarea:focus { border-color: var(--accent); }
 .reading-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-mute); }
 
 /* ── AI 翻譯面板 ── */
@@ -521,6 +541,24 @@ function normalizeReadingText(text = "") {
   });
 
   return finalParagraphs.filter(Boolean);
+}
+
+function getThemeForBook(book = {}) {
+  const cat = book.rawCategory || "";
+  const text = `${book.title || ""} ${book.summary || ""} ${cat}`.toLowerCase();
+  if (/投資|財富|股票|finance|經濟|巴菲特|價值投資/.test(text)) return "finance";
+  if (/ai|科技|程式|python|code|晶片|未來/.test(text)) return "tech";
+  if (/心理|人性|情緒|關係|自卑|思考/.test(text)) return "psyche";
+  if (/塔羅|靈性|占星|神祕|神秘|牌卡|宇宙/.test(text)) return "spirit";
+  if (/談判|說服|溝通|銷售|業務/.test(text)) return "negotiation";
+  if (/習慣|成長|生活|心智|自律|清醒/.test(text)) return "growth";
+  return "classical";
+}
+
+function formatSeconds(total = 0) {
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
 function buildChaptersFromPageTexts(pageTexts = [], totalPages = 0) {
@@ -1253,6 +1291,23 @@ function getBestStartChapter(book) {
    ────────────────────────────────────────── */
 function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) {
   const [showSummary, setShowSummary] = useState(false);
+  const theme = getThemeForBook(book);
+  const fontPrefKey = `reader_font_size`;
+  const noteKey = `reader_notes_${book.id}_${chapterIndex}`;
+  const timerKey = `reader_time_${book.id}`;
+  const [fontSize, setFontSize] = useState(() => {
+    try { return Number(localStorage.getItem(fontPrefKey) || "18"); }
+    catch { return 18; }
+  });
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(() => {
+    try { return Number(localStorage.getItem(timerKey) || "0"); }
+    catch { return 0; }
+  });
+  const [notes, setNotes] = useState(() => {
+    try { return localStorage.getItem(noteKey) || ""; }
+    catch { return ""; }
+  });
 
   const keyPoints = extractKeyPoints(chapter.desc);
   const summary = autoSummary(chapter.desc);
@@ -1263,16 +1318,53 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
   const fullReading = getFullReading(book, chapterIndex, chapter.desc);
   const readingParagraphs = normalizeReadingText(fullReading || chapter.desc || "");
 
+  useEffect(() => {
+    localStorage.setItem(fontPrefKey, String(fontSize));
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem(noteKey, notes);
+  }, [noteKey, notes]);
+
+  useEffect(() => {
+    try { setNotes(localStorage.getItem(noteKey) || ""); }
+    catch { setNotes(""); }
+  }, [noteKey]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSessionSeconds((s) => s + 1);
+      setTotalSeconds((t) => {
+        const next = t + 1;
+        localStorage.setItem(timerKey, String(next));
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerKey]);
+
   return (
-    <div className="reading-overlay">
+    <div className="reading-overlay" data-theme={theme}>
       <div className="reading-inner">
         <div className="reading-top">
           <span>《{book.title}》· {chapter.num}</span>
           <button className="reading-close" onClick={onClose}>×</button>
         </div>
+        <div className="reading-tools" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02 }}>
+          <div className="reading-tool-group">
+            <span className="reading-tool-label">字體大小</span>
+            <button className="reading-tool-btn" onClick={() => setFontSize((s) => Math.max(15, s - 1))}>A-</button>
+            <span className="reading-tool-value">{fontSize}px</span>
+            <button className="reading-tool-btn" onClick={() => setFontSize((s) => Math.min(28, s + 1))}>A+</button>
+          </div>
+          <div className="reading-stats">
+            <div className="reading-stat"><strong>本次</strong>{formatSeconds(sessionSeconds)}</div>
+            <div className="reading-stat"><strong>累積</strong>{formatSeconds(totalSeconds)}</div>
+          </div>
+        </div>
         <div className="reading-ch-num">{chapter.num} · {chapter.page ? `P. ${chapter.page}` : ""}</div>
         <div className="reading-ch-title">{chapter.title}</div>
-        <div className="reading-body">
+        <div className="reading-body" style={{ "--reader-font-size": `${fontSize}px`, "--reader-line-height": fontSize >= 22 ? 2.15 : 2.02 }}>
           {readingParagraphs.map((para, idx) => (
             <p key={idx} className={`reading-paragraph ${idx === 0 ? "drop-paragraph" : ""}`}>
               {idx === 0
@@ -1322,6 +1414,19 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
           </div>
         )}
 
+        <div className="reading-notes">
+          <div className="reading-notes-head">
+            <div className="reading-notes-title">閱讀筆記 · Notes</div>
+            <div className="reading-notes-hint">自動儲存到這台裝置</div>
+          </div>
+          <textarea
+            className="reading-notes-textarea"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="記下這章的重點、你想到的應用、或明天要回來看的關鍵句。"
+          />
+        </div>
+
         <div className="reading-footer">
           <button className="btn-link" onClick={onPrev} disabled={chapterIndex === 0} style={{ opacity: chapterIndex === 0 ? 0.3 : 1 }}>← 上一章</button>
           <span>第 {chapterIndex + 1} 章 / 共 {book.chapters.length} 章</span>
@@ -1340,11 +1445,12 @@ function BookDetail({ book, books, onBack, onOpenBook, bookmarks, onToggleBookma
   const [openChapter, setOpenChapter] = useState(0);
   const [readingChapter, setReadingChapter] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
+  const theme = getThemeForBook(book);
   const isBookmarked = bookmarks.includes(book.id);
   const others = books.filter(b => b.id !== book.id && b.rawCategory === book.rawCategory).slice(0, 3);
 
   return (
-    <div className="detail-page">
+    <div className="detail-page" data-theme={theme}>
       {showEdit && (
         <EditBookModal
           book={book}
