@@ -1,0 +1,258 @@
+{
+  "id": "local_84f7c5438bb2",
+  "title": "Vibe Coding The Future of Programming",
+  "category": "其他",
+  "total_pages": 39,
+  "toc": [
+    {
+      "level": 1,
+      "title": "Brief Table of Contents (Not Yet Final)",
+      "page": 5
+    },
+    {
+      "level": 1,
+      "title": "1. The 70% Problem: AI-Assisted Workflows That Actually Work",
+      "page": 6
+    },
+    {
+      "level": 2,
+      "title": "Common Failure Patterns",
+      "page": 9
+    },
+    {
+      "level": 3,
+      "title": "Two Steps Back",
+      "page": 9
+    },
+    {
+      "level": 3,
+      "title": "The Demo-Quality Trap",
+      "page": 12
+    },
+    {
+      "level": 2,
+      "title": "What Actually Works: Practical Workflow Patterns",
+      "page": 12
+    },
+    {
+      "level": 3,
+      "title": "AI as First Drafter",
+      "page": 13
+    },
+    {
+      "level": 3,
+      "title": "AI as Pair Programmer",
+      "page": 14
+    },
+    {
+      "level": 3,
+      "title": "Best Practices for AI Pair Programming",
+      "page": 15
+    },
+    {
+      "level": 3,
+      "title": "AI as Validator",
+      "page": 16
+    },
+    {
+      "level": 2,
+      "title": "The Golden Rules of Vibe Coding",
+      "page": 17
+    },
+    {
+      "level": 1,
+      "title": "2. Beyond the 70%: Maximizing Human Contribution",
+      "page": 20
+    },
+    {
+      "level": 2,
+      "title": "Senior Engineers and Developers: Leverage Your Experience with AI",
+      "page": 21
+    },
+    {
+      "level": 3,
+      "title": "Be the Architect and the Editor-in-Chief",
+      "page": 21
+    },
+    {
+      "level": 3,
+      "title": "Use AI as a Force Multiplier for Big Initiatives",
+      "page": 21
+    },
+    {
+      "level": 3,
+      "title": "Mentor and Set Standards",
+      "page": 22
+    },
+    {
+      "level": 3,
+      "title": "Continue to Cultivate Domain Mastery and Foresight",
+      "page": 22
+    },
+    {
+      "level": 3,
+      "title": "Hone Your Soft Skills and Leadership",
+      "page": 23
+    },
+    {
+      "level": 2,
+      "title": "Midlevel Engineers: Adapt and Specialize",
+      "page": 24
+    },
+    {
+      "level": 3,
+      "title": "Learn to Manage Systems Integration and Boundaries",
+      "page": 24
+    },
+    {
+      "level": 3,
+      "title": "Build Your Domain Expertise",
+      "page": 25
+    },
+    {
+      "level": 3,
+      "title": "Master Performance Optimization and DevOps",
+      "page": 25
+    },
+    {
+      "level": 3,
+      "title": "Focus on Code Review and Quality Assurance",
+      "page": 26
+    },
+    {
+      "level": 3,
+      "title": "Learn Systems Thinking",
+      "page": 27
+    },
+    {
+      "level": 3,
+      "title": "Be Adaptable–and Never Stop Learning",
+      "page": 27
+    },
+    {
+      "level": 3,
+      "title": "Get Good at Cross-Functional Communication",
+      "page": 28
+    },
+    {
+      "level": 3,
+      "title": "Learn System Design and Architecture",
+      "page": 28
+    },
+    {
+      "level": 3,
+      "title": "Use AI!",
+      "page": 29
+    },
+    {
+      "level": 3,
+      "title": "Venture into UI and UX Design",
+      "page": 29
+    },
+    {
+      "level": 2,
+      "title": "Junior Developers: Thrive Alongside AI",
+      "page": 31
+    },
+    {
+      "level": 3,
+      "title": "Learn the Fundamentals: Don’T Skip the “Why”",
+      "page": 32
+    },
+    {
+      "level": 3,
+      "title": "Practice Problem Solving and Debugging Without the AI Safety Net",
+      "page": 32
+    },
+    {
+      "level": 3,
+      "title": "Focus on Testing and Verification",
+      "page": 32
+    },
+    {
+      "level": 3,
+      "title": "Build an Eye for Maintainability",
+      "page": 33
+    },
+    {
+      "level": 3,
+      "title": "Develop Your Prompting and Tooling Skills (Wisely)",
+      "page": 34
+    },
+    {
+      "level": 3,
+      "title": "Seek Feedback and Mentorship",
+      "page": 34
+    },
+    {
+      "level": 3,
+      "title": "Communicate and Collaborate",
+      "page": 35
+    },
+    {
+      "level": 3,
+      "title": "Shift Your Mindset: From Consuming to Creating",
+      "page": 35
+    },
+    {
+      "level": 2,
+      "title": "Future-Proof Your Career with Durable Engineering Skills",
+      "page": 36
+    }
+  ],
+  "intro": "Vibe Coding: The Future of Programming Leveraging Your Experience in the Age of AI-Assisted Coding With Early Release ebooks, you get books in their earliest form—the author’s raw and unedited content as they write—so you can take advantage of these technologies long before the official release of these titles. Addy Osmani Vibe Coding: The Future of Programming by Addy Osmani Copyright © 2025 Addy Osmani. All rights reserved. Printed in the United States of America. Published by O’Reilly Media, Inc., 1005 Gravenstein Highway North, Sebastopol, CA . O’Reilly books may be purchased for educational, business, or sales promotional use. Online editions are also available for most titles (http:// oreilly.com). For more information, contact our corporate/institutional sales department: 800-998-9938 or corporate@oreilly.com. Acquisitions Editor: Louise Corrigan Development Editor: Sarah Grey Production Editor: Katherine Tozer Interior Designer: David Futato Cover Designer: Karen Montgomery Illustrator: Kate Dullea August 2025: First Edition Revision History for the Early Release • 2025-04-17: First Release See http://oreilly.com/catalog/errata.csp?isbn=for release details. The O’Reilly logo is a registered trademark of O’Reilly Media, Inc. Vibe Coding: The Future of Programming, the cover image, and related trade dress are trademarks of O’Reilly Media, Inc. The views expressed in this work are those of the author and do not represent the publisher’s views. While the publisher and the author have used good faith efforts to ensure that the information and instructions contained in this work are accurate, the publisher and the author disclaim all responsibility for errors or omissions, including without limitation responsibility for damages resulting from the use of or reliance on this work. Use of the information and instructions contained in this work is at your own risk. If any code samples or other technology this work contains or describes is subject to open source licenses or the intellectual property rights of others, it is your responsibility to ensure that your use thereof complies with such licenses and/or rights. 979-8-341--1 Brief Table of Contents (Not Yet Final) Chapter 1: The Vibe Shift: Programming with Intent (unavailable) Chapter 2: The Art of the Prompt: Communicating Effectively with AI (unavailable) Chapter 3: The 70% Problem: Hard Truths About AI-Assisted Coding (available) Chapter 4: Beyond the 70%: Maximizing Human Contribution (available) Chapter 5: Understanding Generated Code: Review, Refine, Own (unavailable) Chapter 6: AI-Driven Prototyping: Tools and Rechniques (unavailable) Chapter 7: Building Web Applications with AI (unavailable) Chapter 8: Security and Reliability with AI-Generated Code (unavailable) Chapter 9: Ethical Implications of Vibe Coding (unavailable) Chapter 10: The Unbundling of the Programmer: Personal Software (unavailable) Chapter 11: Beyond Code Generation: AI’s Expanding Role (unavailable) Chapter 12: The Vi",
+  "chapters": [
+    {
+      "title": "Brief Table of Contents (Not Yet Final)",
+      "page": 5,
+      "excerpt": "Brief Table of Contents (Not Yet Final) Chapter 1: The Vibe Shift: Programming with Intent (unavailable) Chapter 2: The Art of the Prompt: Communicating Effectively with AI (unavailable) Chapter 3: The 70% Problem: Hard Truths About AI-Assisted Coding (available) Chapter 4: Beyond the 70%: Maximizing Human Contribution (available) Chapter 5: Understanding Generated Code: Review, Refine, Own (unavailable) Chapter 6: AI-Driven Prototyping: Tools and Rechniques (unavailable) Chapter 7: Building Web Applications with AI (unavailable) Chapter 8: Security and Reliability with AI-Generated Code (unavailable) Chapter 9: Ethical Implications of Vibe Coding (unavailable) Chapter 10: The Unbundling of the Programmer: Personal Software (unavailable) Chapter 11: Beyond Code Generation: AI’s Expanding Role (unavailable) Chapter 12: The Vibe Coder’s Toolkit: Advanced Techniques (unavailable) Chapter 1. The 70% Problem: AI- Assisted Workflows That Actually Work A Note for Early Release Readers With Early Release ebooks, you get books in their earliest form—the author’s raw and unedited content as they write—so you can take advantage of these technologies long before the official release of these titles. This will be the 3rd chapter of the final book. If you have comments about how we might improve the content and/or examples in this book, or if you notice missing material within this chapter, please reach out to the editor at sgrey@oreilly.com. AI-based coding tools are astonishingly good at"
+    },
+    {
+      "title": "1. The 70% Problem: AI-Assisted Workflows That Actually Work",
+      "page": 6,
+      "excerpt": "Chapter 1. The 70% Problem: AI- Assisted Workflows That Actually Work A Note for Early Release Readers With Early Release ebooks, you get books in their earliest form—the author’s raw and unedited content as they write—so you can take advantage of these technologies long before the official release of these titles. This will be the 3rd chapter of the final book. If you have comments about how we might improve the content and/or examples in this book, or if you notice missing material within this chapter, please reach out to the editor at sgrey@oreilly.com. AI-based coding tools are astonishingly good at certain tasks.1 They excel at producing boilerplate, writing routine functions, and getting projects most of the way to completion. In fact, many developers find that an AI assistant can implement an initial solution that covers roughly 70% of the requirements​. A tweet from Peter Yang perfectly captures what I’ve been observing in the field: Honest reflections from coding with AI so far as a non-engineer: It can get you 70% of the way there, but that last 30% is frustrating. It keeps taking one step forward and two steps backward with new bugs, issues, etc. If I knew how the code worked I could probably fix it myself. But since I don’t, I question if I’m actually learning that much. Non-engineers using AI for coding find themselves hitting a frustrating wall. They can get 70% of the way there surprisingly quickly, but that final 30% becomes an exercise in diminishing returns."
+    },
+    {
+      "title": "Common Failure Patterns",
+      "page": 9,
+      "excerpt": "WindSurf for their daily development workflow. This is less flashy but potentially more transformative. These developers are: • Using AI for code completion and suggestions • Leveraging AI for complex refactoring tasks • Generating tests and documentation • Using AI as a “pair programmer” for problem-solving But here’s the catch: while both approaches can dramatically accelerate development, they come with hidden costs that aren’t immediately obvious. When you watch a senior engineer work with AI tools like Cursor or Copilot, it looks like magic. They can scaffold entire features in minutes, complete with tests and documentation. But watch carefully, and you’ll notice something crucial: They’re not just accepting what the AI suggests. They’re constantly refactoring the generated code into smaller, focused modules. They’re adding comprehensive error handling and edge-case handling the AI missed, strengthening its type definitions and interfaces, and questioning its architectural decisions. In other words, they’re applying years of hard-won engineering wisdom to shape and constrain the AI’s output. The AI is accelerating their implementation, but their expertise is what keeps the code maintainable. Common Failure Patterns Junior engineers often miss these crucial steps. They accept the AI’s output more readily, leading to what I call “house of cards code” – it looks complete but collapses under real-world pressure. Two Steps Back What typically happens next follows a predictabl"
+    },
+    {
+      "title": "What Actually Works: Practical Workflow Patterns",
+      "page": 12,
+      "excerpt": "The Demo-Quality Trap It’s becoming a pattern: Teams use AI to rapidly build impressive demos. The happy path works beautifully. Investors and social networks are wowed. But when real users start clicking around? That’s when things fall apart. I’ve seen this firsthand: error messages that make no sense to normal users, edge cases that crash the application, confusing UI states that never got cleaned up, accessibility completely overlooked, performance issues on slower devices. These aren’t just low-priority bugs–they’re the difference between software people tolerate and software people love. Creating truly self-serve software–the kind where users never need to contact support–requires a different mindset, one that’s all about the lost art of polish. You need to be obsessing over error messages, testing on slow connections and with real, nontechnical users, making features discoverable, and handling every edge case gracefully. This kind of attention to detail (perhaps) can’t be AI-generated. It comes from empathy, experience, and caring deeply about craft. What Actually Works: Practical Workflow Patterns Before we dive into coding in Part II of this book, we need to talk about modern development practices and how AI-assisted coding fits within a team workflow. Software development is more than writing code, after all – it’s a whole workflow that includes planning, collaboration, testing, deployment, and maintenance. And vibe coding isn’t a standalone novelty – it can be woven"
+    },
+    {
+      "title": "The Golden Rules of Vibe Coding",
+      "page": 17,
+      "excerpt": "To maximize the benefits of both AI and human capabilities in QA, I recommend a few best practices: • Use AI for initial assessments and preliminary scans to identify obvious issues. • Prioritize human review for critical areas, such as complex functionalities, user experience, and areas where AI may have limitations. • Foster an environment of continuous collaboration, where AI tools and human testers work in tandem, with ongoing feedback loops to improve both AI performance and human decision-making. The Golden Rules of Vibe Coding Be specific and clear about what you want Clearly articulate your requirements, tasks, and outcomes when interacting with AI. Precise prompts yield precise results. Always validate AI output against your intent AI-generated code must always be checked against your original goal. Verify functionality, logic, and relevance before accepting. Treat AI as a junior developer (with supervision) Consider AI outputs as drafts that require your careful oversight. Provide feedback, refine, and ensure quality and correctness. Use AI to expand your capabilities, not replace your thinking Leverage AI to automate routine or complex tasks, but always remain actively engaged in problem-solving and decision-making. Coordinate upfront among the team before generating code Align with your team on AI usage standards, code expectations, and practices before starting AI-driven development. Treat AI usage as a normal part of the development conversation Regularly discus"
+    },
+    {
+      "title": "2. Beyond the 70%: Maximizing Human Contribution",
+      "page": 20,
+      "excerpt": "Chapter 2. Beyond the 70%: Maximizing Human Contribution A Note for Early Release Readers With Early Release ebooks, you get books in their earliest form—the author’s raw and unedited content as they write—so you can take advantage of these technologies long before the official release of these titles. This will be the 4th chapter of the final book. If you have comments about how we might improve the content and/or examples in this book, or if you notice missing material within this chapter, please reach out to the editor at sgrey@oreilly.com. You’ve seen how AI coding assistants like Cursor, Cline, Copilot and WindSurf have transformed how software is built, shouldering much of the grunt work and boilerplate–about 70%.1 But what about that last “30%” of the job that separates a toy solution from a production-ready system? This gap includes the hard parts: understanding complex requirements, architecting maintainable systems, handling edge cases, and ensuring code correctness. In other words, while AI can generate code, it often struggles with engineering. Tim O’Reilly, reflecting on decades of technology shifts, reminds us that each leap in automation has changed how we program but not why we need skilled programmers​. We’re not facing the end of programming, but rather “the end of programming as we know it today,” meaning developers’ roles are evolving, not evaporating​. The challenge for today’s engineers is to embrace AI for what it does best (the first 70%) while doublin"
+    },
+    {
+      "title": "Senior Engineers and Developers: Leverage Your Experience with AI",
+      "page": 21,
+      "excerpt": "identify which human skills remain crucial. We’ll explore what senior and mid-level developers should continue to leverage and what junior developers must invest in to thrive alongside AI. This chapter’s goal, then, is to offer you pragmatic guidance for maximizing the value of that irreplaceable 30%, with actionable takeaways for engineers at every level. Senior Engineers and Developers: Leverage Your Experience with AI If you’re a senior engineer, you should see the advent of AI coding tools as an opportunity to amplify your impact – if you leverage your experience in the right ways. Senior developers typically possess deep domain knowledge, intuition for what could go wrong, and the ability to make high-level technical decisions. These strengths are part of the 30% that AI can’t handle alone. This section looks at how seasoned developers can maximize their value. Be the Architect and the Editor-in-Chief Let AI handle the first draft of code, while you focus on architecting the solution and then refining the AI’s output. In many organizations, Steve Yegge writes, we may see a shift where teams need “only senior associates” who “(a) describe the tasks to be done (i.e. create the prompts), and (b) review the resulting work for accuracy and correctness.” Embrace that model. As a senior dev, you can translate complex requirements into effective prompts or specifications for an AI assistant, then use your critical eye to vet every line produced. You are effectively pair-programm"
+    },
+    {
+      "title": "Midlevel Engineers: Adapt and Specialize",
+      "page": 24,
+      "excerpt": "those who apply their human strengths to amplify the AI’s output, not just let it run wild. As one Redditor observed, “AI is a programming force multiplier” that “greatly increases the productivity of senior programmers.” The multiplier effect is real, but it’s your expertise that’s being multiplied. Keep that expertise sharp and at the center of the development process. Midlevel Engineers: Adapt and Specialize If you’re a midlevel engineer, you face perhaps the most significant pressure to evolve. Many of the tasks that traditionally occupied your time – implementing features, writing tests, debugging straightforward issues – are becoming increasingly automatable. This doesn’t mean obsolescence; it means elevation. The focus shifts from writing code to more specialized knowledge, which the following sections explore. Learn to Manage Systems Integration and Boundaries As systems become more complex, understanding and managing the boundaries between components becomes crucial. This includes API design, event schemas, and data models – all requiring careful consideration of business requirements and future flexibility. Deepen your computer-science fundamentals, including gaining an advanced understanding of disciplines like: • Data structures and algorithms • Distributed-systems principles • Database internals and query optimization • Network protocols and security This knowledge helps you understand the implications of AI-generated code and make better architectural decisions."
+    },
+    {
+      "title": "Junior Developers: Thrive Alongside AI",
+      "page": 31,
+      "excerpt": "Junior Developers: Thrive Alongside AI If you’re a junior or less-experienced developer, you might feel a mix of excitement and anxiety about AI. AI assistants can write code that you might not know how to write yourself, potentially accelerating your learning. Yet there are headlines about the “death of the junior developer,” suggesting entry-level coding jobs are at risk​. Contrary to popular speculation, while AI is significantly changing the early-career experience, junior developers are not obsolete. You need to be proactive in developing skills that ensure you’re contributing value beyond what an AI can churn out. The traditional path of learning through implementing basic CRUD applications and simple features will evolve as these tasks become increasingly automated. Consider a typical junior task: implementing a new API endpoint following existing patterns. Previously, this might have taken a day of coding and testing. With AI assistance, the implementation time might drop to an hour, but the crucial skills become: • Understanding the existing system architecture well enough to specify the requirement correctly • Reviewing the generated code for security implications and edge cases • Ensuring the implementation maintains consistency with existing patterns • Writing comprehensive tests that verify business logic These skills can’t be learned purely through tutorial following or AI prompting – they require hands-on experience with production systems and mentorship from s"
+    },
+    {
+      "title": "Future-Proof Your Career with Durable Engineering Skills",
+      "page": 36,
+      "excerpt": "Instead, use each AI-given solution as a learning case. Dissect it, experiment with it, and consider how you might have arrived at it yourself. By treating AI outputs not as answers to end all questions but as interactive learning material, you ensure that you – the human – are continuously leveling up. This way, rather than replacing your growth, AIit accelerates it. Many experts believe that while AI might reduce the need for large teams of junior “coder-grinders,” it also raises the bar for what it means to be a junior developer​. The role is shifting to someone who can work effectively with AI and quickly climb the value chain. If you adopt the habits above, you’ll distinguish yourself as a junior developer who doesn’t just bring what an AI could bring (any company can get that via a subscription), but who brings insight, reliability, and continuous improvement – traits of a future senior developer. Future-Proof Your Career with Durable Engineering Skills In summary, to thrive in an AI-enhanced development world, engineers at all levels should double down on the enduring skills and practices that AI cannot (yet) replicate. These capabilities will remain crucial no matter how advanced our tools become. In particular, focus on: • Strengthening your system design and architecture expertise • Practicing systems thinking and maintaining a contextual understanding of the big picture • Honing your skills in critical thinking, problem-solving, and foresight • Building expertise i"
+    }
+  ],
+  "has_toc": true,
+  "extracted_at": "2026-04-25"
+}

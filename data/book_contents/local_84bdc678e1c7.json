@@ -1,0 +1,413 @@
+{
+  "id": "local_84bdc678e1c7",
+  "title": "Building Applications with AI Agents Designing and Implementing Multiagent Systems",
+  "category": "AI/科技",
+  "total_pages": 355,
+  "toc": [
+    {
+      "level": 1,
+      "title": "Copyright",
+      "page": 6
+    },
+    {
+      "level": 1,
+      "title": "Table of Contents",
+      "page": 7
+    },
+    {
+      "level": 1,
+      "title": "Preface",
+      "page": 15
+    },
+    {
+      "level": 2,
+      "title": "What This Book Is About",
+      "page": 16
+    },
+    {
+      "level": 2,
+      "title": "What This Book Is Not",
+      "page": 17
+    },
+    {
+      "level": 2,
+      "title": "Who This Book Is For",
+      "page": 17
+    },
+    {
+      "level": 2,
+      "title": "Navigating This Book",
+      "page": 17
+    },
+    {
+      "level": 2,
+      "title": "Conventions Used in This Book",
+      "page": 19
+    },
+    {
+      "level": 2,
+      "title": "Using Code Examples",
+      "page": 19
+    },
+    {
+      "level": 2,
+      "title": "O’Reilly Online Learning",
+      "page": 20
+    },
+    {
+      "level": 2,
+      "title": "How to Contact Us",
+      "page": 20
+    },
+    {
+      "level": 2,
+      "title": "Acknowledgments",
+      "page": 21
+    },
+    {
+      "level": 1,
+      "title": "Chapter 1. Introduction to Agents",
+      "page": 23
+    },
+    {
+      "level": 2,
+      "title": "Defining AI Agents",
+      "page": 23
+    },
+    {
+      "level": 2,
+      "title": "The Pretraining Revolution",
+      "page": 24
+    },
+    {
+      "level": 2,
+      "title": "Types of Agents",
+      "page": 25
+    },
+    {
+      "level": 2,
+      "title": "Model Selection",
+      "page": 27
+    },
+    {
+      "level": 2,
+      "title": "From Synchronous to Asynchronous Operations",
+      "page": 28
+    },
+    {
+      "level": 2,
+      "title": "Practical Applications and Use Cases",
+      "page": 29
+    },
+    {
+      "level": 2,
+      "title": "Workflows and Agents",
+      "page": 30
+    },
+    {
+      "level": 2,
+      "title": "Principles for Building Effective Agentic Systems",
+      "page": 33
+    },
+    {
+      "level": 2,
+      "title": "Organizing for Success in Building Agentic Systems",
+      "page": 34
+    },
+    {
+      "level": 2,
+      "title": "Agentic Frameworks",
+      "page": 35
+    },
+    {
+      "level": 3,
+      "title": "LangGraph",
+      "page": 35
+    },
+    {
+      "level": 3,
+      "title": "AutoGen",
+      "page": 36
+    },
+    {
+      "level": 3,
+      "title": "CrewAI",
+      "page": 36
+    },
+    {
+      "level": 3,
+      "title": "OpenAI Agents Software Development Kit (SDK)",
+      "page": 36
+    },
+    {
+      "level": 2,
+      "title": "Conclusion",
+      "page": 37
+    },
+    {
+      "level": 1,
+      "title": "Chapter 2. Designing Agent Systems",
+      "page": 39
+    },
+    {
+      "level": 2,
+      "title": "Our First Agent System",
+      "page": 39
+    },
+    {
+      "level": 2,
+      "title": "Core Components of Agent Systems",
+      "page": 42
+    },
+    {
+      "level": 2,
+      "title": "Model Selection",
+      "page": 43
+    },
+    {
+      "level": 2,
+      "title": "Tools",
+      "page": 46
+    },
+    {
+      "level": 3,
+      "title": "Designing Capabilities for Specific Tasks",
+      "page": 46
+    },
+    {
+      "level": 3,
+      "title": "Tool Integration and Modularity",
+      "page": 47
+    },
+    {
+      "level": 2,
+      "title": "Memory",
+      "page": 47
+    },
+    {
+      "level": 3,
+      "title": "Short-Term Memory",
+      "page": 48
+    },
+    {
+      "level": 3,
+      "title": "Long-Term Memory",
+      "page": 48
+    },
+    {
+      "level": 3,
+      "title": "Memory Management and Retrieval",
+      "page": 48
+    },
+    {
+      "level": 2,
+      "title": "Orchestration",
+      "page": 49
+    },
+    {
+      "level": 2,
+      "title": "Design Trade-Offs",
+      "page": 49
+    },
+    {
+      "level": 3,
+      "title": "Performance: Speed/Accuracy Trade-Offs",
+      "page": 49
+    },
+    {
+      "level": 3,
+      "title": "Scalability: Engineering Scalability for Agent Systems",
+      "page": 50
+    },
+    {
+      "level": 3,
+      "title": "Reliability: Ensuring Robust and Consistent Agent Behavior",
+      "page": 51
+    },
+    {
+      "level": 3,
+      "title": "Costs: Balancing Performance and Expense",
+      "page": 52
+    },
+    {
+      "level": 2,
+      "title": "Architecture Design Patterns",
+      "page": 54
+    },
+    {
+      "level": 3,
+      "title": "Single-Agent Architectures",
+      "page": 54
+    },
+    {
+      "level": 3,
+      "title": "Multiagent Architectures: Collaboration, Parallelism, and Coordination",
+      "page": 54
+    },
+    {
+      "level": 2,
+      "title": "Best Practices",
+      "page": 56
+    },
+    {
+      "level": 3,
+      "title": "Iterative Design",
+      "page": 56
+    },
+    {
+      "level": 3,
+      "title": "Evaluation Strategy",
+      "page": 57
+    },
+    {
+      "level": 3,
+      "title": "Real-World Testing",
+      "page": 59
+    },
+    {
+      "level": 2,
+      "title": "Conclusion",
+      "page": 61
+    },
+    {
+      "level": 1,
+      "title": "Chapter 3. User Experience Design for Agentic Systems",
+      "page": 63
+    },
+    {
+      "level": 2,
+      "title": "Interaction Modalities",
+      "page": 64
+    },
+    {
+      "level": 3,
+      "title": "Text-Based",
+      "page": 65
+    },
+    {
+      "level": 3,
+      "title": "Graphical Interfaces",
+      "page": 68
+    },
+    {
+      "level": 3,
+      "title": "Speech and Voice Interfaces",
+      "page": 72
+    },
+    {
+      "level": 3,
+      "title": "Video-Based Interfaces",
+      "page": 75
+    },
+    {
+      "level": 3,
+      "title": "Combining Modalities for Seamless Experiences",
+      "page": 76
+    }
+  ],
+  "intro": "Building Applications with AI Agents Designing and Implementing Multiagent Systems Michael Albada ISBN: 978-1-098--1 US $79.99 CAN $99.99 DATA Generative AI has revolutionized how organizations tackle problems, accelerating the journey from concept to prototype to solution. As the models become increasingly capable, we have witnessed a new design pattern emerge: AI agents. By combining tools, knowledge, memory, and learning with advanced foundation models, we can now sequence multiple model inferences together to solve ambiguous and difficult problems. From coding agents to research agents to analyst agents and more, we’ve already seen agents accelerate teams and organizations. While these agents enhance efficiency, they often require extensive planning, drafting, and revising to complete complex tasks, and deploying them remains a challenge for many organizations, especially as technology and research rapidly develops. This book is your indispensable guide through this intricate and fast-moving landscape. Author Michael Albada provides a practical and research-based approach to designing and implementing single- and multiagent systems. It simplifies the complexities and equips you with the tools to move from concept to solution efficiently. • Understand the distinct features of foundation model-enabled AI agents • Discover the core components and design principles of AI agents • Explore design trade-offs and implement effective multiagent systems • Design and deploy tailored AI solutions, enhancing efficiency and innovation in your field Michael Albada is a seasoned machine learning engineer with expertise in deploying large-scale solutions for major tech firms including Uber, ServiceNow, and Microsoft. He holds degrees from Stanford University, the University of Cambridge, and Georgia Tech, specializing in machine learning. Building Applications with AI Agents “The best single-volume introduction to building AI agent systems—you can read hundreds of papers or this one book.” Arun Rao Ex-Meta GenAI group, adjunct professor at UCLA Praise for Building Applications with AI Agents Finally, a book about really scaling AI into the human workforce. Michael does a great job leveraging his expertise at scalable organizations like Uber and Microsoft to teach any technical leader in a small and medium business how to really create scalable agentic solutions for their transformation. —Birju Shah, professor of product management and AI at Kellogg School of Management, Northwestern University, former head of Uber AI product team A sharp, practical guide, Building Applications with AI Agents equips leaders to move from generative AI hype to real-world systems. It distills complex concepts into actionable strategies, bridging vision and execution for organizations seeking measurable efficiency and competitive edge. —Amanda Cheng, partner of Founders Bay As a clinician working at the intersection of medicine and technology, I found this to be an essential read ",
+  "chapters": [
+    {
+      "title": "Copyright",
+      "page": 6,
+      "excerpt": "978-1-098--1 [LSI] Building Applications with AI Agents by Michael Albada Copyright © 2025 Advance AI LLC. All rights reserved. Published by O’Reilly Media, Inc., 141 Stony Circle, Suite 195, Santa Rosa, CA . O’Reilly books may be purchased for educational, business, or sales promotional use. Online editions are also available for most titles (https://oreilly.com). For more information, contact our corporate/institu‐ tional sales department: 800-998-9938 or corporate@oreilly.com. Acquisitions Editor: Nicole Butterfield Development Editor: Shira Evans Production Editor: Ashley Stussy Copyeditor: nSight, Inc. Proofreader: Piper Content Partners Indexer: nSight, Inc. Cover Designer: Karen Montgomery Cover Illustrator: José Marzan Jr. Interior Designer: David Futato Interior Illustrator: Kate Dullea September 2025: First Edition Revision History for the First Edition 2025-09-16: First Release See https://oreilly.com/catalog/errata.csp?isbn=for release details. The O’Reilly logo is a registered trademark of O’Reilly Media, Inc. Building Applications with AI Agents, the cover image, and related trade dress are trademarks of O’Reilly Media, Inc. The views expressed in this work are those of the author and do not represent the publisher’s views. While the publisher and the author have used good faith efforts to ensure that the information and instructions contained in this work are accurate, the publisher and the author disclaim all responsibility for errors or omissions, including w"
+    },
+    {
+      "title": "Table of Contents",
+      "page": 7,
+      "excerpt": "Table of Contents Preface. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xiii 1. Introduction to Agents. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1 Defining AI Agents 1 The Pretraining Revolution 2 Types of Agents 3 Model Selection 5 From Synchronous to Asynchronous Operations 6 Practical Applications and Use Cases 7 Workflows and Agents 8 Principles for Building Effective Agentic Systems 11 Organizing for Success in Building Agentic Systems 12 Agentic Frameworks 13 LangGraph 13 AutoGen 14 CrewAI 14 OpenAI Agents Software Development Kit (SDK) 14 Conclusion 15 2. Designing Agent Systems. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17 Our First Agent System 17 Core Components of Agent Systems 20 Model Selection 21 Tools 24 Designing Capabilities for Specific Tasks 24 Tool Integration and Modularity 25 Memory 25 Short-Term Memory 26 v Long-Term Memory 26 Memory Management and Retrieval 26 Orchestration 27 Design Trade-Offs 27 Performance: Speed/Accuracy Trade-Offs 27 Scalability: Engineering Scalability for Agent Systems 28 Reliability: Ensuring Robust and Consistent Agent Behavior 29 Costs: Balancing Performance and Expense 30 Architecture Design Patterns 32 Single-Agent Architectures 32 Multiagent Architectures: Collaboration, Parallelism, and Coordination 32 Bes"
+    },
+    {
+      "title": "Preface",
+      "page": 15,
+      "excerpt": "Preface When I first started connecting language models, tools, orchestration, and memory together into what we now call an agent, I was surprised by how capable this design pattern was, and just how much confusion there was about this topic. During my time building agents and sharing my findings on incident investigation, threat hunt‐ ing, vulnerability detection, and more, I found that this latest design pattern enabled us to solve whole new classes of problems, but also came with many practical hurdles to making them reliable for real-world applications. Engineers, scientists, product managers, and leadership all wanted to know more. “How do I get my agent to work?” “I can get my agent to work some of the time, but how do I get it to work most or all of the time?” “How do I choose a model for my use case?” “How do I design good tools for my agent?” “What kind of memory do I need?” “Should I use RAG?” “Should I build a single-agent or multiagent system?” “What architecture should I use?” “Do I need to fine-tune?” “How do I enable agents to learn from expe‐ rience and improve over time?” While there are many blog posts and research papers that focus on specific aspects of the topic of designing agent systems, I realized there were a lack of accessible, holistic, trustworthy guides for this. I couldn’t find the book that I wanted to share with my colleagues, so I set out to write it. Through in-depth discussions, I’ve helped teams navigate the complexities of AI agents, consi"
+    },
+    {
+      "title": "What This Book Is About",
+      "page": 16,
+      "excerpt": "illustrated with real-world case studies, supported by references, and reviewed by practitioners in the field. Sections on advanced topics—like agent architectures, tool integration, memory systems, orchestration, multiagent coordination, measurement, monitoring, security, and ethical considerations—are further refined by expert input. Writing this book has been a journey of discovery for me as well. The initial drafts sparked conversations that challenged my views and introduced new ideas. I hope this process continues as you read it, bringing your own insights. Feel free to share any feedback you might have for this book via Twitter (X), LinkedIn, my personal website, or any other channels that you can find. What This Book Is About This book provides a practical framework for building robust applications using AI agents. It addresses key challenges and offers solutions to questions such as: • What defines an AI agent, and when should I use one? How do agents differ from traditional machine learning (ML) systems? • How do I design agent architectures for specific use cases, including scenario selection, and core components like tools, memory, planning, and orchestration? • What are effective strategies for agent planning, reasoning, execution, tool selec‐ tion, and topologies like chains, trees, and graphs? • How can I enable agents to learn from experience through nonparametric meth‐ ods, fine-tuning, and transfer learning? • How do I scale from single-agent to multiagent s"
+    },
+    {
+      "title": "What This Book Is Not",
+      "page": 17,
+      "excerpt": "What This Book Is Not This book isn’t an introduction to AI or ML basics. It assumes familiarity with con‐ cepts like neural networks, natural language processing, and basic programming in languages like Python. If you’re new to these, pointers to resources are provided, but the focus is on applied agent building. It’s also not a step-by-step tutorial for specific tools, as technologies evolve rapidly. Instead, it offers guidance on evaluating and selecting tools, with pseudocode and examples to illustrate concepts. For hands-on implementation, online tutorials and documentation are recommended, including frameworks like LangChain and AutoGen. Who This Book Is For This book is for engineers, developers, and technical leaders aiming to build AI agent-based applications. It’s geared toward roles like AI engineers, software develop‐ ers, ML engineers, data scientists, and product managers with a technical bent. You might relate to scenarios like the following: • You’re tasked with building an autonomous system for decision support, or inter‐ active services. • You have a working agent prototype and you want to harden it and get it ready for production. • Your team struggles with agent reliability—handling failures, adapting to dynamic environments, or orchestrating complex tasks—and you want system‐ atic approaches including orchestration, memory, and learning from experience. • You’re integrating agents into existing workflows and seek best practices for scal‐ ability, multiage"
+    },
+    {
+      "title": "Who This Book Is For",
+      "page": 17,
+      "excerpt": "What This Book Is Not This book isn’t an introduction to AI or ML basics. It assumes familiarity with con‐ cepts like neural networks, natural language processing, and basic programming in languages like Python. If you’re new to these, pointers to resources are provided, but the focus is on applied agent building. It’s also not a step-by-step tutorial for specific tools, as technologies evolve rapidly. Instead, it offers guidance on evaluating and selecting tools, with pseudocode and examples to illustrate concepts. For hands-on implementation, online tutorials and documentation are recommended, including frameworks like LangChain and AutoGen. Who This Book Is For This book is for engineers, developers, and technical leaders aiming to build AI agent-based applications. It’s geared toward roles like AI engineers, software develop‐ ers, ML engineers, data scientists, and product managers with a technical bent. You might relate to scenarios like the following: • You’re tasked with building an autonomous system for decision support, or inter‐ active services. • You have a working agent prototype and you want to harden it and get it ready for production. • Your team struggles with agent reliability—handling failures, adapting to dynamic environments, or orchestrating complex tasks—and you want system‐ atic approaches including orchestration, memory, and learning from experience. • You’re integrating agents into existing workflows and seek best practices for scal‐ ability, multiage"
+    },
+    {
+      "title": "Navigating This Book",
+      "page": 17,
+      "excerpt": "What This Book Is Not This book isn’t an introduction to AI or ML basics. It assumes familiarity with con‐ cepts like neural networks, natural language processing, and basic programming in languages like Python. If you’re new to these, pointers to resources are provided, but the focus is on applied agent building. It’s also not a step-by-step tutorial for specific tools, as technologies evolve rapidly. Instead, it offers guidance on evaluating and selecting tools, with pseudocode and examples to illustrate concepts. For hands-on implementation, online tutorials and documentation are recommended, including frameworks like LangChain and AutoGen. Who This Book Is For This book is for engineers, developers, and technical leaders aiming to build AI agent-based applications. It’s geared toward roles like AI engineers, software develop‐ ers, ML engineers, data scientists, and product managers with a technical bent. You might relate to scenarios like the following: • You’re tasked with building an autonomous system for decision support, or inter‐ active services. • You have a working agent prototype and you want to harden it and get it ready for production. • Your team struggles with agent reliability—handling failures, adapting to dynamic environments, or orchestrating complex tasks—and you want system‐ atic approaches including orchestration, memory, and learning from experience. • You’re integrating agents into existing workflows and seek best practices for scal‐ ability, multiage"
+    },
+    {
+      "title": "Conventions Used in This Book",
+      "page": 19,
+      "excerpt": "• Chapter 11 explores improvement loops, with feedback pipelines (issue detec‐ tion, human review, refinement, prioritization), experimentation (shadow deployments, A/B testing, adaptive, gating), and continuous learning (in-context, offline retraining, online reinforcement). • Chapter 12 addresses protecting agent systems, covering unique risks, securing LLMs (model selection, defenses, red teaming, fine-tuning), data protection (pri‐ vacy, provenance), securing agents (safeguards, external/internal protections), and governance/compliance. • Chapter 13 discusses humans and agents, with ethical principles (oversight, transparency, fairness, explainability, privacy), building trust/oversight, address‐ ing bias, and accountability/regulatory considerations. Feel free to skip sections you’re familiar with—the book is modular by design. Note: I often use “we” to refer to you (the reader) and me, fostering a collaborative learning vibe. Conventions Used in This Book The following typographical conventions are used in this book: Italic Indicates new terms, URLs, email addresses, filenames, and file extensions. Constant width Used for program listings, as well as within paragraphs to refer to program ele‐ ments such as variable or function names, databases, data types, environment variables, statements, and keywords. Constant width bold Shows commands or other text that should be typed literally by the user. Constant width italic Shows text that should be replaced with user-supplied"
+    },
+    {
+      "title": "Using Code Examples",
+      "page": 19,
+      "excerpt": "• Chapter 11 explores improvement loops, with feedback pipelines (issue detec‐ tion, human review, refinement, prioritization), experimentation (shadow deployments, A/B testing, adaptive, gating), and continuous learning (in-context, offline retraining, online reinforcement). • Chapter 12 addresses protecting agent systems, covering unique risks, securing LLMs (model selection, defenses, red teaming, fine-tuning), data protection (pri‐ vacy, provenance), securing agents (safeguards, external/internal protections), and governance/compliance. • Chapter 13 discusses humans and agents, with ethical principles (oversight, transparency, fairness, explainability, privacy), building trust/oversight, address‐ ing bias, and accountability/regulatory considerations. Feel free to skip sections you’re familiar with—the book is modular by design. Note: I often use “we” to refer to you (the reader) and me, fostering a collaborative learning vibe. Conventions Used in This Book The following typographical conventions are used in this book: Italic Indicates new terms, URLs, email addresses, filenames, and file extensions. Constant width Used for program listings, as well as within paragraphs to refer to program ele‐ ments such as variable or function names, databases, data types, environment variables, statements, and keywords. Constant width bold Shows commands or other text that should be typed literally by the user. Constant width italic Shows text that should be replaced with user-supplied"
+    },
+    {
+      "title": "O’Reilly Online Learning",
+      "page": 20,
+      "excerpt": "This book is here to help you get your job done. In general, if example code is offered with this book, you may use it in your programs and documentation. You do not need to contact us for permission unless you’re reproducing a significant portion of the code. For example, writing a program that uses several chunks of code from this book does not require permission. Selling or distributing examples from O’Reilly books does require permission. Answering a question by citing this book and quoting example code does not require permission. Incorporating a significant amount of example code from this book into your product’s documentation does require permission. We appreciate, but generally do not require, attribution. An attribution usually includes the title, author, publisher, and ISBN. For example: “Building Applications with AI Agents by Michael Albada (O’Reilly). Copyright 2025 Advance AI LLC, 978-1-098--1.” If you feel your use of code examples falls outside fair use or the permission given above, feel free to contact us at permissions@oreilly.com. O’Reilly Online Learning For more than 40 years, O’Reilly Media has provided technol‐ ogy and business training, knowledge, and insight to help companies succeed. Our unique network of experts and innovators share their knowledge and expertise through books, articles, and our online learning platform. O’Reilly’s online learning platform gives you on-demand access to live training courses, in-depth learning paths, interactive cod"
+    },
+    {
+      "title": "How to Contact Us",
+      "page": 20,
+      "excerpt": "This book is here to help you get your job done. In general, if example code is offered with this book, you may use it in your programs and documentation. You do not need to contact us for permission unless you’re reproducing a significant portion of the code. For example, writing a program that uses several chunks of code from this book does not require permission. Selling or distributing examples from O’Reilly books does require permission. Answering a question by citing this book and quoting example code does not require permission. Incorporating a significant amount of example code from this book into your product’s documentation does require permission. We appreciate, but generally do not require, attribution. An attribution usually includes the title, author, publisher, and ISBN. For example: “Building Applications with AI Agents by Michael Albada (O’Reilly). Copyright 2025 Advance AI LLC, 978-1-098--1.” If you feel your use of code examples falls outside fair use or the permission given above, feel free to contact us at permissions@oreilly.com. O’Reilly Online Learning For more than 40 years, O’Reilly Media has provided technol‐ ogy and business training, knowledge, and insight to help companies succeed. Our unique network of experts and innovators share their knowledge and expertise through books, articles, and our online learning platform. O’Reilly’s online learning platform gives you on-demand access to live training courses, in-depth learning paths, interactive cod"
+    },
+    {
+      "title": "Acknowledgments",
+      "page": 21,
+      "excerpt": "We have a web page for this book, where we list errata and any additional informa‐ tion. You can access this page at https://oreil.ly/building-applications-with-ai-agents-1e. For news and information about our books and courses, visit https://oreilly.com. Find us on LinkedIn: https://linkedin.com/company/oreilly-media Watch us on YouTube: https://youtube.com/oreillymedia Acknowledgments As a first-time author, it’s humbling to discover just how many people it takes to write a book, and it’s thanks to the contributions of many wonderful people that this book has come to fruition. This book took over a year to write, and I’m especially grateful to the technical reviewers who carved out their valuable time to share their detailed feedback, per‐ spective, and insight. Nuno Campos has brought invaluable expertise on all things agents and LangChain and pointed me to concepts I had missed. Prashanth Josyula held the writing and the code examples to a high bar of technical rigor and brought deep technical expertise. Megan MacLennan has been my technical writing expert, helping ensure accessibility and relevance to a wide audience. Early drafts are always imperfect, and I’m deeply grateful to my technical reviewers for tolerating my blun‐ ders and oversights with grace. Thank you for all of your patience and your invalua‐ ble suggestions. I also want to offer a special thanks to Anthony Wainman, who has been a thought partner from the earliest stages of this book, and offered invaluab"
+    },
+    {
+      "title": "Chapter 1. Introduction to Agents",
+      "page": 23,
+      "excerpt": "CHAPTER 1 Introduction to Agents We are witnessing a profound technological transformation driven by autonomous agents—intelligent software systems capable of independent reasoning, decision mak‐ ing, and interacting effectively within dynamic environments. Unlike traditional soft‐ ware, autonomous agents interpret contexts, adapt to changing scenarios, and perform sophisticated actions with minimal human oversight. Defining AI Agents Autonomous agents are intelligent systems designed to independently analyze data, interpret their environment, and make context-driven decisions. As the popularity of the term “agent” grows, its meaning has become diluted, often applied to systems lacking genuine autonomy. In practice, agency exists on a spectrum. True autono‐ mous agents demonstrate meaningful decision making, context-driven reasoning, and adaptive behaviors. Conversely, many systems labeled as “agents” may simply execute deterministic scripts or tightly controlled workflows. Designing genuinely autonomous, adaptive agents is challenging, prompting many teams to adopt simpler approaches to achieve quicker outcomes. Therefore, the key test of a true agent is whether it demonstrates real decision making rather than following static scripts. The rapid evolution of autonomous agents is primarily driven by breakthroughs in foundation models and reinforcement learning. While traditional use cases with foundation models have focused on generating human-readable outputs, the latest adv"
+    },
+    {
+      "title": "Defining AI Agents",
+      "page": 23,
+      "excerpt": "CHAPTER 1 Introduction to Agents We are witnessing a profound technological transformation driven by autonomous agents—intelligent software systems capable of independent reasoning, decision mak‐ ing, and interacting effectively within dynamic environments. Unlike traditional soft‐ ware, autonomous agents interpret contexts, adapt to changing scenarios, and perform sophisticated actions with minimal human oversight. Defining AI Agents Autonomous agents are intelligent systems designed to independently analyze data, interpret their environment, and make context-driven decisions. As the popularity of the term “agent” grows, its meaning has become diluted, often applied to systems lacking genuine autonomy. In practice, agency exists on a spectrum. True autono‐ mous agents demonstrate meaningful decision making, context-driven reasoning, and adaptive behaviors. Conversely, many systems labeled as “agents” may simply execute deterministic scripts or tightly controlled workflows. Designing genuinely autonomous, adaptive agents is challenging, prompting many teams to adopt simpler approaches to achieve quicker outcomes. Therefore, the key test of a true agent is whether it demonstrates real decision making rather than following static scripts. The rapid evolution of autonomous agents is primarily driven by breakthroughs in foundation models and reinforcement learning. While traditional use cases with foundation models have focused on generating human-readable outputs, the latest adv"
+    },
+    {
+      "title": "The Pretraining Revolution",
+      "page": 24,
+      "excerpt": "With a growing range of protocols such as Model Context Protocol (discussed in Chapter 4) and Agent-to-Agent Protocol (discussed in Chapter 8), these agents will be able to use remote tools and collaborate with other agents to solve problems. This unlocks enormous opportunities for sophisticated automation—but it also brings a profound responsibility to design, measure, and manage these systems thoughtfully, ensuring their actions align with human values and operate safely in complex, dynamic environments. The Pretraining Revolution While traditional ML is an incredibly powerful technique, it is usually limited by the quantity and quality of the dataset. ML practitioners will typically tell you that they spend the majority of their time not training models, but on collecting and cleaning datasets that they can use for training. The incredible success of generative models that have been trained on large volumes of data have shown that single models can now adapt to a wide range of tasks without any additional training. This upends years of practice. To build an application that used ML previously required hiring an ML engineer or data scientist, having them collect data, and then deploying that model. With the latest developments in large, pretrained generative models, high-quality models that will work reasonably well for many use cases are now available through a single call to a hosted model without any training or hosting required. This dramati‐ cally lowers the cost and c"
+    },
+    {
+      "title": "Types of Agents",
+      "page": 25,
+      "excerpt": "enables these models to interact directly with external systems and execute practical tasks. These models are capable of: Contextual interpretation and decision making Navigating ambiguous situations without exhaustive preprogramming Tool use Calling other software to retrieve information or take actions Adaptive planning Planning and executing complex, multistep actions autonomously Information summarization Rapidly processing extensive documents, extracting key insights, thereby aiding legal analysis, research synthesis, and content curation Management of unstructured data Interpreting and responding intelligently to unstructured texts such as emails, documents, logs, and reports Code generation Writing and executing code and writing unit tests Routine task automation Efficiently handling repetitive activities in customer service and administrative workflows, freeing human workers to focus on more nuanced tasks Multimodal information synthesis Performing intricate analyses of image, audio, or video data at scale This enhanced flexibility enables autonomous agents to effectively handle complex and dynamic scenarios that static ML models typically cannot address. Types of Agents As the term “agent” has gained popularity, its meaning has broadened to encompass a wide range of AI-enabled systems, often creating confusion about what truly consti‐ tutes an AI agent. The Information categorizes agents into seven practical types, reflecting how these technologies are being applied "
+    },
+    {
+      "title": "Model Selection",
+      "page": 27,
+      "excerpt": "training, customer onboarding, marketing, and virtual presence tools—enabling scalable, personalized video interactions without manual production. Importantly, the number and variety of agent types is growing rapidly, and we will likely see new kinds of agents emerge across many domains as the field and its under‐ lying technologies evolve. In this book, our emphasis is on the core category of agents built around language models, particularly those using text and code. While we touch on business‑task automation, voice, and video, we’ll primarily explore agents built around language models—their architectures, reasoning, and UX—in subsequent chapters. Now that we’ve discussed the evolving types of agents, the next critical question becomes: which model should you choose to power your agent? Model selection is a complex and rapidly changing domain. As discussed in the next section, you’ll need to balance factors like task complexity, modality support, latency and cost constraints, and integration requirements to make the right choice for your agent. Model Selection Today, we are fortunate to have a proliferation of powerful models available from both commercial providers and the open source community. OpenAI, Anthropic, Google, Meta, and DeepSeek each offer state-of-the-art foundation models with impressive general-purpose capabilities. At the same time, open-weight models like Llama, Mistral, and Gemma are pushing the boundaries of what can be achieved with local or fine-tuned"
+    },
+    {
+      "title": "From Synchronous to Asynchronous Operations",
+      "page": 28,
+      "excerpt": "Table 1-1. HELM Core Scenario leaderboard (August 2025). Comparative benchmark performance of the top 10 models across reasoning and evaluation tasks: MMLU-Pro, GPQA, IFEval, WildBench, and Omni-MATH. Model Mean score MMLU-Pro —COT correct GPQA— COT correct IFEval— IFEval Strict Acc WildBench— WB Score Omni- MATH— Acc GPT-5 mini (2025-08-07) 0.819 0.835 0.756 0.927 0.855 0.722 o4-mini (2025-04-16) 0.812 0.82 0.735 0.929 0.854 0.72 o3 (2025-04-16) 0.811 0.859 0.753 0.869 0.861 0.714 GPT-5 (2025-08-07) 0.807 0.863 0.791 0.875 0.857 0.647 Qwen3 235B A22B Instruct 2507 FP8 0.798 0.844 0.726 0.835 0.866 0.718 Grok 4 (0709) 0.785 0.851 0.726 0.949 0.797 0.603 Claude 4 Opus (, extended thinking) 0.78 0.875 0.709 0.849 0.852 0.616 gpt-oss-120b 0.77 0.795 0.684 0.836 0.845 0.688 Kimi K2 Instruct 0.768 0.819 0.652 0.85 0.862 0.654 Claude 4 Sonnet (, extended thinking) 0.766 0.843 0.706 0.84 0.838 0.602 That said, they aren’t always the most efficient choice. For many tasks—especially those that are well-defined, low-latency, or cost-sensitive—much smaller models can provide near-equivalent performance at a fraction of the cost. This has led to a grow‐ ing trend: automated model selection. Some platforms now route simpler queries to fast, inexpensive small models, reserving the large, expensive models for more com‐ plex reasoning. This dynamic test-time optimization is proving effective, and it hints at a future where multimodel systems become the norm. The key takeaway is that you can "
+    },
+    {
+      "title": "Practical Applications and Use Cases",
+      "page": 29,
+      "excerpt": "actions dynamically based on changing conditions. This asynchronous processing dramatically enhances efficiency, reducing idle time and optimizing the use of com‐ putational resources. The practical implications of this shift are substantial. For example: • Emails can arrive with reply drafts already prepared. • Invoices can come with pre-populated payment details. • Software engineers might receive tickets accompanied by code to solve them and unit tests to assess them. • Customer support agents can be provided with suggested responses and recom‐ mended actions. • Security analysts can receive alerts that have already been automatically investi‐ gated and enriched with relevant threat intelligence. In each case, agents are not just speeding up routine workflows—they are changing the nature of work itself. This evolution transforms human roles from task executors to task managers. Rather than spending time on repetitive or mechanical steps, indi‐ viduals can focus on strategic oversight, review, and high-value decision making— amplifying human creativity and judgment while letting agents handle the opera‐ tional details. These agents make it much easier for human roles to be proactive rather than reactive. Practical Applications and Use Cases The versatility of autonomous agents opens up a myriad of applications across differ‐ ent industries. To keep this book grounded in clear, specific use cases, I have seven real-world example agents with evaluation systems available in th"
+    },
+    {
+      "title": "Workflows and Agents",
+      "page": 30,
+      "excerpt": "Healthcare patient intake and triage agent These agents support frontline healthcare operations by registering new patients, verifying insurance, assessing symptoms to prioritize care, scheduling appoint‐ ments, managing medical histories, and coordinating referrals, thereby improv‐ ing workflow efficiency and patient outcomes. IT help desk agent IT help desk agents manage user access, troubleshoot network and system issues, deploy software updates, respond to security incidents, and escalate unresolved issues to specialists. They enhance productivity by resolving common technical problems swiftly. Legal document review agent Legal agents assist attorneys and paralegals by reviewing contracts, conducting legal research, performing client intake and conflict checks, managing discovery, assessing compliance, calculating damages, and tracking deadlines. This helps to streamline workflows and improve accuracy in legal operations. Security Operations Center (SOC) analyst agent SOC analyst agents investigate security alerts, gather threat intelligence, query logs, triage incidents, isolate compromised hosts, and provide updates to security teams. They accelerate incident response and strengthen organizational security posture. Supply chain and logistics agent In supply chain management, agents optimize inventory, track shipments, evalu‐ ate suppliers, coordinate warehouse operations, forecast demand, manage dis‐ ruptions, and handle compliance requirements. These capabilities help "
+    }
+  ],
+  "has_toc": true,
+  "extracted_at": "2026-04-25"
+}
