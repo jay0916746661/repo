@@ -366,6 +366,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 <!-- Book data -->
 <script src="books_data.js"></script>
 <script src="ai_content.js"></script>
+<script src="full_reading.js"></script>
 
 <script type="text/babel">
 const { useState, useEffect, useRef, useMemo } = React;
@@ -925,6 +926,9 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
   // 預先生成內容（如有 window.AI_CONTENT）
   const preGenerated = window.AI_CONTENT && window.AI_CONTENT[book.id]
     ? window.AI_CONTENT[book.id][chapterIndex] || null : null;
+  const fullReading = window.FULL_READING && window.FULL_READING[book.id]
+    ? window.FULL_READING[book.id][chapterIndex] || chapter.desc
+    : chapter.desc;
 
   const callAI = async (prompt) => {
     if (!apiKey) { setShowAI(true); return; }
@@ -963,8 +967,8 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext }) 
         <div className="reading-ch-num">{chapter.num} · {chapter.page ? `P. ${chapter.page}` : ""}</div>
         <div className="reading-ch-title">{chapter.title}</div>
         <div className="reading-body">
-          <span className="drop">{chapter.desc.charAt(0)}</span>
-          {chapter.desc.slice(1)}
+          <span className="drop">{(fullReading || "").charAt(0)}</span>
+          {(fullReading || "").slice(1)}
         </div>
 
         {/* 重點整理（免費，自動抽取）*/}
