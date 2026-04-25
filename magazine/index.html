@@ -82,6 +82,33 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .enter-btn:hover { background: var(--accent); }
 .enter-btn .arrow { display: inline-block; transition: transform 0.2s; margin-left: 8px; }
 .enter-btn:hover .arrow { transform: translateX(4px); }
+.dashboard-shell { max-width: 1400px; margin: 28px auto 0; display: grid; gap: 24px; }
+.dashboard-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+.dashboard-card { border: 1px solid var(--line); background: rgba(255,255,255,0.22); padding: 24px; }
+.dashboard-head { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.dashboard-kicker { font-family: var(--sans); font-size: 10px; letter-spacing: 0.28em; color: var(--accent); font-weight: 700; }
+.dashboard-title { font-family: var(--display); font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+.dashboard-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
+.dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.dashboard-stat { padding: 16px 14px; border: 1px solid var(--line); background: rgba(255,255,255,0.24); }
+.dashboard-stat-num { font-family: var(--display); font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+.dashboard-stat-lbl { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.14em; margin-top: 8px; }
+.progress-list, .theme-list { display: grid; gap: 12px; }
+.progress-item, .theme-item { padding: 12px 14px; border: 1px solid var(--line); background: rgba(255,255,255,0.22); }
+.progress-top, .theme-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 8px; }
+.progress-name, .theme-name { font-family: var(--display); font-size: 18px; font-weight: 700; line-height: 1.1; }
+.progress-meta, .theme-meta { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.08em; }
+.story-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+.story-card { aspect-ratio: 9 / 16; border: 1px solid var(--line); padding: 18px; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(180deg, rgba(255,255,255,0.52), rgba(255,255,255,0.18)); position: relative; overflow: hidden; }
+.story-card::after { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(0,0,0,0.08); pointer-events: none; }
+.story-label { font-family: var(--sans); font-size: 10px; letter-spacing: 0.24em; color: var(--accent); font-weight: 700; position: relative; z-index: 1; }
+.story-text { font-family: var(--display); font-size: 25px; line-height: 1.35; letter-spacing: -0.02em; position: relative; z-index: 1; }
+.story-meta { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); line-height: 1.6; position: relative; z-index: 1; }
+.story-actions { display: flex; gap: 8px; margin-top: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
+.story-btn { font-family: var(--sans); font-size: 11px; letter-spacing: 0.12em; border: 1px solid var(--line-strong); padding: 8px 12px; transition: all 0.15s; }
+.story-btn:hover { border-color: var(--accent); color: var(--accent); }
+.export-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.empty-note { font-family: var(--sans); font-size: 13px; color: var(--ink-mute); padding: 18px 0; }
 
 /* ── 書架頁 ── */
 .bookshelf-page { min-height: 100vh; padding: 80px 60px 60px; }
@@ -293,6 +320,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .reading-notes-hint { font-family: var(--sans); font-size: 11px; color: var(--ink-mute); }
 .reading-notes-textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.45); padding: 14px 16px; font-family: var(--sans); font-size: 14px; line-height: 1.8; color: var(--ink); outline: none; }
 .reading-notes-textarea:focus { border-color: var(--accent); }
+.translation-panel-desc { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); line-height: 1.7; margin-bottom: 12px; }
 .reading-mobile-stats { display: none; }
 .reading-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-mute); }
 
@@ -390,6 +418,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 @media (max-width: 980px) {
   .cover-page { padding: 28px 24px 40px; }
   .cover-grid { grid-template-columns: 1fr; }
+  .dashboard-grid, .dashboard-stats { grid-template-columns: 1fr; }
   .cover-main { padding-right: 0; border-right: none; }
   .cover-index { margin-left: 0; border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 28px; }
   .cover-title { font-size: 52px; }
@@ -632,6 +661,102 @@ function isNewArrival(book = {}, days = 21) {
   if (Number.isNaN(dt.getTime())) return false;
   const diff = Date.now() - dt.getTime();
   return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+}
+
+function getSavedNotesForBooks(books = []) {
+  const out = [];
+  books.forEach((book) => {
+    (book.chapters || []).forEach((chapter, idx) => {
+      const key = `reader_notes_${book.id}_${idx}`;
+      const note = (localStorage.getItem(key) || "").trim();
+      if (!note) return;
+      out.push({
+        id: `${book.id}_${idx}`,
+        bookId: book.id,
+        bookTitle: book.title,
+        chapterTitle: chapter.title || `第 ${idx + 1} 章`,
+        note,
+        themeKey: book.themeKey,
+      });
+    });
+  });
+  return out;
+}
+
+function buildStoryCards(books = []) {
+  const notes = getSavedNotesForBooks(books).slice(0, 6).map((item) => ({
+    kind: "note",
+    id: item.id,
+    bookId: item.bookId,
+    text: item.note.slice(0, 96),
+    title: item.bookTitle,
+    meta: item.chapterTitle,
+    themeKey: item.themeKey,
+  }));
+
+  const quotes = books
+    .filter((book) => Array.isArray(book.quotes))
+    .flatMap((book) => (book.quotes || []).slice(0, 1).map((quote, idx) => ({
+      kind: "quote",
+      id: `${book.id}_quote_${idx}`,
+      bookId: book.id,
+      text: (quote || "").slice(0, 96),
+      title: book.title,
+      meta: book.author !== "—" ? book.author : book.rawCategory,
+      themeKey: book.themeKey,
+    })))
+    .filter((item) => item.text && item.text !== "（尚未收錄金句）")
+    .slice(0, 6);
+
+  return [...notes, ...quotes].slice(0, 6);
+}
+
+function buildAiContextText(books = [], readingProgress = {}) {
+  const notes = getSavedNotesForBooks(books);
+  const lines = [
+    "# Jim 書庫 AI Context",
+    "",
+    `更新時間：${new Date().toLocaleString("zh-TW")}`,
+    `書籍總數：${books.length}`,
+    "",
+    "## 書庫摘要",
+  ];
+
+  books.slice(0, 80).forEach((book) => {
+    const progress = readingProgress[book.id] || {};
+    lines.push(`- 書名：${book.title}`);
+    lines.push(`  作者：${book.author}`);
+    lines.push(`  主題：${book.themeLabel || book.rawCategory}`);
+    lines.push(`  分類：${book.rawCategory}`);
+    lines.push(`  進度：${progress.currentPage || 0}/${book.pages || 0} 頁，停留 ${formatMinutes(progress.totalSeconds || 0)}`);
+    lines.push(`  摘要：${(book.summary || "").replace(/\n+/g, " ").slice(0, 160)}`);
+  });
+
+  lines.push("", "## 閱讀筆記");
+  if (!notes.length) {
+    lines.push("- 目前尚無筆記");
+  } else {
+    notes.slice(0, 120).forEach((item) => {
+      lines.push(`- ${item.bookTitle} / ${item.chapterTitle}：${item.note.replace(/\n+/g, " ").slice(0, 180)}`);
+    });
+  }
+  return lines.join("\n");
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function copyText(text) {
+  return navigator.clipboard?.writeText(text);
 }
 
 function getEstimatedRemainingPages(book, progress) {
@@ -1203,10 +1328,146 @@ function BookCard({ book, index, onOpen, onDelete, progress }) {
   );
 }
 
+function ReadingDashboard({ books, readingProgress, onOpenBook, onExportAI }) {
+  const noteEntries = getSavedNotesForBooks(books);
+  const storyCards = buildStoryCards(books);
+  const inProgress = books
+    .filter((book) => (readingProgress[book.id]?.currentPage || 0) > 0)
+    .sort((a, b) => (readingProgress[b.id]?.updatedAt || "").localeCompare(readingProgress[a.id]?.updatedAt || ""))
+    .slice(0, 5);
+  const categoryCounts = Object.entries(
+    books.reduce((acc, book) => {
+      acc[book.rawCategory] = (acc[book.rawCategory] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const totalReadSeconds = Object.values(readingProgress).reduce((sum, item) => sum + Number(item?.totalSeconds || 0), 0);
+  const totalPagesRead = Object.values(readingProgress).reduce((sum, item) => sum + Number(item?.currentPage || 0), 0);
+  const newArrivals = books.filter((b) => isNewArrival(b)).slice(0, 4);
+
+  return (
+    <section className="dashboard-shell">
+      <div className="dashboard-card">
+        <div className="dashboard-head">
+          <div>
+            <div className="dashboard-kicker">READING CONTROL CENTER</div>
+            <div className="dashboard-title">個人閱讀中控台</div>
+          </div>
+          <div className="dashboard-sub">新書上架 · 閱讀進度 · 筆記 · 主題分類</div>
+        </div>
+        <div className="dashboard-stats">
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{books.length}</div><div className="dashboard-stat-lbl">藏書總數</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{newArrivals.length}</div><div className="dashboard-stat-lbl">最近新書</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{totalPagesRead}</div><div className="dashboard-stat-lbl">累積已看頁數</div></div>
+          <div className="dashboard-stat"><div className="dashboard-stat-num">{formatMinutes(totalReadSeconds)}</div><div className="dashboard-stat-lbl">總閱讀時間</div></div>
+        </div>
+      </div>
+
+      <div className="dashboard-grid">
+        <div className="dashboard-card">
+          <div className="dashboard-head">
+            <div>
+              <div className="dashboard-kicker">PROGRESS</div>
+              <div className="dashboard-title">學習儀表板</div>
+            </div>
+            <div className="dashboard-sub">持續中的閱讀與主題分布</div>
+          </div>
+          <div className="progress-list">
+            {inProgress.length ? inProgress.map((book) => {
+              const progress = readingProgress[book.id] || {};
+              const remaining = getEstimatedRemainingPages(book, progress);
+              return (
+                <button key={book.id} className="progress-item" onClick={() => onOpenBook(book.id)}>
+                  <div className="progress-top">
+                    <div className="progress-name">{book.title}</div>
+                    <div className="progress-meta">{book.themeLabel}</div>
+                  </div>
+                  <div className="card-progress">
+                    <div className="card-progress-track">
+                      <div className="card-progress-fill" style={{ width: `${book.pages ? Math.min(100, Math.round(((progress.currentPage || 0) / book.pages) * 100)) : 0}%` }} />
+                    </div>
+                    <div className="card-cta">{book.pages ? Math.min(100, Math.round(((progress.currentPage || 0) / book.pages) * 100)) : 0}%</div>
+                  </div>
+                  <div className="progress-meta">已看 {progress.currentPage || 0} 頁 · 剩 {remaining ?? "—"} 頁 · 停留 {formatMinutes(progress.totalSeconds || 0)}</div>
+                </button>
+              );
+            }) : <div className="empty-note">還沒有閱讀進度，選一本到閱讀頁開始累積。</div>}
+          </div>
+          <div className="theme-list" style={{ marginTop: "18px" }}>
+            {categoryCounts.map(([cat, count]) => (
+              <div key={cat} className="theme-item">
+                <div className="theme-top">
+                  <div className="theme-name">{cat}</div>
+                  <div className="theme-meta">{count} 本</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="dashboard-card">
+          <div className="dashboard-head">
+            <div>
+              <div className="dashboard-kicker">AI SOURCE</div>
+              <div className="dashboard-title">給 GPT / Claude / Gemini 用</div>
+            </div>
+            <div className="dashboard-sub">把書庫與筆記匯出成 AI 可讀資料來源</div>
+          </div>
+          <div className="export-actions">
+            <button className="btn-primary" onClick={onExportAI}>匯出 AI Context</button>
+            <button className="btn-ghost" onClick={() => copyText(buildAiContextText(books, readingProgress))}>複製到剪貼簿</button>
+          </div>
+          <div className="progress-list" style={{ marginTop: "18px" }}>
+            {newArrivals.map((book) => (
+              <button key={book.id} className="progress-item" onClick={() => onOpenBook(book.id)}>
+                <div className="progress-top">
+                  <div className="progress-name">{book.title}</div>
+                  <div className="progress-meta">NEW</div>
+                </div>
+                <div className="progress-meta">{book.themeLabel} · {book.author !== "—" ? book.author : book.rawCategory}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-card">
+        <div className="dashboard-head">
+          <div>
+            <div className="dashboard-kicker">STORY CARDS</div>
+            <div className="dashboard-title">摘句 / 筆記 / 章節卡片</div>
+          </div>
+          <div className="dashboard-sub">適合整理、分享、發限動的閱讀卡片</div>
+        </div>
+        {storyCards.length ? (
+          <div className="story-grid">
+            {storyCards.map((card) => (
+              <div key={card.id} className="story-card" data-theme={card.themeKey || "classical"}>
+                <div className="story-label">{card.kind === "note" ? "READING NOTE" : "BOOK QUOTE"}</div>
+                <div className="story-text">「{card.text}」</div>
+                <div>
+                  <div className="story-meta">{card.title}</div>
+                  <div className="story-meta">{card.meta}</div>
+                  <div className="story-actions">
+                    <button className="story-btn" onClick={() => copyText(`《${card.title}》\n${card.meta}\n\n${card.text}`)}>複製卡片文案</button>
+                    <button className="story-btn" onClick={() => card.bookId && onOpenBook(card.bookId)}>打開這本書</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-note">先在閱讀頁寫幾段筆記，或累積更多摘句，這裡就會自動生成可分享卡片。</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ──────────────────────────────────────────
    MagazineCover 封面頁
    ────────────────────────────────────────── */
-function MagazineCover({ books, onEnter, onOpenBook }) {
+function MagazineCover({ books, readingProgress, onEnter, onOpenBook, onExportAI }) {
   const candidates = books.filter((b) => !shouldAutoHideBook(b) && (getBookContentScore(b) > 500 || (b.pageImages || []).length > 0));
   const newArrivals = books.filter((b) => isNewArrival(b)).slice(0, 4);
   const [featuredId, setFeaturedId] = useState(() => {
@@ -1312,6 +1573,7 @@ function MagazineCover({ books, onEnter, onOpenBook }) {
           </button>
         </footer>
       </div>
+      <ReadingDashboard books={books} readingProgress={readingProgress} onOpenBook={onOpenBook} onExportAI={onExportAI} />
     </div>
   );
 }
@@ -1693,6 +1955,29 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
           </div>
 
           <aside className="reading-side">
+            <div className="ai-panel">
+              <div className="ai-panel-head">
+                <div className="ai-label">✦ 翻譯面板</div>
+              </div>
+              <div className="translation-panel-desc">這裡會直接影響正文顯示，適合英文翻中文或簡體轉繁體。</div>
+              <div className="story-actions">
+                <button className={`reading-tool-btn ${translateMode === "original" ? "active" : ""}`} onClick={() => setTranslateMode("original")}>原文</button>
+                <button className={`reading-tool-btn ${translateMode === "zh-hant" ? "active" : ""}`} onClick={() => setTranslateMode("zh-hant")}>轉繁體</button>
+                <button className={`reading-tool-btn ${translateMode === "en-zh" ? "active" : ""}`} onClick={() => setTranslateMode("en-zh")}>英翻中</button>
+              </div>
+              {(translateState.loading || translateState.error || translateMode !== "original") && (
+                <div className="reading-translate-note" style={{ marginTop: "12px", marginBottom: 0 }}>
+                  {translateState.loading
+                    ? "翻譯中，正在處理這一章內容…"
+                    : translateState.error
+                      ? `翻譯暫時失敗，先顯示原文。${translateState.error}`
+                      : translateMode === "zh-hant"
+                        ? "目前顯示：繁體中文閱讀版"
+                        : "目前顯示：英文翻中文閱讀版"}
+                </div>
+              )}
+            </div>
+
             {keyPoints.length > 0 && (
               <div className="ai-panel">
                 <div className="ai-panel-head">
@@ -2054,10 +2339,15 @@ function App() {
 
   const activeBook = allBooks.find(b => b.id === activeBookId);
 
+  const exportAIContext = () => {
+    const text = buildAiContextText(allBooks, readingProgress);
+    downloadText(`jim-library-ai-context-${new Date().toISOString().slice(0,10)}.md`, text);
+  };
+
   return (
     <div className="app-shell">
       {view === "cover" && (
-        <MagazineCover books={allBooks} onEnter={() => setView("shelf")} onOpenBook={openBook} />
+        <MagazineCover books={allBooks} readingProgress={readingProgress} onEnter={() => setView("shelf")} onOpenBook={openBook} onExportAI={exportAIContext} />
       )}
       {view === "shelf" && (
         <Bookshelf books={allBooks} onOpenBook={openBook} bookmarks={bookmarks} readingProgress={readingProgress}
