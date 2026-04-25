@@ -3,708 +3,1046 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>📚 Jim 書庫 — 電子書雜誌</title>
+<title>Jim 書庫 · 電子書雜誌</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0b0b12;
-  --bg2:#13131e;
-  --bg3:#1a1a28;
-  --border:#22222f;
-  --text:#e8e8f0;
-  --text2:#9090a8;
-  --text3:#5a5a6e;
-  --accent:#7c3aed;
-  --accent2:#a78bfa;
-  --gold:#d4a853;
-  --green:#22c55e;
-  --pink:#ec4899;
-  --cyan:#06b6d4;
-  --yellow:#f59e0b;
+/* ========== magazine.css ========== */
+:root {
+  --bg: #F3EDE0;
+  --bg-alt: #EAE2D1;
+  --ink: #1A1815;
+  --ink-soft: #4A453E;
+  --ink-mute: #8B8378;
+  --accent: #7A2E2B;
+  --line: rgba(26, 24, 21, 0.14);
+  --line-strong: rgba(26, 24, 21, 0.4);
+  --serif: "Instrument Serif", "Noto Serif TC", Georgia, serif;
+  --sans: "Noto Sans TC", "PingFang TC", "Inter", "Helvetica Neue", sans-serif;
+  --display: "Noto Sans TC", "PingFang TC", "Inter", sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", "Courier New", monospace;
 }
-html,body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',sans-serif;height:100%}
-::-webkit-scrollbar{width:4px;background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+[data-theme="classical"] { --bg: #EDE4D0; --bg-alt: #DCCFB0; --ink: #221A10; --accent: #6B2020; }
+[data-theme="minimal"] { --bg: #FAFAF7; --bg-alt: #F0EFEA; --ink: #0A0A08; --ink-soft: #3A3A36; --accent: #1A1A18; --line: rgba(0,0,0,0.08); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; font-weight: 400; -webkit-font-smoothing: antialiased; }
+#root { min-height: 100vh; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+.app-shell { min-height: 100vh; position: relative; }
 
-/* ── Layout ── */
-.app{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.main{overflow-y:auto;display:grid;grid-template-rows:auto 1fr}
+/* ── 封面頁 ── */
+.cover-page { min-height: 100vh; padding: 40px 60px 60px; position: relative; overflow: hidden; }
+.cover-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 320px; grid-template-rows: auto 1fr auto; gap: 40px; min-height: calc(100vh - 100px); }
+.cover-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px double var(--ink); padding-bottom: 20px; }
+.cover-masthead { display: flex; align-items: center; gap: 16px; }
+.masthead-mark { font-size: 42px; color: var(--accent); line-height: 1; }
+.masthead-title { font-family: var(--display); font-size: 42px; font-weight: 900; line-height: 1; letter-spacing: 0.08em; }
+.masthead-en { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--ink-soft); margin-top: 4px; }
+.cover-meta { display: flex; gap: 24px; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); }
+.cover-meta .label { font-weight: 700; color: var(--ink); margin-right: 4px; }
+.cover-main { display: flex; flex-direction: column; justify-content: space-between; padding-right: 40px; border-right: 1px solid var(--line); position: relative; }
+.cover-issue-number { position: absolute; top: -20px; right: 0; font-family: var(--serif); font-size: 280px; line-height: 1; color: var(--accent); opacity: 0.08; font-weight: 900; pointer-events: none; }
+.cover-kicker { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); margin-bottom: 24px; font-weight: 600; }
+.cover-title { font-family: var(--display); font-size: 88px; line-height: 1.02; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 28px; }
+.cover-title em { font-family: var(--serif); font-style: italic; color: var(--accent); font-weight: 400; letter-spacing: -0.01em; }
+.cover-sub { font-family: var(--sans); font-size: 15px; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 16px; max-width: 520px; letter-spacing: 0.02em; }
+.cover-feature-card { margin-top: 40px; padding: 28px 32px; background: var(--ink); color: var(--bg); border-radius: 2px; max-width: 440px; cursor: pointer; transition: transform 0.2s; }
+.cover-feature-card:hover { transform: translateY(-3px); }
+.feature-label { font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; color: var(--accent); margin-bottom: 10px; }
+.feature-title { font-family: var(--display); font-size: 26px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; letter-spacing: -0.02em; }
+.feature-author { font-family: var(--sans); font-size: 12px; letter-spacing: 0.15em; opacity: 0.7; margin-bottom: 12px; }
+.feature-desc { font-size: 14px; line-height: 1.55; opacity: 0.85; margin-bottom: 16px; }
+.feature-cta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; }
+.cover-index { padding: 28px 0 0 32px; border-left: 1px solid var(--line); margin-left: -40px; font-family: var(--sans); }
+.index-title { font-family: var(--display); font-size: 18px; font-weight: 700; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 20px; letter-spacing: 0.02em; }
+.index-list { list-style: none; margin-bottom: 32px; }
+.index-list li { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 6px; align-items: baseline; padding: 10px 0; border-bottom: 1px dotted var(--line-strong); cursor: pointer; transition: all 0.15s; font-size: 13px; }
+.index-list li:hover { color: var(--accent); padding-left: 4px; }
+.idx-num { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); }
+.idx-title { font-family: var(--sans); font-size: 14px; font-weight: 500; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+.idx-dots { border-bottom: 1px dotted var(--ink-mute); margin: 0 6px 4px; min-width: 10px; flex: 1; }
+.idx-page { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); }
+.index-foot { font-family: var(--sans); font-size: 11px; color: var(--ink-soft); line-height: 2; padding-top: 16px; border-top: 1px solid var(--line); }
+.cover-footer { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--line); }
+.footer-tags { display: flex; gap: 14px; font-family: var(--sans); font-size: 11px; color: var(--ink-soft); letter-spacing: 0.08em; flex-wrap: wrap; }
+.enter-btn { font-family: var(--sans); font-size: 12px; letter-spacing: 0.2em; padding: 14px 28px; background: var(--ink); color: var(--bg); border-radius: 999px; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
+.enter-btn:hover { background: var(--accent); }
+.enter-btn .arrow { display: inline-block; transition: transform 0.2s; margin-left: 8px; }
+.enter-btn:hover .arrow { transform: translateX(4px); }
 
-/* ── Sidebar ── */
-.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
-.logo{font-size:11px;letter-spacing:.18em;color:var(--text3);text-transform:uppercase;font-weight:500;margin-bottom:6px}
-.logo-title{font-size:20px;font-weight:900;letter-spacing:-.03em;color:var(--text)}
-.logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
+/* ── 書架頁 ── */
+.bookshelf-page { min-height: 100vh; padding: 80px 60px 60px; }
+.shelf-header { max-width: 1400px; margin: 0 auto 60px; position: relative; border-bottom: 1px solid var(--line); padding-bottom: 32px; }
+.shelf-back { font-family: var(--sans); font-size: 12px; letter-spacing: 0.15em; color: var(--ink-soft); margin-bottom: 24px; display: block; transition: color 0.2s; }
+.shelf-back:hover { color: var(--accent); }
+.shelf-title-block { margin-bottom: 28px; }
+.shelf-kicker { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+.shelf-title { font-family: var(--display); font-size: 68px; font-weight: 800; line-height: 1; margin-bottom: 12px; letter-spacing: -0.035em; }
+.shelf-sub { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); letter-spacing: 0.02em; }
+.shelf-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.shelf-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-chip { font-family: var(--sans); font-size: 12px; letter-spacing: 0.08em; padding: 8px 16px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink-soft); transition: all 0.15s; }
+.filter-chip:hover { border-color: var(--ink); color: var(--ink); }
+.filter-chip.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.shelf-add { font-family: var(--sans); font-size: 12px; letter-spacing: 0.1em; padding: 10px 18px; background: var(--ink); color: var(--bg); border-radius: 999px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.shelf-add:hover { background: var(--accent); }
+.add-plus { font-size: 16px; line-height: 1; font-weight: 300; }
+.shelf-grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px 48px; }
+.book-card { display: grid; grid-template-columns: 160px 1fr; gap: 20px; cursor: pointer; padding: 20px 0; border-top: 1px solid var(--line); transition: all 0.25s; position: relative; }
+.book-card:hover { transform: translateY(-2px); }
+.book-card:hover .card-title { color: var(--accent); }
+.card-cover { aspect-ratio: 2 / 3; position: relative; overflow: hidden; transition: transform 0.3s; box-shadow: 0 12px 28px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12); }
+.book-card:hover .card-cover { transform: translateY(-4px) rotate(-0.5deg); box-shadow: 0 20px 40px rgba(0,0,0,0.24); }
+.card-meta { display: flex; flex-direction: column; overflow: hidden; }
+.card-issue { font-family: var(--sans); font-size: 10px; letter-spacing: 0.25em; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+.card-title { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 6px; transition: color 0.2s; letter-spacing: -0.02em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.card-sub { font-family: var(--sans); font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; letter-spacing: 0.01em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.card-author-row { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+.card-author { font-weight: 600; }
+.card-year { color: var(--ink-mute); font-family: var(--mono); }
+.card-summary { font-family: var(--sans); font-size: 12px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 12px; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--sans); font-size: 10px; color: var(--ink-mute); letter-spacing: 0.05em; margin-bottom: 10px; }
+.card-footer { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-mute); padding-top: 10px; border-top: 1px dotted var(--line-strong); }
+.card-cta { color: var(--accent); font-weight: 700; }
+.card-del { position: absolute; top: 28px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.4); color: white; font-size: 16px; line-height: 24px; text-align: center; opacity: 0; transition: all 0.15s; z-index: 5; }
+.book-card:hover .card-del { opacity: 1; }
+.card-del:hover { background: var(--accent); }
+.shelf-add-card { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; border: 2px dashed var(--line-strong); background: transparent; cursor: pointer; transition: all 0.2s; font-family: var(--sans); min-height: 200px; }
+.shelf-add-card:hover { border-color: var(--ink); background: var(--bg-alt); }
+.add-card-icon { font-size: 42px; color: var(--ink-mute); margin-bottom: 14px; font-weight: 300; }
+.add-card-title { font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--ink); letter-spacing: -0.01em; }
+.add-card-sub { font-size: 11px; color: var(--ink-mute); letter-spacing: 0.05em; line-height: 1.6; text-align: center; }
+.shelf-footer { max-width: 1400px; margin: 80px auto 0; padding-top: 32px; border-top: 3px double var(--ink); display: flex; justify-content: space-between; font-family: var(--sans); font-size: 11px; letter-spacing: 0.15em; color: var(--ink-soft); }
 
-.filters{padding:14px 16px;border-bottom:1px solid var(--border)}
-.search-wrap{position:relative;margin-bottom:10px}
-.search-wrap input{
-  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:8px 12px 8px 34px;font-size:12px;color:var(--text);font-family:inherit;
-  outline:none;transition:border-color .15s
-}
-.search-wrap input:focus{border-color:var(--accent)}
-.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text3)}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap}
-.filter-btn{
-  font-size:10px;padding:4px 10px;border-radius:99px;border:1px solid var(--border);
-  background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:inherit
-}
-.filter-btn:hover,.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ── 書封設計 ── */
+.cover-art { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 14px; color: rgba(255,255,255,0.95); font-family: var(--serif); text-align: center; }
+.cover-art::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(255,255,255,0.3); pointer-events: none; }
+.art-issue { font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em; opacity: 0.8; }
+.art-title-zh { font-size: 28px; font-weight: 900; line-height: 1.05; letter-spacing: 0.08em; writing-mode: vertical-rl; margin: auto; text-align: center; overflow: hidden; max-height: 85%; }
+.art-author { font-family: var(--sans); font-size: 10px; letter-spacing: 0.15em; opacity: 0.85; }
+.art-year { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; opacity: 0.6; }
+.art-deco { position: absolute; width: 30px; height: 30px; border: 1px solid rgba(255,255,255,0.4); top: 20px; right: 20px; transform: rotate(45deg); opacity: 0.5; }
+.cover-art-image { padding: 0; }
+.cover-art-image::before { display: none; }
+.cover-art-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-.book-list{flex:1;overflow-y:auto;padding:8px}
-.book-item{
-  display:flex;gap:10px;padding:10px 10px;border-radius:8px;cursor:pointer;
-  transition:background .12s;align-items:flex-start;border:1px solid transparent;margin-bottom:2px
-}
-.book-item:hover{background:var(--bg3)}
-.book-item.active{background:var(--bg3);border-color:var(--accent)}
-.book-thumb{
-  width:38px;height:52px;border-radius:4px;object-fit:cover;flex-shrink:0;
-  background:var(--bg3);display:flex;align-items:center;justify-content:center;
-  font-size:18px;overflow:hidden
-}
-.book-thumb img{width:100%;height:100%;object-fit:cover}
-.book-meta{flex:1;min-width:0}
-.book-item-title{font-size:11.5px;font-weight:600;color:var(--text);line-height:1.4;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.book-item-cat{font-size:10px;color:var(--text3);margin-top:3px}
-.book-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+/* ── 詳情頁 ── */
+.detail-page { min-height: 100vh; padding: 80px 60px 60px; }
+.detail-header { max-width: 1200px; margin: 0 auto 48px; display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--line); font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; }
+.detail-back { color: var(--ink-soft); transition: color 0.2s; }
+.detail-back:hover { color: var(--accent); }
+.detail-crumb { color: var(--ink-mute); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.detail-issue { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.detail-hero { max-width: 1200px; margin: 0 auto 80px; display: grid; grid-template-columns: 280px 1fr; gap: 60px; align-items: start; }
+.hero-cover { aspect-ratio: 2 / 3; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1); }
+.hero-cover .cover-art { padding: 36px 32px; }
+.hero-cover .art-title-zh { font-size: 52px; letter-spacing: 0.2em; }
+.hero-cover .art-author { font-size: 14px; }
+.hero-cover .art-issue, .hero-cover .art-year { font-size: 12px; }
+.hero-cover .art-deco { width: 50px; height: 50px; top: 32px; right: 32px; }
+.hero-info { padding-top: 8px; }
+.hero-category { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
+.hero-title { font-family: var(--display); font-size: 56px; font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 14px; }
+.hero-subtitle { font-family: var(--sans); font-size: 17px; color: var(--ink-soft); margin-bottom: 20px; font-weight: 400; }
+.hero-byline { font-family: var(--sans); font-size: 13px; color: var(--ink-soft); margin-bottom: 28px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.byline-author { font-weight: 700; color: var(--ink); }
+.byline-sep { color: var(--ink-mute); }
+.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+.hero-stats > div { text-align: center; padding: 0 16px; border-right: 1px solid var(--line); }
+.hero-stats > div:last-child { border-right: none; }
+.stat-num { font-family: var(--display); font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+.stat-lbl { font-family: var(--sans); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-mute); margin-top: 6px; }
+.hero-actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.btn-primary, .btn-ghost { font-family: var(--sans); font-size: 12px; letter-spacing: 0.15em; padding: 12px 24px; border-radius: 2px; font-weight: 600; transition: all 0.15s; }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary:hover { background: var(--accent); }
+.btn-ghost { border: 1px solid var(--line-strong); color: var(--ink-soft); }
+.btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+.hero-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-tag { font-family: var(--sans); font-size: 11px; padding: 4px 10px; background: var(--bg-alt); border-radius: 2px; letter-spacing: 0.05em; }
+.detail-lead { max-width: 820px; margin: 0 auto 72px; padding: 40px 60px; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); text-align: center; }
+.lead-label { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); font-weight: 700; margin-bottom: 20px; }
+.lead-text { font-family: var(--sans); font-size: 16px; line-height: 1.8; color: var(--ink); font-weight: 400; letter-spacing: 0.005em; text-align: left; }
+.lead-sig { font-family: var(--serif); font-style: italic; color: var(--ink-soft); margin-top: 20px; font-size: 14px; }
+.detail-tabs { max-width: 1000px; margin: 0 auto 32px; display: flex; justify-content: center; gap: 0; border-bottom: 1px solid var(--line); }
+.tab-btn { font-family: var(--sans); font-size: 13px; letter-spacing: 0.15em; padding: 14px 32px; color: var(--ink-mute); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 700; }
+.detail-body { max-width: 1000px; margin: 0 auto 80px; }
+.chapter-item { border-bottom: 1px solid var(--line); cursor: pointer; transition: background 0.2s; }
+.chapter-item:first-child { border-top: 1px solid var(--line); }
+.chapter-item.open { background: var(--bg-alt); }
+.chapter-item:hover .chapter-title { color: var(--accent); }
+.chapter-head { display: grid; grid-template-columns: 64px 1fr 40px; gap: 24px; align-items: center; padding: 24px 20px; }
+.chapter-num { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1; text-align: center; letter-spacing: 0.05em; }
+.chapter-title { font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; transition: color 0.2s; letter-spacing: -0.02em; }
+.chapter-meta { font-family: var(--sans); font-size: 11px; letter-spacing: 0.15em; color: var(--ink-mute); }
+.chapter-toggle { font-size: 28px; color: var(--ink-soft); font-family: var(--serif); font-weight: 300; text-align: center; }
+.chapter-body { padding: 0 20px 32px 108px; }
+.chapter-drop { font-family: var(--sans); font-size: 14px; line-height: 1.85; color: var(--ink); margin-bottom: 20px; max-width: 640px; letter-spacing: 0.005em; }
+.drop-cap { font-size: 44px; font-weight: 400; float: left; line-height: 0.85; margin: 6px 10px 0 0; color: var(--accent); font-family: var(--serif); }
+.chapter-actions { display: flex; gap: 20px; padding-top: 12px; border-top: 1px dotted var(--line-strong); max-width: 640px; }
+.btn-link { font-family: var(--sans); font-size: 12px; letter-spacing: 0.12em; color: var(--accent); font-weight: 600; }
+.btn-link:hover { text-decoration: underline; }
+.quotes-list { display: grid; gap: 40px; padding: 20px 0; }
+.quote-card { position: relative; padding: 48px 60px; border: 1px solid var(--line); background: var(--bg-alt); text-align: center; }
+.quote-num { position: absolute; top: 16px; left: 20px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-mute); }
+.quote-mark { font-family: var(--serif); font-size: 80px; color: var(--accent); line-height: 0.5; margin-bottom: 12px; opacity: 0.4; }
+.quote-text { font-family: var(--display); font-size: 22px; line-height: 1.55; font-weight: 500; margin-bottom: 20px; letter-spacing: -0.01em; }
+.quote-attr { font-family: var(--sans); font-size: 12px; letter-spacing: 0.15em; color: var(--ink-soft); }
+.about-block { display: grid; grid-template-columns: 200px 1fr; gap: 60px; padding: 20px 0; }
+.about-portrait { aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; flex-direction: column; color: rgba(255,255,255,0.9); font-family: var(--serif); position: relative; }
+.about-portrait::before { content: ""; position: absolute; inset: 12px; border: 1px dashed rgba(255,255,255,0.3); }
+.portrait-initials { font-family: var(--display); font-size: 60px; font-weight: 800; letter-spacing: 0.05em; }
+.portrait-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.25em; margin-top: 12px; opacity: 0.7; }
+.about-text h3 { font-family: var(--display); font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.025em; }
+.about-meta { font-family: var(--sans); font-size: 12px; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 20px; }
+.about-text p { font-family: var(--sans); font-size: 14px; line-height: 1.85; margin-bottom: 16px; color: var(--ink-soft); }
+.about-works { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+.works-label { font-family: var(--sans); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-mute); margin-bottom: 10px; }
+.about-works ul { list-style: none; font-family: var(--sans); font-size: 13px; }
+.about-works li { padding: 6px 0; border-bottom: 1px dotted var(--line); }
+.detail-related { max-width: 1200px; margin: 80px auto 40px; padding-top: 40px; border-top: 3px double var(--ink); }
+.related-label { font-family: var(--sans); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); font-weight: 700; margin-bottom: 24px; text-align: center; }
+.related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.related-card { display: grid; grid-template-columns: 80px 1fr; gap: 16px; cursor: pointer; padding: 12px; transition: all 0.2s; }
+.related-card:hover { background: var(--bg-alt); }
+.related-cover { aspect-ratio: 2/3; position: relative; box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+.related-cover .cover-art { padding: 8px 6px; }
+.related-cover .art-title-zh { font-size: 14px; letter-spacing: 0.08em; }
+.related-cover .art-author, .related-cover .art-issue, .related-cover .art-year { font-size: 7px; }
+.related-cover .art-deco { width: 12px; height: 12px; top: 10px; right: 10px; }
+.related-info { padding-top: 6px; }
+.related-cat { font-family: var(--sans); font-size: 9px; letter-spacing: 0.25em; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+.related-title { font-family: var(--display); font-size: 16px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.related-author { font-family: var(--sans); font-size: 11px; color: var(--ink-soft); letter-spacing: 0.1em; }
+.detail-footer { max-width: 1200px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-family: var(--sans); font-size: 11px; letter-spacing: 0.15em; color: var(--ink-mute); }
 
-.sidebar-stats{padding:10px 16px;border-top:1px solid var(--border);font-size:10px;color:var(--text3)}
+/* ── 狀態標籤 ── */
+.status-badge { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; padding: 2px 7px; border-radius: 2px; font-weight: 600; display: inline-block; }
+.status-reading { background: #d4edda; color: #2d6a4f; }
+.status-done { background: var(--bg-alt); color: var(--ink-mute); }
+.status-pending { background: #fff3cd; color: #856404; }
 
-/* ── Main ── */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 32px;border-bottom:1px solid var(--border);background:var(--bg)
-}
-.topbar-issue{font-size:10px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase}
-.topbar-date{font-size:12px;color:var(--text3)}
-.topbar-nav{display:flex;gap:4px}
-.nav-tab{
-  padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;
-  border:none;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s
-}
-.nav-tab:hover{color:var(--text)}
-.nav-tab.active{background:var(--accent);color:#fff}
+/* ========== upload.css ========== */
+.upload-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.upload-modal { background: var(--bg); width: 100%; max-width: 720px; max-height: calc(100vh - 80px); overflow-y: auto; border: 1px solid var(--line-strong); box-shadow: 0 40px 100px rgba(0,0,0,0.3); animation: slideUp 0.25s; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.upload-head { display: flex; justify-content: space-between; align-items: flex-start; padding: 28px 32px 20px; border-bottom: 1px solid var(--line); }
+.upload-kicker { font-family: var(--sans); font-size: 10px; letter-spacing: 0.3em; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+.upload-title { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
+.upload-close { font-size: 32px; color: var(--ink-mute); line-height: 1; font-family: var(--serif); font-weight: 300; transition: color 0.15s; }
+.upload-close:hover { color: var(--ink); }
+.upload-body { padding: 32px; }
+.upload-drop { border: 2px dashed var(--line-strong); padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.2s; font-family: var(--sans); }
+.upload-drop:hover { border-color: var(--ink); background: var(--bg-alt); }
+.drop-icon { font-size: 56px; color: var(--ink-mute); font-weight: 300; line-height: 1; margin-bottom: 16px; }
+.drop-title { font-family: var(--display); font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.015em; }
+.drop-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; letter-spacing: 0.05em; }
+.drop-hint { font-size: 11px; color: var(--ink-mute); letter-spacing: 0.1em; }
+.upload-manual { display: block; margin: 20px auto 0; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); letter-spacing: 0.1em; text-decoration: underline; text-underline-offset: 4px; }
+.upload-manual:hover { color: var(--accent); }
+.upload-processing { padding: 80px 32px; text-align: center; }
+.spinner { width: 48px; height: 48px; border: 3px solid var(--line-strong); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 20px; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.processing-text { font-family: var(--sans); font-size: 13px; letter-spacing: 0.15em; color: var(--ink-soft); }
+.upload-form-body { display: grid; grid-template-columns: 180px 1fr; gap: 28px; padding: 32px; }
+.form-preview { }
+.preview-cover { aspect-ratio: 2/3; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.18); margin-bottom: 12px; }
+.preview-img { width: 100%; height: 100%; object-fit: cover; }
+.preview-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.95); padding: 20px; text-align: center; font-family: var(--display); }
+.ph-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.ph-author { font-size: 11px; letter-spacing: 0.2em; opacity: 0.7; }
+.preview-reupload { font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; color: var(--ink-soft); padding: 6px 0; width: 100%; border: 1px solid var(--line-strong); background: transparent; transition: all 0.15s; }
+.preview-reupload:hover { border-color: var(--ink); color: var(--ink); }
+.form-fields { display: flex; flex-direction: column; gap: 14px; }
+.fld { display: flex; flex-direction: column; gap: 6px; }
+.fld > span { font-family: var(--sans); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-mute); font-weight: 600; text-transform: uppercase; }
+.fld input, .fld textarea, .fld select { font-family: var(--sans); font-size: 14px; padding: 10px 12px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); border-radius: 0; transition: border-color 0.15s; resize: vertical; outline: none; }
+.fld input:focus, .fld textarea:focus, .fld select:focus { border-color: var(--accent); }
+.fld-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+.color-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.color-chip { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line-strong); cursor: pointer; transition: all 0.15s; }
+.color-chip.active { box-shadow: 0 0 0 2px var(--ink); transform: scale(1.1); }
+.form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line); margin-top: 10px; }
 
-.content-area{padding:32px;overflow-y:auto}
-
-/* ── Cover / Hero ── */
-.hero{
-  display:grid;grid-template-columns:340px 1fr;gap:40px;
-  background:var(--bg2);border-radius:16px;overflow:hidden;margin-bottom:32px;
-  border:1px solid var(--border)
+/* ── Responsive ── */
+@media (max-width: 980px) {
+  .cover-page { padding: 28px 24px 40px; }
+  .cover-grid { grid-template-columns: 1fr; }
+  .cover-main { padding-right: 0; border-right: none; }
+  .cover-index { margin-left: 0; border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 28px; }
+  .cover-title { font-size: 52px; }
+  .bookshelf-page { padding: 60px 24px 40px; }
+  .shelf-title { font-size: 42px; }
+  .shelf-grid { grid-template-columns: 1fr; }
+  .book-card { grid-template-columns: 120px 1fr; }
+  .detail-page { padding: 60px 24px 40px; }
+  .detail-hero { grid-template-columns: 1fr; }
+  .hero-cover { max-width: 200px; }
+  .hero-title { font-size: 38px; }
+  .related-grid { grid-template-columns: 1fr; }
+  .about-block { grid-template-columns: 1fr; }
+  .detail-lead { padding: 28px 24px; }
+  .upload-form-body { grid-template-columns: 1fr; }
+  .form-preview { max-width: 180px; margin: 0 auto; }
 }
-.hero-cover{position:relative;overflow:hidden;background:var(--bg3)}
-.hero-cover img{width:100%;height:100%;object-fit:cover;display:block}
-.hero-cover-placeholder{
-  width:100%;height:460px;display:flex;align-items:center;justify-content:center;
-  font-size:80px;background:linear-gradient(135deg,#2a1a4a,#1a1a28)
-}
-.hero-info{padding:36px 36px 36px 0;display:flex;flex-direction:column;justify-content:center}
-.hero-issue-tag{
-  display:inline-block;font-size:10px;letter-spacing:.15em;color:var(--accent2);
-  border:1px solid var(--accent);padding:3px 10px;border-radius:4px;
-  text-transform:uppercase;margin-bottom:16px
-}
-.hero-title{
-  font-family:'Noto Sans TC',sans-serif;font-size:28px;font-weight:900;
-  line-height:1.3;letter-spacing:-.02em;color:var(--text);margin-bottom:12px
-}
-.hero-intro{font-size:13.5px;color:var(--text2);line-height:1.9;
-  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
-  margin-bottom:20px}
-.hero-meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.hero-badge{font-size:11px;padding:4px 12px;border-radius:99px}
-.hero-pages{font-size:12px;color:var(--text3)}
-.hero-status{font-size:11px;padding:4px 12px;border-radius:99px}
-.btn-primary{
-  margin-top:auto;padding:10px 24px;background:var(--accent);color:#fff;
-  border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
-  font-family:inherit;transition:background .15s;display:inline-block;width:fit-content
-}
-.btn-primary:hover{background:#6d28d9}
-
-/* ── Grid ── */
-.section-label{
-  font-size:10px;letter-spacing:.15em;color:var(--text3);text-transform:uppercase;
-  margin-bottom:16px;font-weight:500
-}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:40px}
-.card{
-  background:var(--bg2);border-radius:10px;overflow:hidden;border:1px solid var(--border);
-  cursor:pointer;transition:transform .15s,border-color .15s
-}
-.card:hover{transform:translateY(-3px);border-color:#3a3a50}
-.card.active{border-color:var(--accent)}
-.card-cover{
-  width:100%;aspect-ratio:3/4;object-fit:cover;display:block;
-  background:var(--bg3)
-}
-.card-cover-ph{
-  width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;
-  font-size:36px;position:relative
-}
-.card-body{padding:10px}
-.card-title{font-size:11px;font-weight:700;color:var(--text);line-height:1.45;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:32px}
-.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-.cat-badge{font-size:9px;padding:2px 7px;border-radius:99px}
-.st-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-
-/* ── Reader ── */
-.reader{display:grid;grid-template-columns:300px 1fr;gap:0;height:100%}
-.reader-sidebar{
-  border-right:1px solid var(--border);overflow-y:auto;padding:24px 0
-}
-.reader-main{overflow-y:auto;padding:32px 36px}
-.reader-cover-wrap{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
-.reader-cover-img{width:100%;border-radius:8px;display:block;box-shadow:0 8px 32px #0008}
-.reader-cover-ph{
-  width:100%;aspect-ratio:3/4;border-radius:8px;display:flex;align-items:center;
-  justify-content:center;font-size:56px;background:var(--bg3)
-}
-.reader-info{padding:0 20px 16px;border-bottom:1px solid var(--border);margin-bottom:8px}
-.reader-title{font-size:14px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:8px}
-.reader-badges{display:flex;gap:6px;flex-wrap:wrap}
-.toc-section{font-size:9px;letter-spacing:.12em;color:var(--text3);text-transform:uppercase;
-  padding:10px 20px 6px;font-weight:600}
-.toc-item{
-  padding:7px 20px;font-size:12px;color:var(--text2);cursor:pointer;
-  transition:all .12s;border-left:2px solid transparent;display:flex;gap:8px;align-items:baseline
-}
-.toc-item:hover{background:var(--bg3);color:var(--text)}
-.toc-item.active{border-left-color:var(--accent);color:var(--accent2);background:var(--bg3)}
-.toc-pg{font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0}
-
-.reader-heading{font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px;line-height:1.3;letter-spacing:-.02em}
-.reader-sub{font-size:13px;color:var(--text3);margin-bottom:24px}
-.reader-tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0}
-.rtab{
-  padding:8px 16px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;
-  background:transparent;border:none;border-bottom:2px solid transparent;font-family:inherit;
-  transition:all .15s;margin-bottom:-1px
-}
-.rtab:hover{color:var(--text)}
-.rtab.active{color:var(--accent2);border-bottom-color:var(--accent)}
-
-.prose{font-size:14px;line-height:2;color:var(--text2);white-space:pre-wrap;
-  border-radius:10px;padding:20px 24px;background:var(--bg2);border:1px solid var(--border);
-  max-height:480px;overflow-y:auto}
-.ai-card{
-  background:#0d1a1a;border:1px solid #1a3a3a;border-radius:10px;padding:20px 24px;
-  font-size:13.5px;line-height:1.9;color:#c8e6e6
-}
-.ai-card h2{font-size:15px;font-weight:700;color:var(--accent2);margin:16px 0 6px}
-.ai-card h2:first-child{margin-top:0}
-.ai-card ul,ol{padding-left:20px}
-.ai-card li{margin-bottom:4px}
-.status-sel{
-  background:var(--bg3);border:1px solid var(--border);color:var(--text);
-  padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit
-}
-.upload-zone{
-  border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;
-  cursor:pointer;transition:all .15s;margin-bottom:24px
-}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:#1a1030}
-.upload-zone h3{font-size:14px;margin-bottom:6px}
-.upload-zone p{font-size:12px;color:var(--text3)}
-
-/* ── Empty ── */
-.empty{
-  height:100%;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;color:var(--text3);gap:12px
-}
-.empty-icon{font-size:56px}
-.empty h2{font-size:16px;font-weight:700;color:var(--text2)}
-.empty p{font-size:13px;text-align:center}
-
-/* ── Utility ── */
-.hidden{display:none!important}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);
-  border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="app">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">The Anthology</div>
-      <div class="logo-title">📚 Jim 書庫</div>
-      <div class="logo-sub" id="sb-count">— 本電子書</div>
-    </div>
-    <div class="filters">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search" placeholder="搜尋書名...">
-      </div>
-      <div class="filter-row" id="cat-filters">
-        <button class="filter-btn active" data-cat="all">全部</button>
-      </div>
-    </div>
-    <div class="book-list" id="book-list"></div>
-    <div class="sidebar-stats" id="sidebar-stats"></div>
-  </aside>
+<div id="root"></div>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="topbar">
-      <div class="topbar-issue">Vol.1 · 2026</div>
-      <div class="topbar-nav" id="topbar-nav">
-        <button class="nav-tab active" data-view="shelf">📚 書架</button>
-        <button class="nav-tab" data-view="reader">📖 閱讀</button>
-        <button class="nav-tab" data-view="upload">⬆️ 上傳</button>
-      </div>
-      <div class="topbar-date" id="topbar-date"></div>
-    </div>
+<!-- React + Babel CDN -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- SHELF VIEW -->
-    <div class="content-area" id="view-shelf">
-      <div id="hero-section"></div>
-      <div class="section-label" id="grid-label">全部書籍</div>
-      <div class="grid" id="main-grid"></div>
-    </div>
-
-    <!-- READER VIEW -->
-    <div class="reader hidden" id="view-reader">
-      <div class="reader-sidebar" id="reader-sidebar">
-        <div class="reader-cover-wrap" id="reader-cover-wrap"></div>
-        <div class="reader-info" id="reader-info"></div>
-        <div class="toc-section">章節目錄</div>
-        <div id="reader-toc"></div>
-      </div>
-      <div class="reader-main" id="reader-main">
-        <div class="empty"><div class="empty-icon">📖</div><h2>選一個章節開始閱讀</h2></div>
-      </div>
-    </div>
-
-    <!-- UPLOAD VIEW -->
-    <div class="content-area hidden" id="view-upload">
-      <div class="upload-zone" id="drop-zone">
-        <h3>⬆️ 上傳 PDF 電子書</h3>
-        <p>拖放 PDF 到這裡，或點擊選擇檔案<br>系統自動抽取封面、書名、章節</p>
-        <input type="file" id="file-input" accept=".pdf" multiple style="display:none">
-      </div>
-      <div id="upload-list"></div>
-    </div>
-  </main>
-</div>
-
-<script src="books_data.js"></script>
+<!-- PDF.js for cover extraction -->
 <script>
-// ── Data & State ────────────────────────────────────
-const CAT_C = {
-  "AI/科技":"#06b6d4","投資/財富":"#22c55e","人性/心理":"#ec4899",
-  "商業/創業":"#f59e0b","生活/心智":"#8b5cf6","溝通/談判":"#3b82f6",
-  "關係/情緒":"#f472b6","其他":"#64748b"
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload = function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; };
+  document.head.appendChild(s);
+  var s2 = document.createElement('script');
+  s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  document.head.appendChild(s2);
+})();
+</script>
+
+<!-- Book data -->
+<script src="books_data.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ──────────────────────────────────────────
+   資料橋接器：將 BOOKS_DATA 格式轉換為設計格式
+   ────────────────────────────────────────── */
+const CAT_MAP = {
+  "投資/財富": "投資 · INVEST",
+  "AI/科技":   "科技 · TECH",
+  "人性/心理": "心理 · PSYCH",
+  "生活/心智": "生活 · LIFE",
+  "溝通/談判": "溝通 · COMM",
+  "商業/創業": "商業 · BIZ",
+  "關係/情緒": "關係 · SOCIAL",
+  "其他":      "其他 · OTHER",
 };
-const CAT_EM = {
-  "AI/科技":"🤖","投資/財富":"💰","人性/心理":"🧠","商業/創業":"🚀",
-  "生活/心智":"🌱","溝通/談判":"🤝","關係/情緒":"💞","其他":"📖"
-};
-const ST_C = {"待讀":"#64748b","讀中":"#f59e0b","已讀":"#22c55e"};
 
-let books = typeof window.BOOKS_DATA !== 'undefined' ? window.BOOKS_DATA : [];
-let state = {
-  view: 'shelf',
-  cat: 'all',
-  search: '',
-  selBook: null,
-  selChapter: 0,
-  readerTab: 'intro',
-  aiCache: {},
+const CAT_COLORS = {
+  "投資/財富": "#7A2E2B",
+  "AI/科技":   "#2E4A6B",
+  "人性/心理": "#3E5641",
+  "生活/心智": "#4A5D3A",
+  "溝通/談判": "#8B5A2B",
+  "商業/創業": "#5C4A6B",
+  "關係/情緒": "#6B4226",
+  "其他":      "#4A453E",
 };
 
-// ── Init ──────────────────────────────────────────────
-document.getElementById('topbar-date').textContent =
-  new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric'});
-document.getElementById('sb-count').textContent = `${books.length} 本電子書`;
+const COVER_STYLES = ["a","b","c","d","e","f"];
 
-// Category filters
-const cats = [...new Set(books.map(b=>b.category))].sort();
-const filterRow = document.getElementById('cat-filters');
-cats.forEach(cat => {
-  const btn = document.createElement('button');
-  btn.className = 'filter-btn';
-  btn.dataset.cat = cat;
-  btn.innerHTML = `${CAT_EM[cat]||'📖'} ${cat}`;
-  filterRow.appendChild(btn);
-});
+const CH_NUMS = ["壹","貳","參","肆","伍","陸","柒","捌","玖","拾",
+                 "拾壹","拾貳","拾參","拾肆","拾伍","拾陸","拾柒","拾捌","拾玖","貳拾"];
 
-filterRow.addEventListener('click', e => {
-  const btn = e.target.closest('.filter-btn');
-  if (!btn) return;
-  filterRow.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  state.cat = btn.dataset.cat;
-  renderAll();
-});
+function cleanTitle(raw) {
+  return (raw || "")
+    .split(/\s*[=＝]\s*/)[0]
+    .replace(/\.(pdf|epub)$/i, "")
+    .trim();
+}
 
-document.getElementById('search').addEventListener('input', e => {
-  state.search = e.target.value.toLowerCase();
-  renderAll();
-});
+function extractSubtitle(raw) {
+  const parts = raw.split(/[：:]/);
+  return parts.length > 1 ? parts.slice(1).join("：").split(/\s*[=＝]/)[0].trim() : "";
+}
 
-document.getElementById('topbar-nav').addEventListener('click', e => {
-  const tab = e.target.closest('.nav-tab');
-  if (!tab) return;
-  switchView(tab.dataset.view);
-});
+function extractQuotes(intro) {
+  if (!intro) return ["（尚未收錄金句）"];
+  const sents = intro.split(/[。！？]/).filter(s => s.trim().length > 15 && s.trim().length < 120);
+  return sents.slice(0, 3).map(s => s.trim()) || ["（尚未收錄金句）"];
+}
 
-// ── Filter ──────────────────────────────────────────
-function filteredBooks() {
-  return books.filter(b =>
-    (state.cat === 'all' || b.category === state.cat) &&
-    (!state.search || b.title.toLowerCase().includes(state.search))
+function adaptBook(b, i) {
+  const rawTitle = b.title || "";
+  const title = cleanTitle(rawTitle);
+  const subtitle = extractSubtitle(rawTitle);
+  const cat = b.category || "其他";
+  const chapters = (b.chapters || []).slice(0, 20).map((ch, j) => ({
+    num: CH_NUMS[j] || String(j + 1),
+    title: ch.title || `第 ${j + 1} 章`,
+    desc: (ch.excerpt || "").slice(0, 400),
+    page: ch.page
+  }));
+  const readTime = `約 ${Math.max(1, Math.round((b.total_pages || 200) / 60))} 小時`;
+  const status = b.status || "待讀";
+  return {
+    id: b.id,
+    issue: `No. ${String(i + 1).padStart(2, "0")}`,
+    category: CAT_MAP[cat] || (cat + " · OTHER"),
+    rawCategory: cat,
+    title,
+    subtitle,
+    author: b.author || "—",
+    translator: "",
+    year: "",
+    pages: b.total_pages || 0,
+    readTime,
+    tags: (b.tags && b.tags.length) ? b.tags : [cat],
+    color: CAT_COLORS[cat] || "#4A453E",
+    coverStyle: COVER_STYLES[i % COVER_STYLES.length],
+    coverImage: b.cover || null,
+    summary: (b.intro || "（尚未填寫簡介）").slice(0, 500),
+    chapters: chapters.length ? chapters : [{ num: "壹", title: "第一章", desc: "請閱讀全書以獲取更多內容。", page: 1 }],
+    quotes: extractQuotes(b.intro),
+    userAdded: b.userAdded || false,
+    rawStatus: status,
+  };
+}
+
+/* ──────────────────────────────────────────
+   UploadModal 上傳元件
+   ────────────────────────────────────────── */
+async function extractPdfCover(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const page = await pdf.getPage(1);
+  const viewport = page.getViewport({ scale: 2 });
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+async function extractEpubCover(file) {
+  const zip = await window.JSZip.loadAsync(file);
+  const candidates = Object.keys(zip.files).filter(n => /cover/i.test(n) && /\.(jpe?g|png|gif|webp)$/i.test(n));
+  let coverFile = candidates[0];
+  if (!coverFile) {
+    const opfPath = Object.keys(zip.files).find(n => n.endsWith(".opf"));
+    if (opfPath) {
+      const opf = await zip.file(opfPath).async("string");
+      const match = opf.match(/<item[^>]*id="cover[^"]*"[^>]*href="([^"]+)"/i)
+                 || opf.match(/<meta[^>]*name="cover"[^>]*content="([^"]+)"/i);
+      if (match) {
+        const base = opfPath.substring(0, opfPath.lastIndexOf("/") + 1);
+        coverFile = Object.keys(zip.files).find(n => n.endsWith(match[1]) || n === base + match[1]);
+      }
+    }
+  }
+  if (!coverFile) coverFile = Object.keys(zip.files).find(n => /\.(jpe?g|png)$/i.test(n));
+  if (!coverFile) return null;
+  const blob = await zip.file(coverFile).async("blob");
+  return await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+function UploadModal({ onClose, onAdd }) {
+  const [stage, setStage] = useState("drop");
+  const [cover, setCover] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [form, setForm] = useState({
+    title: "", subtitle: "", author: "", year: "", category: "其他 · OTHER",
+    summary: "", tags: "", color: "#7A2E2B"
+  });
+  const fileRef = useRef();
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setProcessing(true);
+    setStage("processing");
+    try {
+      let coverData = null;
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".pdf")) {
+        if (!window.pdfjsLib) await new Promise(r => setTimeout(r, 1000));
+        coverData = await extractPdfCover(file);
+      } else if (name.endsWith(".epub")) {
+        if (!window.JSZip) await new Promise(r => setTimeout(r, 1000));
+        coverData = await extractEpubCover(file);
+      } else if (/\.(jpe?g|png|gif|webp)$/i.test(name)) {
+        coverData = await new Promise((res, rej) => {
+          const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file);
+        });
+      } else {
+        alert("請上傳 PDF、EPUB 或圖片檔");
+        setStage("drop"); setProcessing(false); return;
+      }
+      setCover(coverData);
+      const baseName = file.name.replace(/\.(pdf|epub|jpe?g|png|gif|webp)$/i, "");
+      setForm(f => ({ ...f, title: f.title || cleanTitle(baseName) }));
+      setStage("form");
+    } catch (err) {
+      console.error(err);
+      alert("處理檔案失敗: " + err.message);
+      setStage("drop");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const submit = () => {
+    if (!form.title.trim()) { alert("請輸入書名"); return; }
+    const newBook = {
+      id: "user_" + Date.now(),
+      issue: `No. ${String(Date.now()).slice(-2)}`,
+      category: form.category,
+      rawCategory: form.category.split(" · ")[0],
+      title: form.title,
+      subtitle: form.subtitle || "",
+      author: form.author || "—",
+      translator: "",
+      year: form.year || "",
+      pages: 200,
+      readTime: "約 5 小時",
+      tags: form.tags.split(/[,，\s]+/).filter(Boolean).slice(0, 4),
+      color: form.color,
+      coverStyle: "a",
+      coverImage: cover,
+      summary: form.summary || "（尚未填寫簡介）",
+      chapters: [
+        { num: "壹", title: "第一章", desc: "請編輯此章節的內容摘要。", page: 1 },
+        { num: "貳", title: "第二章", desc: "請編輯此章節的內容摘要。", page: 2 }
+      ],
+      quotes: ["（尚未收錄金句）"],
+      userAdded: true,
+      rawStatus: "待讀",
+    };
+    onAdd(newBook);
+    onClose();
+  };
+
+  return (
+    <div className="upload-overlay" onClick={onClose}>
+      <div className="upload-modal" onClick={e => e.stopPropagation()}>
+        <header className="upload-head">
+          <div>
+            <div className="upload-kicker">ADD TO SHELF</div>
+            <h2 className="upload-title">新增書籍</h2>
+          </div>
+          <button className="upload-close" onClick={onClose}>×</button>
+        </header>
+
+        {stage === "drop" && (
+          <div className="upload-body">
+            <div className="upload-drop" onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+              onClick={() => fileRef.current.click()}>
+              <div className="drop-icon">＋</div>
+              <div className="drop-title">拖放電子書檔案</div>
+              <div className="drop-sub">支援 PDF · EPUB · JPG · PNG</div>
+              <div className="drop-hint">系統會自動抽取封面</div>
+              <input ref={fileRef} type="file" accept=".pdf,.epub,.jpg,.jpeg,.png,.gif,.webp"
+                style={{ display: "none" }} onChange={e => handleFile(e.target.files[0])} />
+            </div>
+            <button className="upload-manual" onClick={() => { setCover(null); setStage("form"); }}>
+              或手動新增（無檔案）
+            </button>
+          </div>
+        )}
+
+        {stage === "processing" && (
+          <div className="upload-processing">
+            <div className="spinner"></div>
+            <div className="processing-text">正在解析檔案 · 提取封面…</div>
+          </div>
+        )}
+
+        {stage === "form" && (
+          <div className="upload-form-body">
+            <div className="form-preview">
+              <div className="preview-cover" style={{ background: form.color }}>
+                {cover ? <img src={cover} alt="封面" className="preview-img" /> : (
+                  <div className="preview-placeholder">
+                    <div className="ph-title">{form.title || "書名"}</div>
+                    <div className="ph-author">{form.author || "作者"}</div>
+                  </div>
+                )}
+              </div>
+              <button className="preview-reupload" onClick={() => { setCover(null); setStage("drop"); }}>
+                {cover ? "↻ 重新上傳" : "+ 上傳檔案"}
+              </button>
+            </div>
+            <div className="form-fields">
+              <label className="fld"><span>書名 *</span>
+                <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} placeholder="例：百年孤寂" />
+              </label>
+              <label className="fld"><span>副標題</span>
+                <input value={form.subtitle} onChange={e => setForm({...form, subtitle: e.target.value})} placeholder="例：一個家族七代人的魔幻史詩" />
+              </label>
+              <div className="fld-row">
+                <label className="fld"><span>作者</span>
+                  <input value={form.author} onChange={e => setForm({...form, author: e.target.value})} placeholder="作者姓名" />
+                </label>
+                <label className="fld"><span>年份</span>
+                  <input value={form.year} onChange={e => setForm({...form, year: e.target.value})} placeholder="1967" />
+                </label>
+              </div>
+              <label className="fld"><span>分類</span>
+                <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+                  {Object.values(CAT_MAP).map(c => <option key={c}>{c}</option>)}
+                  <option>小說 · NOVEL</option>
+                  <option>歷史 · HISTORY</option>
+                </select>
+              </label>
+              <label className="fld"><span>標籤（用逗號分隔）</span>
+                <input value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} placeholder="投資, 理財, 數學" />
+              </label>
+              <label className="fld"><span>簡介</span>
+                <textarea value={form.summary} onChange={e => setForm({...form, summary: e.target.value})} rows="3" placeholder="書籍內容摘要…" />
+              </label>
+              <label className="fld"><span>主題色</span>
+                <div className="color-row">
+                  {["#7A2E2B","#3E5641","#2E4A6B","#8B5A2B","#4A5D3A","#5C4A6B","#1A1815","#6B4226"].map(c => (
+                    <button key={c} className={`color-chip ${form.color === c ? "active" : ""}`}
+                      style={{ background: c }} onClick={() => setForm({...form, color: c})} />
+                  ))}
+                </div>
+              </label>
+              <div className="form-actions">
+                <button className="btn-ghost" onClick={onClose}>取消</button>
+                <button className="btn-primary" onClick={submit}>加入書架 →</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
-// ── View Switch ─────────────────────────────────────
-function switchView(v) {
-  state.view = v;
-  ['shelf','reader','upload'].forEach(id => {
-    const el = document.getElementById(`view-${id}`);
-    el.classList.toggle('hidden', id !== v);
-  });
-  document.querySelectorAll('.nav-tab').forEach(t =>
-    t.classList.toggle('active', t.dataset.view === v));
-}
-
-// ── Render All ──────────────────────────────────────
-function renderAll() {
-  renderSidebar();
-  renderHero();
-  renderGrid();
-  if (state.selBook) renderReader();
-}
-
-// ── Sidebar ─────────────────────────────────────────
-function renderSidebar() {
-  const list = document.getElementById('book-list');
-  const fb = filteredBooks();
-  list.innerHTML = fb.map(b => {
-    const cc = CAT_C[b.category]||'#64748b';
-    const em = CAT_EM[b.category]||'📖';
-    const active = state.selBook?.id === b.id ? ' active' : '';
-    const hasCover = b.cover ? `<img src="${b.cover}" style="width:100%;height:100%;object-fit:cover;border-radius:3px">` : em;
-    return `
-<div class="book-item${active}" onclick="selectBook('${b.id}')">
-  <div class="book-thumb">${hasCover}</div>
-  <div class="book-meta">
-    <div class="book-item-title">${b.title}</div>
-    <div class="book-item-cat" style="color:${cc}">${b.category}</div>
-  </div>
-  <div class="book-dot" style="background:${ST_C[b.status]||'#64748b'}"></div>
-</div>`;
-  }).join('');
-  document.getElementById('sidebar-stats').innerHTML =
-    `顯示 ${fb.length} / ${books.length} 本 · ` +
-    `待讀 ${books.filter(b=>b.status==='待讀').length} · ` +
-    `讀中 ${books.filter(b=>b.status==='讀中').length} · ` +
-    `已讀 ${books.filter(b=>b.status==='已讀').length}`;
-}
-
-// ── Hero ─────────────────────────────────────────────
-function renderHero() {
-  const fb = filteredBooks();
-  if (!fb.length) { document.getElementById('hero-section').innerHTML=''; return; }
-  const b = fb[0];
-  const cc = CAT_C[b.category]||'#64748b';
-  const em = CAT_EM[b.category]||'📖';
-  const coverHtml = b.cover
-    ? `<img src="${b.cover}" style="width:100%;height:460px;object-fit:cover;display:block">`
-    : `<div class="hero-cover-placeholder">${em}</div>`;
-  document.getElementById('hero-section').innerHTML = `
-<div class="hero">
-  <div class="hero-cover">${coverHtml}</div>
-  <div class="hero-info">
-    <div class="hero-issue-tag">${b.category}</div>
-    <h2 class="hero-title">${b.title}</h2>
-    <p class="hero-intro">${(b.intro||'暫無導讀').replace(/</g,'&lt;')}</p>
-    <div class="hero-meta">
-      <span class="hero-badge" style="background:${cc}22;color:${cc}">${b.category}</span>
-      ${b.total_pages ? `<span class="hero-pages">📄 ${b.total_pages} 頁</span>` : ''}
-      <span class="hero-status" style="background:${ST_C[b.status]||'#64748b'}22;color:${ST_C[b.status]||'#64748b'}">${b.status}</span>
+/* ──────────────────────────────────────────
+   BookCoverArt 書封藝術
+   ────────────────────────────────────────── */
+function BookCoverArt({ book }) {
+  if (book.coverImage) {
+    return (
+      <div className="cover-art cover-art-image">
+        <img src={book.coverImage} alt={book.title} className="cover-art-img" />
+      </div>
+    );
+  }
+  return (
+    <div className={`cover-art cover-art-${book.coverStyle || "a"}`}>
+      <div className="art-issue">{book.issue}</div>
+      <div className="art-title-zh">{book.title}</div>
+      <div className="art-author">{book.author}</div>
+      <div className="art-year">— {book.year || book.pages + "P"} —</div>
+      <div className="art-deco"></div>
     </div>
-    <br>
-    <button class="btn-primary" onclick="selectBook('${b.id}')">開始閱讀 →</button>
-  </div>
-</div>`;
-  document.getElementById('grid-label').textContent =
-    state.cat==='all' ? '全部書籍' : `${CAT_EM[state.cat]||''} ${state.cat}`;
+  );
 }
 
-// ── Grid ─────────────────────────────────────────────
-function renderGrid() {
-  const fb = filteredBooks().slice(0, 100);
-  document.getElementById('main-grid').innerHTML = fb.map(b => {
-    const cc = CAT_C[b.category]||'#64748b';
-    const em = CAT_EM[b.category]||'📖';
-    const active = state.selBook?.id === b.id ? ' active' : '';
-    const coverHtml = b.cover
-      ? `<img class="card-cover" src="${b.cover}" loading="lazy">`
-      : `<div class="card-cover-ph" style="background:linear-gradient(135deg,${cc}28,${cc}08)">${em}</div>`;
-    return `
-<div class="card${active}" onclick="selectBook('${b.id}')">
-  ${coverHtml}
-  <div class="card-body">
-    <div class="card-title">${b.title}</div>
-    <div class="card-footer">
-      <span class="cat-badge" style="background:${cc}18;color:${cc}">${b.category}</span>
-      <span class="st-dot" style="background:${ST_C[b.status]||'#64748b'}" title="${b.status}"></span>
+/* ──────────────────────────────────────────
+   BookCard 書卡
+   ────────────────────────────────────────── */
+function BookCard({ book, index, onOpen, onDelete }) {
+  const statusClass = book.rawStatus === "在讀" ? "status-reading" : book.rawStatus === "已讀" ? "status-done" : "status-pending";
+  return (
+    <article className="book-card" onClick={onOpen}>
+      {onDelete && (
+        <button className="card-del" onClick={e => { e.stopPropagation(); onDelete(); }} title="刪除">×</button>
+      )}
+      <div className="card-cover" style={{ background: book.color }}>
+        <BookCoverArt book={book} />
+      </div>
+      <div className="card-meta">
+        <div className="card-issue">{book.issue} · {book.category}</div>
+        <h3 className="card-title">{book.title}</h3>
+        {book.subtitle && <div className="card-sub">{book.subtitle}</div>}
+        <div className="card-author-row">
+          <span className="card-author">{book.author}</span>
+          <span className="card-year">{book.year || book.pages + " 頁"}</span>
+        </div>
+        <div className="card-summary">{book.summary}</div>
+        <div className="card-tags">
+          {book.tags.map(t => <span key={t}>#{t}</span>)}
+          <span className={`status-badge ${statusClass}`}>{book.rawStatus}</span>
+        </div>
+        <div className="card-footer">
+          <span>{book.pages ? book.pages + " 頁 · " : ""}{book.readTime}</span>
+          <span className="card-cta">閱讀 →</span>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ──────────────────────────────────────────
+   MagazineCover 封面頁
+   ────────────────────────────────────────── */
+function MagazineCover({ books, onEnter, onOpenBook }) {
+  const featured = books[0] || {};
+  const allCats = [...new Set(books.map(b => b.rawCategory))];
+  return (
+    <div className="cover-page">
+      <div className="cover-grid">
+        <header className="cover-header">
+          <div className="cover-masthead">
+            <div className="masthead-mark">※</div>
+            <div>
+              <div className="masthead-title">書庫</div>
+              <div className="masthead-en">JIM'S BOOK COLLECTION</div>
+            </div>
+          </div>
+          <div className="cover-meta">
+            <div><span className="label">VOL.</span> I</div>
+            <div><span className="label">2026</span> · 春</div>
+            <div><span className="label">{books.length}</span> 本藏書</div>
+          </div>
+        </header>
+
+        <div className="cover-main">
+          <div className="cover-issue-number">書</div>
+          <div className="cover-headline">
+            <div className="cover-kicker">個人書庫 · PERSONAL LIBRARY</div>
+            <h1 className="cover-title">
+              {books.length} 本書<br/>
+              <em>一座私人</em><br/>
+              知識寶庫
+            </h1>
+            <div className="cover-sub">{allCats.join(" · ")} · 涵蓋各類型知識與智慧</div>
+          </div>
+
+          {featured.id && (
+            <div className="cover-feature-card" onClick={() => onOpenBook(featured.id)}>
+              <div className="feature-label">精選推薦</div>
+              <div className="feature-title">{featured.title}</div>
+              <div className="feature-author">{featured.author !== "—" ? featured.author : featured.category}</div>
+              <div className="feature-desc">{(featured.summary || "").slice(0, 80)}…</div>
+              <div className="feature-cta">閱讀全文 →</div>
+            </div>
+          )}
+        </div>
+
+        <aside className="cover-index">
+          <div className="index-title">本期目錄</div>
+          <ol className="index-list">
+            {books.slice(0, 8).map((b, i) => (
+              <li key={b.id} onClick={() => onOpenBook(b.id)}>
+                <span className="idx-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="idx-title">{b.title}</span>
+                <span className="idx-dots"></span>
+                <span className="idx-page">{String((i + 1) * 8).padStart(3, "0")}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="index-foot">
+            <div>更多書籍 — 進入書架</div>
+            <div>全部藏書 — {books.length} 本</div>
+          </div>
+        </aside>
+
+        <footer className="cover-footer">
+          <div className="footer-tags">
+            {allCats.slice(0, 6).map(c => <span key={c}>#{c}</span>)}
+          </div>
+          <button className="enter-btn" onClick={onEnter}>
+            進入書架 <span className="arrow">→</span>
+          </button>
+        </footer>
+      </div>
     </div>
-  </div>
-</div>`;
-  }).join('');
+  );
 }
 
-// ── Select Book ──────────────────────────────────────
-function selectBook(id) {
-  state.selBook = books.find(b=>b.id===id);
-  state.selChapter = 0;
-  state.readerTab = 'intro';
-  switchView('reader');
-  renderReader();
-  document.querySelectorAll('.book-item,.card').forEach(el => {
-    el.classList.toggle('active', el.dataset?.id === id || el.getAttribute('onclick')?.includes(`'${id}'`));
+/* ──────────────────────────────────────────
+   Bookshelf 書架頁
+   ────────────────────────────────────────── */
+function Bookshelf({ books, onOpenBook, onBackToCover, onAddBook, onDeleteBook }) {
+  const [filter, setFilter] = useState("全部");
+  const [search, setSearch] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
+
+  const rawCats = [...new Set(books.map(b => b.rawCategory))].sort();
+  const categories = ["全部", ...rawCats];
+
+  const filtered = useMemo(() => {
+    let list = filter === "全部" ? books : books.filter(b => b.rawCategory === filter);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q) || b.summary.toLowerCase().includes(q));
+    }
+    return list;
+  }, [books, filter, search]);
+
+  return (
+    <div className="bookshelf-page">
+      <header className="shelf-header">
+        <button className="shelf-back" onClick={onBackToCover}>← 回封面</button>
+        <div className="shelf-title-block">
+          <div className="shelf-kicker">CATALOGUE · 目錄</div>
+          <h2 className="shelf-title">個人書庫</h2>
+          <div className="shelf-sub">{books.length} books · 知識藏書全覽</div>
+        </div>
+        <div className="shelf-toolbar">
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
+            <div style={{ position: "relative", flexShrink: 0 }}>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="搜尋書名、作者…"
+                style={{
+                  fontFamily: "var(--sans)", fontSize: "12px", padding: "8px 12px 8px 32px",
+                  border: "1px solid var(--line-strong)", background: "var(--bg)", color: "var(--ink)",
+                  width: "200px", outline: "none"
+                }}
+                onFocus={e => e.target.style.borderColor = "var(--accent)"}
+                onBlur={e => e.target.style.borderColor = "var(--line-strong)"}
+              />
+              <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "13px", color: "var(--ink-mute)" }}>🔍</span>
+            </div>
+            <div className="shelf-filters">
+              {categories.map(c => (
+                <button key={c} className={`filter-chip ${filter === c ? "active" : ""}`} onClick={() => setFilter(c)}>{c}</button>
+              ))}
+            </div>
+          </div>
+          <button className="shelf-add" onClick={() => setShowUpload(true)}>
+            <span className="add-plus">＋</span> 新增書籍
+          </button>
+        </div>
+      </header>
+
+      <div className="shelf-grid">
+        {filtered.map((b, i) => (
+          <BookCard key={b.id} book={b} index={i} onOpen={() => onOpenBook(b.id)}
+            onDelete={b.userAdded ? () => { if (confirm(`刪除《${b.title}》?`)) onDeleteBook(b.id); } : null}
+          />
+        ))}
+        <button className="shelf-add-card" onClick={() => setShowUpload(true)}>
+          <div className="add-card-icon">＋</div>
+          <div className="add-card-title">新增書籍</div>
+          <div className="add-card-sub">拖放 PDF · EPUB · 圖片<br/>自動抽取封面</div>
+        </button>
+      </div>
+
+      {showUpload && <UploadModal onClose={() => setShowUpload(false)} onAdd={onAddBook} />}
+
+      <footer className="shelf-footer">
+        <div>JIM'S BOOK COLLECTION · {books.length} 本藏書</div>
+        <div>2026 · 個人書庫</div>
+      </footer>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────
+   BookDetail 書籍詳情頁
+   ────────────────────────────────────────── */
+function BookDetail({ book, books, onBack, onOpenBook }) {
+  const [tab, setTab] = useState("chapters");
+  const [openChapter, setOpenChapter] = useState(0);
+  const others = books.filter(b => b.id !== book.id && b.rawCategory === book.rawCategory).slice(0, 3);
+
+  return (
+    <div className="detail-page">
+      <header className="detail-header">
+        <button className="detail-back" onClick={onBack}>← 回書架</button>
+        <div className="detail-crumb">書庫 / {book.category} / {book.title}</div>
+        <div className="detail-issue">{book.issue}</div>
+      </header>
+
+      <section className="detail-hero">
+        <div className="hero-cover" style={{ background: book.color }}>
+          <BookCoverArt book={book} />
+        </div>
+        <div className="hero-info">
+          <div className="hero-category">{book.category}</div>
+          <h1 className="hero-title">{book.title}</h1>
+          {book.subtitle && <div className="hero-subtitle">{book.subtitle}</div>}
+          <div className="hero-byline">
+            <span className="byline-author">{book.author}</span>
+            {book.year && <><span className="byline-sep">·</span><span>{book.year}</span></>}
+            <span className="byline-sep">·</span>
+            <span className={`status-badge ${book.rawStatus === "在讀" ? "status-reading" : book.rawStatus === "已讀" ? "status-done" : "status-pending"}`}>
+              {book.rawStatus}
+            </span>
+          </div>
+          <div className="hero-stats">
+            <div><div className="stat-num">{book.pages || "—"}</div><div className="stat-lbl">頁數</div></div>
+            <div><div className="stat-num">{book.chapters.length}</div><div className="stat-lbl">章節</div></div>
+            <div><div className="stat-num">{book.readTime.replace("約 ", "").replace(" 小時", "h")}</div><div className="stat-lbl">閱讀</div></div>
+            <div><div className="stat-num">{book.quotes.length}</div><div className="stat-lbl">摘句</div></div>
+          </div>
+          <div className="hero-actions">
+            <button className="btn-primary">開始閱讀</button>
+            <button className="btn-ghost">加入書籤</button>
+          </div>
+          <div className="hero-tags">
+            {book.tags.map(t => <span key={t} className="hero-tag">{t}</span>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="detail-lead">
+        <div className="lead-label">內容導讀 · EDITOR'S NOTE</div>
+        <p className="lead-text">{book.summary}</p>
+        <div className="lead-sig">— Jim 書庫</div>
+      </section>
+
+      <nav className="detail-tabs">
+        {[
+          { id: "chapters", lbl: "章節目錄" },
+          { id: "quotes", lbl: "摘句精選" },
+          { id: "about", lbl: "關於作者" }
+        ].map(t => (
+          <button key={t.id} className={`tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
+            {t.lbl}
+          </button>
+        ))}
+      </nav>
+
+      <section className="detail-body">
+        {tab === "chapters" && (
+          <div className="chapters-list">
+            {book.chapters.map((ch, i) => (
+              <article key={i} className={`chapter-item ${openChapter === i ? "open" : ""}`}
+                onClick={() => setOpenChapter(openChapter === i ? -1 : i)}>
+                <div className="chapter-head">
+                  <div className="chapter-num">{ch.num}</div>
+                  <div className="chapter-title-block">
+                    <div className="chapter-title">{ch.title}</div>
+                    <div className="chapter-meta">
+                      {ch.page ? `P. ${ch.page}` : `第 ${i + 1} 章`}
+                    </div>
+                  </div>
+                  <div className="chapter-toggle">{openChapter === i ? "−" : "+"}</div>
+                </div>
+                {openChapter === i && ch.desc && (
+                  <div className="chapter-body">
+                    <div className="chapter-drop">
+                      <span className="drop-cap">{ch.desc.charAt(0)}</span>
+                      <span>{ch.desc.slice(1)}</span>
+                    </div>
+                    <div className="chapter-actions">
+                      <button className="btn-link">閱讀全章 →</button>
+                      <button className="btn-link">加入書籤</button>
+                    </div>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+
+        {tab === "quotes" && (
+          <div className="quotes-list">
+            {book.quotes.map((q, i) => (
+              <blockquote key={i} className="quote-card">
+                <div className="quote-num">{String(i + 1).padStart(2, "0")}</div>
+                <div className="quote-mark">"</div>
+                <p className="quote-text">{q}</p>
+                <div className="quote-attr">—— 《{book.title}》</div>
+              </blockquote>
+            ))}
+          </div>
+        )}
+
+        {tab === "about" && (
+          <div className="about-block">
+            <div className="about-portrait" style={{ background: book.color }}>
+              <div className="portrait-initials">{(book.author || "書").slice(-1)}</div>
+              <div className="portrait-lbl">AUTHOR</div>
+            </div>
+            <div className="about-text">
+              <h3>{book.author !== "—" ? book.author : book.title}</h3>
+              <div className="about-meta">{book.rawCategory} · {book.year || "現代"}</div>
+              <p>本書以獨特的視角與深刻的洞察，為讀者呈現《{book.title}》所探討的核心思想。書中精彩論述涵蓋了{book.rawCategory}領域的重要議題，值得細細品讀。</p>
+              <p>{book.quotes[0] !== "（尚未收錄金句）" ? `「${book.quotes[0]}」` : "本書內容豐富，歡迎深入閱讀以獲取更多知識。"}</p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {others.length > 0 && (
+        <section className="detail-related">
+          <div className="related-label">同類延伸閱讀 · YOU MAY ALSO LIKE</div>
+          <div className="related-grid">
+            {others.map(b => (
+              <div key={b.id} className="related-card" onClick={() => { onOpenBook(b.id); window.scrollTo(0, 0); }}>
+                <div className="related-cover" style={{ background: b.color }}>
+                  <BookCoverArt book={b} />
+                </div>
+                <div className="related-info">
+                  <div className="related-cat">{b.category}</div>
+                  <div className="related-title">{b.title}</div>
+                  <div className="related-author">{b.author}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <footer className="detail-footer">
+        <div>Jim 書庫 · {book.category}</div>
+        <div>{book.issue} / {books.length} 本</div>
+      </footer>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────
+   App 主元件
+   ────────────────────────────────────────── */
+function App() {
+  const [view, setView] = useState("cover");
+  const [activeBookId, setActiveBookId] = useState(null);
+  const [userBooks, setUserBooks] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("user_books") || "[]"); }
+    catch { return []; }
   });
+
+  const baseBooks = useMemo(() =>
+    (window.BOOKS_DATA || []).map((b, i) => adaptBook(b, i)), []);
+
+  const allBooks = useMemo(() => [...baseBooks, ...userBooks], [baseBooks, userBooks]);
+
+  const addBook = (book) => {
+    const updated = [...userBooks, book];
+    setUserBooks(updated);
+    localStorage.setItem("user_books", JSON.stringify(updated));
+  };
+
+  const deleteBook = (id) => {
+    const updated = userBooks.filter(b => b.id !== id);
+    setUserBooks(updated);
+    localStorage.setItem("user_books", JSON.stringify(updated));
+  };
+
+  const openBook = (id) => {
+    setActiveBookId(id);
+    setView("detail");
+    window.scrollTo(0, 0);
+  };
+
+  const activeBook = allBooks.find(b => b.id === activeBookId);
+
+  return (
+    <div className="app-shell">
+      {view === "cover" && (
+        <MagazineCover books={allBooks} onEnter={() => setView("shelf")} onOpenBook={openBook} />
+      )}
+      {view === "shelf" && (
+        <Bookshelf books={allBooks} onOpenBook={openBook}
+          onBackToCover={() => setView("cover")} onAddBook={addBook} onDeleteBook={deleteBook} />
+      )}
+      {view === "detail" && activeBook && (
+        <BookDetail book={activeBook} books={allBooks} onBack={() => setView("shelf")} onOpenBook={openBook} />
+      )}
+    </div>
+  );
 }
 
-// ── Reader ───────────────────────────────────────────
-function renderReader() {
-  const b = state.selBook;
-  if (!b) return;
-  const cc = CAT_C[b.category]||'#64748b';
-  const em = CAT_EM[b.category]||'📖';
-
-  // Cover
-  document.getElementById('reader-cover-wrap').innerHTML = b.cover
-    ? `<img class="reader-cover-img" src="${b.cover}">`
-    : `<div class="reader-cover-ph" style="background:linear-gradient(135deg,${cc}28,${cc}08)">${em}</div>`;
-
-  // Info
-  document.getElementById('reader-info').innerHTML = `
-<div class="reader-title">${b.title}</div>
-<div class="reader-badges">
-  <span class="cat-badge" style="background:${cc}18;color:${cc};font-size:10px;padding:3px 8px;border-radius:99px">${b.category}</span>
-  ${b.total_pages?`<span style="font-size:10px;color:var(--text3)">📄 ${b.total_pages}p</span>`:''}
-  <select class="status-sel" onchange="updateStatus('${b.id}',this.value)">
-    ${['待讀','讀中','已讀'].map(s=>`<option value="${s}"${b.status===s?' selected':''}>${s}</option>`).join('')}
-  </select>
-</div>`;
-
-  // TOC
-  const chapters = b.chapters||[];
-  document.getElementById('reader-toc').innerHTML = chapters.map((ch,i)=>`
-<div class="toc-item${i===state.selChapter?' active':''}" onclick="selectChapter(${i})">
-  <span>${ch.title}</span>
-  ${ch.page?`<span class="toc-pg">p.${ch.page}</span>`:''}
-</div>`).join('') || '<div style="padding:10px 20px;font-size:12px;color:var(--text3)">暫無目錄</div>';
-
-  // Main content
-  renderReaderMain();
-}
-
-function renderReaderMain() {
-  const b = state.selBook;
-  const chapters = b.chapters||[];
-  const ch = chapters[state.selChapter];
-  const aiKey = `${b.id}_${state.selChapter}_${state.readerTab}`;
-
-  const tabs = [
-    {key:'intro',label:'📖 導讀'},
-    {key:'chapter',label:'📄 章節原文'},
-    {key:'ai',label:'🤖 AI 精讀'},
-  ];
-
-  let tabsHtml = tabs.map(t=>
-    `<button class="rtab${state.readerTab===t.key?' active':''}" onclick="setReaderTab('${t.key}')">${t.label}</button>`
-  ).join('');
-
-  let content = '';
-  if (state.readerTab==='intro') {
-    const intro = (b.intro||'').trim();
-    content = intro
-      ? `<div class="prose">${intro.replace(/</g,'&lt;')}</div>`
-      : '<p style="color:var(--text3)">此書暫無導讀文字（可能是掃描版 PDF）</p>';
-  } else if (state.readerTab==='chapter') {
-    if (ch) {
-      content = `
-<div style="margin-bottom:12px">
-  <h3 style="font-size:16px;font-weight:700;color:var(--accent2)">${ch.title}</h3>
-  <p style="font-size:12px;color:var(--text3);margin-top:4px">第 ${ch.page||'?'} 頁</p>
-</div>
-<div class="prose">${ch.excerpt.replace(/</g,'&lt;')}</div>`;
-    } else {
-      content = '<p style="color:var(--text3)">請從左側目錄選擇章節</p>';
-    }
-  } else if (state.readerTab==='ai') {
-    if (state.aiCache[aiKey]) {
-      content = `<div class="ai-card">${formatAI(state.aiCache[aiKey])}</div>
-<button class="btn-primary" style="margin-top:12px;font-size:11px;padding:6px 14px" onclick="clearAI('${aiKey}')">重新生成</button>`;
-    } else {
-      content = `
-<p style="color:var(--text3);font-size:13px;margin-bottom:16px">
-  AI 將根據${ch?'這個章節':'整本書'}的真實原文生成精讀報告。
-</p>
-<button class="btn-primary" onclick="generateAI('${b.id}',${state.selChapter},'${aiKey}')">
-  ✨ 生成 AI 精讀
-</button>
-<div id="ai-loading-${aiKey}" class="hidden" style="margin-top:12px;color:var(--text3);font-size:13px">
-  <span class="spinner"></span> 分析中（約10秒）...
-</div>`;
-    }
-  }
-
-  document.getElementById('reader-main').innerHTML = `
-<h2 class="reader-heading">${b.title}</h2>
-<p class="reader-sub">${b.category} · ${b.total_pages||'?'} 頁 · ${chapters.length} 個章節</p>
-<div class="reader-tabs">${tabsHtml}</div>
-${content}`;
-}
-
-function setReaderTab(tab) {
-  state.readerTab = tab;
-  renderReaderMain();
-}
-
-function selectChapter(i) {
-  state.selChapter = i;
-  state.readerTab = 'chapter';
-  document.querySelectorAll('.toc-item').forEach((el,idx)=>el.classList.toggle('active',idx===i));
-  renderReaderMain();
-}
-
-function updateStatus(id, status) {
-  const b = books.find(b=>b.id===id);
-  if (b) { b.status = status; renderAll(); }
-}
-
-// ── AI ────────────────────────────────────────────────
-async function generateAI(bookId, chIdx, cacheKey) {
-  const b = books.find(x=>x.id===bookId);
-  if (!b) return;
-  const apiKey = prompt('輸入 Anthropic API Key（只需輸入一次）：\n(留空則取消)');
-  if (!apiKey) return;
-
-  const loadEl = document.getElementById(`ai-loading-${cacheKey}`);
-  if (loadEl) loadEl.classList.remove('hidden');
-
-  const ch = (b.chapters||[])[chIdx];
-  const intro = (b.intro||'').slice(0,800);
-  let chText = '';
-  if (ch) chText = `【${ch.title}】\n${ch.excerpt.slice(0,800)}`;
-
-  const prompt = ch
-    ? `書名：《${b.title}》\n分類：${b.category}\n章節：${ch.title}\n原文：\n${chText}\n\n請用繁體中文整理：\n## 核心論點\n## 關鍵概念（3點）\n## 實際應用`
-    : `書名：《${b.title}》\n分類：${b.category}\n導讀原文：\n${intro}\n\n請用繁體中文生成：\n## 📖 書籍總覽\n## 🧠 五個關鍵概念\n## ⚡ 三個立即行動\n## 💡 最值得記住的一句話`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:600,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    if (data.content?.[0]?.text) {
-      state.aiCache[cacheKey] = data.content[0].text;
-    } else {
-      state.aiCache[cacheKey] = `錯誤：${JSON.stringify(data.error||data)}`;
-    }
-  } catch(e) {
-    state.aiCache[cacheKey] = `網路錯誤：${e.message}`;
-  }
-  renderReaderMain();
-}
-
-function clearAI(key) { delete state.aiCache[key]; renderReaderMain(); }
-
-function formatAI(txt) {
-  return txt
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^### (.+)$/gm,'<h3 style="font-size:13px;font-weight:700;color:var(--accent2);margin:12px 0 4px">$3</h3>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n/g,'<br>');
-}
-
-// ── Upload ────────────────────────────────────────────
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-
-dropZone.addEventListener('click', ()=>fileInput.click());
-dropZone.addEventListener('dragover', e=>{e.preventDefault();dropZone.classList.add('drag')});
-dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag'));
-dropZone.addEventListener('drop', e=>{
-  e.preventDefault(); dropZone.classList.remove('drag');
-  handleFiles(e.dataTransfer.files);
-});
-fileInput.addEventListener('change', e=>handleFiles(e.target.files));
-
-async function handleFiles(files) {
-  const list = document.getElementById('upload-list');
-  for (const file of files) {
-    if (!file.name.endsWith('.pdf')) continue;
-    const div = document.createElement('div');
-    div.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:center';
-    div.innerHTML = `<div style="font-size:28px">📄</div><div style="flex:1"><div style="font-weight:700;font-size:13px">${file.name}</div><div style="font-size:11px;color:var(--text3)">處理中...</div></div>`;
-    list.prepend(div);
-    try {
-      // Use PDF.js to get cover (first page as canvas)
-      if (typeof pdfjsLib !== 'undefined') {
-        const url = URL.createObjectURL(file);
-        const pdfDoc = await pdfjsLib.getDocument(url).promise;
-        const page = await pdfDoc.getPage(1);
-        const scale = 1.5;
-        const vp = page.getViewport({scale});
-        const canvas = document.createElement('canvas');
-        canvas.width = vp.width; canvas.height = vp.height;
-        await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-        const cover = canvas.toDataURL('image/jpeg', 0.8);
-        URL.revokeObjectURL(url);
-        const img = document.createElement('img');
-        img.src = cover;
-        img.style.cssText = 'width:52px;height:70px;object-fit:cover;border-radius:4px;flex-shrink:0';
-        div.replaceChild(img, div.firstChild);
-        const title = file.name.replace(/\.pdf$/i,'').replace(/_/g,' ').slice(0,60);
-        const newBook = {id:`upload_${Date.now()}`,title,category:'其他',status:'待讀',cover,intro:'',chapters:[],toc:[],total_pages:pdfDoc.numPages};
-        books.unshift(newBook);
-        div.querySelector('div:last-child').innerHTML = `<div style="font-weight:700;font-size:13px">${title}</div><div style="font-size:11px;color:var(--text3)">✅ 已加入書庫 · ${pdfDoc.numPages} 頁</div>`;
-        renderAll();
-      } else {
-        // No PDF.js — just add basic entry
-        const title = file.name.replace(/\.pdf$/i,'').replace(/_/g,' ').slice(0,60);
-        books.unshift({id:`upload_${Date.now()}`,title,category:'其他',status:'待讀',cover:'',intro:'',chapters:[],toc:[],total_pages:0});
-        div.innerHTML = `<div style="font-size:28px">📄</div><div><div style="font-weight:700;font-size:13px">${title}</div><div style="font-size:11px;color:var(--text3)">已加入（封面需 PDF.js 才能顯示）</div></div>`;
-        renderAll();
-      }
-    } catch(e) {
-      div.querySelector('div:last-child').innerHTML += `<br><span style="color:#f87171;font-size:11px">錯誤：${e.message}</span>`;
-    }
-  }
-}
-
-// ── Initial Render ───────────────────────────────────
-renderAll();
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
-<!-- PDF.js for cover extraction on upload -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </body>
 </html>
