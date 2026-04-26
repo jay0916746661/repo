@@ -2292,6 +2292,310 @@ def render_platform_detail(df, platform):
 
 _RESALE_FILE = os.path.join(os.path.dirname(__file__), "data", "resale_items.json")
 
+# ════════════════════════════════════════════════════
+# 動態減碼模組
+# ════════════════════════════════════════════════════
+_EXTRACTION_FILE = os.path.join(os.path.dirname(__file__), "data", "extraction_trades.json")
+
+def _load_extraction_data():
+    try:
+        if os.path.exists(_EXTRACTION_FILE):
+            with open(_EXTRACTION_FILE, encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {
+        "positions": [],
+        "available_cash_twd": 0,
+        "watchlist": ["NVDA", "TSLA", "AMZN", "MSFT", "META"],
+        "total_budget_twd": 170000,
+        "extraction_log": []
+    }
+
+def _save_extraction_data(data):
+    os.makedirs(os.path.dirname(_EXTRACTION_FILE), exist_ok=True)
+    with open(_EXTRACTION_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+@st.cache_data(ttl=300)
+def _fetch_quote_with_52w(symbol: str) -> dict:
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=1y"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=12) as r:
+            data = json.loads(r.read())
+        closes = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+        valid = [c for c in closes if c is not None]
+        price  = valid[-1] if valid else 0.0
+        prev   = valid[-2] if len(valid) >= 2 else price
+        high52 = max(valid) if valid else 0.0
+        return {"price": price, "prev": prev, "high52": high52,
+                "chg_pct": (price - prev) / prev * 100 if prev else 0.0}
+    except Exception:
+        return {"price": 0.0, "prev": 0.0, "high52": 0.0, "chg_pct": 0.0}
+
+def render_dynamic_extraction(exrate: float = 32.5):
+    ex_data   = _load_extraction_data()
+    positions = ex_data.get("positions", [])
+    avail_twd = ex_data.get("available_cash_twd", 0)
+    watchlist = ex_data.get("watchlist", [])
+    budget    = ex_data.get("total_budget_twd", 170000)
+    log       = ex_data.get("extraction_log", [])
+
+    # ── 標題列 ──────────────────────────────────────
+    st.markdown("""
+<div style='background:linear-gradient(135deg,#1a2a1a,#1a1a2a);border:1px solid #2a3a2a;
+border-radius:12px;padding:20px 24px;margin-bottom:16px'>
+<div style='font-size:11px;letter-spacing:.15em;color:#6a8a6a;font-family:var(--mono);margin-bottom:6px'>
+DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
+<div style='font-size:18px;font-weight:700;color:#e9e9ec'>
+⚖️ 兩階段提撥公式&emsp;
+<span style='font-size:13px;font-weight:400;color:#6c6c78'>Stage 1 → ROI 20% 賣 10%｜Stage 2 → ROI 40% 賣 38%</span>
+</div>
+</div>""", unsafe_allow_html=True)
+
+    # ── 頂部四指標 ──────────────────────────────────
+    per_pos = round(budget / 5) if budget else 34000
+    stage1_count = sum(1 for p in positions if p.get("stage", 0) >= 1)
+    stage2_count = sum(1 for p in positions if p.get("stage", 0) >= 2)
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("💼 總預算", f"NT$ {budget:,}", help="17萬分5份，每份約NT$34,000")
+    m2.metric("💵 備用現金池", f"NT$ {avail_twd:,}", help="已提撥並等待再投入的資金")
+    m3.metric("📦 持倉追蹤數", f"{len(positions)} 檔", f"Stage1已觸: {stage1_count}")
+    m4.metric("🎯 每份目標", f"NT$ {per_pos:,}", f"= {budget//5//exrate:.0f} USD" if exrate else "")
+
+    st.divider()
+
+    # ── 持股偵測 ──────────────────────────────────
+    if positions:
+        any_alert = False
+        for pos in positions:
+            sym      = pos.get("symbol", "")
+            shares   = pos.get("shares", 0.0)
+            avg_cost = pos.get("avg_cost_usd", 0.0)
+            stage    = pos.get("stage", 0)
+            cash_ex  = pos.get("cash_extracted_usd", 0.0)
+
+            q        = _fetch_quote_with_52w(sym)
+            price    = q["price"]
+            cost_tot = shares * avg_cost
+            mkt_val  = shares * price
+            roi      = (mkt_val - cost_tot) / cost_tot * 100 if cost_tot else 0
+            roi_str  = f"{roi:+.1f}%"
+
+            # 判斷觸發
+            trigger_s1 = (roi >= 20.0 and stage == 0)
+            trigger_s2 = (roi >= 40.0 and stage == 1)
+            is_done    = (stage >= 2)
+
+            if trigger_s1 or trigger_s2:
+                any_alert = True
+
+            # 顏色與 badge
+            if is_done:
+                border_c, badge_bg, badge_txt = "#2a3a2a", "#1a3a1a", "✅ 全完成"
+            elif trigger_s2:
+                border_c, badge_bg, badge_txt = "#c97a00", "#3a2a00", "🔥 Stage 2 觸發"
+            elif trigger_s1:
+                border_c, badge_bg, badge_txt = "#3a8a3a", "#1a2a1a", "🚨 Stage 1 觸發"
+            elif stage == 1:
+                border_c, badge_bg, badge_txt = "#1a4a6a", "#0a1a2a", "✅ Stage 1 完成"
+            else:
+                border_c, badge_bg, badge_txt = "#24242c", "#131317", "⏳ 觀察中"
+
+            roi_color = "#22c55e" if roi >= 20 else ("#f59e0b" if roi >= 10 else ("#ef4444" if roi < 0 else "#a8a8b2"))
+
+            st.markdown(f"""
+<div style='background:#131317;border:1px solid {border_c};border-radius:10px;padding:16px 20px;margin-bottom:10px'>
+  <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'>
+    <div style='font-size:15px;font-weight:700;font-family:var(--mono)'>{sym}</div>
+    <div style='background:{badge_bg};border:1px solid {border_c};border-radius:20px;
+      padding:3px 12px;font-size:11px;font-family:var(--mono)'>{badge_txt}</div>
+  </div>
+  <div style='display:grid;grid-template-columns:repeat(5,1fr);gap:12px;font-size:12px'>
+    <div><div style='color:#6c6c78;font-size:10px'>現價</div><div style='font-family:var(--mono);font-weight:600'>${price:.2f}</div></div>
+    <div><div style='color:#6c6c78;font-size:10px'>成本</div><div style='font-family:var(--mono)'>${avg_cost:.2f}</div></div>
+    <div><div style='color:#6c6c78;font-size:10px'>股數</div><div style='font-family:var(--mono)'>{shares:.4f}</div></div>
+    <div><div style='color:#6c6c78;font-size:10px'>市值</div><div style='font-family:var(--mono)'>NT$ {mkt_val*exrate:,.0f}</div></div>
+    <div><div style='color:#6c6c78;font-size:10px'>ROI</div><div style='font-family:var(--mono);font-weight:700;color:{roi_color}'>{roi_str}</div></div>
+  </div>
+</div>""", unsafe_allow_html=True)
+
+            # ── 觸發動作 ──
+            if trigger_s1:
+                sell_shares = shares * 0.10
+                sell_usd    = sell_shares * price
+                sell_twd    = sell_usd * exrate
+                st.warning(f"📢 **{sym} Stage 1 建議動作**：賣出 {sell_shares:.4f} 股（≈ ${sell_usd:.2f} / NT$ {sell_twd:,.0f}）→ 留倉 {shares*0.9:.4f} 股")
+                col_a, col_b = st.columns([2,1])
+                with col_a:
+                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} Stage 1）",
+                        value=int(sell_twd), step=100, key=f"s1_cash_{sym}")
+                with col_b:
+                    st.write("")
+                    st.write("")
+                    if st.button(f"✅ 確認執行 Stage 1", key=f"confirm_s1_{sym}", type="primary"):
+                        pos["shares"]            = shares * 0.9
+                        pos["stage"]             = 1
+                        pos["cash_extracted_usd"] = cash_ex + sell_usd
+                        ex_data["available_cash_twd"] = avail_twd + actual_twd
+                        ex_data["extraction_log"].append({
+                            "time": datetime.now().isoformat(),
+                            "symbol": sym, "stage": 1,
+                            "shares_sold": round(sell_shares, 4),
+                            "cash_twd": actual_twd
+                        })
+                        _save_extraction_data(ex_data)
+                        st.success(f"✅ 已記錄 Stage 1 — 備用現金 +NT$ {actual_twd:,}")
+                        st.rerun()
+
+            elif trigger_s2:
+                sell_shares = shares * 0.38
+                sell_usd    = sell_shares * price
+                sell_twd    = sell_usd * exrate
+                st.error(f"🔥 **{sym} Stage 2（黃金分割）建議**：賣出 {sell_shares:.4f} 股（≈ ${sell_usd:.2f} / NT$ {sell_twd:,.0f}）→ 留倉 {shares*0.62:.4f} 股")
+                col_a, col_b = st.columns([2,1])
+                with col_a:
+                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} Stage 2）",
+                        value=int(sell_twd), step=100, key=f"s2_cash_{sym}")
+                with col_b:
+                    st.write("")
+                    st.write("")
+                    if st.button(f"✅ 確認執行 Stage 2", key=f"confirm_s2_{sym}", type="primary"):
+                        pos["shares"]            = shares * 0.62
+                        pos["stage"]             = 2
+                        pos["cash_extracted_usd"] = cash_ex + sell_usd
+                        ex_data["available_cash_twd"] = avail_twd + actual_twd
+                        ex_data["extraction_log"].append({
+                            "time": datetime.now().isoformat(),
+                            "symbol": sym, "stage": 2,
+                            "shares_sold": round(sell_shares, 4),
+                            "cash_twd": actual_twd
+                        })
+                        _save_extraction_data(ex_data)
+                        st.success(f"🔥 已記錄 Stage 2 — 備用現金 +NT$ {actual_twd:,}")
+                        st.rerun()
+
+        if not any_alert:
+            st.info("目前所有持倉均未達觸發條件，繼續觀察中…")
+    else:
+        st.info("尚未新增追蹤持倉，請使用下方「新增持倉」加入股票。")
+
+    st.divider()
+
+    # ── 新增持倉 ──────────────────────────────────
+    with st.expander("➕ 新增追蹤持倉", expanded=(len(positions) == 0)):
+        nc1, nc2, nc3, nc4 = st.columns(4)
+        with nc1:
+            n_sym  = st.text_input("股票代碼", placeholder="NVDA", key="ex_sym").upper().strip()
+        with nc2:
+            n_cost = st.number_input("平均成本 USD", min_value=0.0, step=0.01, key="ex_cost")
+        with nc3:
+            n_qty  = st.number_input("持有股數", min_value=0.0, step=0.0001, format="%.4f", key="ex_qty")
+        with nc4:
+            st.write("")
+            st.write("")
+            if st.button("✅ 新增", type="primary", key="ex_add"):
+                if n_sym and n_cost > 0 and n_qty > 0:
+                    positions.append({
+                        "symbol": n_sym, "shares": n_qty,
+                        "avg_cost_usd": n_cost, "stage": 0,
+                        "cash_extracted_usd": 0.0,
+                        "added_date": date.today().isoformat()
+                    })
+                    ex_data["positions"] = positions
+                    _save_extraction_data(ex_data)
+                    st.success(f"✅ 已新增 {n_sym}"); st.rerun()
+                else:
+                    st.warning("請填寫完整欄位")
+
+    # ── 刪除 / 重置持倉 ───────────────────────────
+    if positions:
+        with st.expander("🗑️ 管理持倉（刪除 / 重置階段）", expanded=False):
+            for i, pos in enumerate(positions):
+                sym = pos.get("symbol", "")
+                ca, cb, cc = st.columns([3, 1, 1])
+                ca.write(f"**{sym}** — Stage {pos.get('stage',0)} | 股數 {pos.get('shares',0):.4f}")
+                with cb:
+                    if st.button("重置", key=f"reset_{sym}_{i}"):
+                        pos["stage"] = 0
+                        _save_extraction_data(ex_data); st.rerun()
+                with cc:
+                    if st.button("刪除", key=f"del_{sym}_{i}"):
+                        ex_data["positions"] = [p for j, p in enumerate(positions) if j != i]
+                        _save_extraction_data(ex_data); st.rerun()
+
+    st.divider()
+
+    # ── 備用現金設定 ──────────────────────────────
+    col_budget, col_cash = st.columns(2)
+    with col_budget:
+        new_budget = st.number_input("調整總預算 NT$", value=int(budget), step=10000, key="ex_budget")
+        if new_budget != budget:
+            ex_data["total_budget_twd"] = new_budget
+            _save_extraction_data(ex_data)
+    with col_cash:
+        new_cash = st.number_input("手動調整備用現金 NT$（已有現金）", value=int(avail_twd), step=1000, key="ex_cash")
+        if st.button("💾 更新現金", key="ex_cash_save"):
+            ex_data["available_cash_twd"] = new_cash
+            _save_extraction_data(ex_data); st.rerun()
+
+    st.divider()
+
+    # ── 抄底雷達 ─────────────────────────────────
+    st.markdown("### 📡 抄底雷達　Reinvestment Radar")
+    st.caption("監控觀察名單：距 52 週高點跌幅 ≥ 20% 自動標記為「優先轉入」")
+
+    wl_input = st.text_input("觀察名單（空白分隔）",
+        value=" ".join(watchlist), key="ex_watchlist",
+        placeholder="NVDA TSLA AMZN MSFT META")
+    if st.button("更新名單", key="ex_wl_save"):
+        ex_data["watchlist"] = [s.strip().upper() for s in wl_input.split() if s.strip()]
+        _save_extraction_data(ex_data); st.rerun()
+
+    if watchlist:
+        radar_rows = []
+        for sym in watchlist:
+            q = _fetch_quote_with_52w(sym)
+            price  = q["price"]
+            high52 = q["high52"]
+            drop   = (price - high52) / high52 * 100 if high52 else 0
+            is_target = drop <= -20.0
+            radar_rows.append({
+                "標的": sym,
+                "現價": f"${price:.2f}",
+                "52W高點": f"${high52:.2f}",
+                "跌幅": f"{drop:.1f}%",
+                "狀態": "🎯 優先轉入" if is_target else ("📊 觀察中" if drop > -10 else "⚠️ 注意"),
+                "_drop": drop
+            })
+
+        radar_rows.sort(key=lambda x: x["_drop"])
+        for row in radar_rows:
+            drop_val = row["_drop"]
+            is_target = drop_val <= -20.0
+            bg = "#1a2a1a" if is_target else "#131317"
+            border = "#3a8a3a" if is_target else "#24242c"
+            st.markdown(f"""
+<div style='background:{bg};border:1px solid {border};border-radius:8px;padding:12px 16px;
+margin-bottom:6px;display:flex;justify-content:space-between;align-items:center'>
+  <div style='font-family:var(--mono);font-weight:700;font-size:14px'>{row['標的']}</div>
+  <div style='font-size:12px;color:#a8a8b2'>{row['現價']} / 52W高 {row['52W高點']}</div>
+  <div style='font-family:var(--mono);font-size:13px;font-weight:600;
+    color:{"#22c55e" if is_target else ("#f59e0b" if drop_val <= -10 else "#a8a8b2")}'>{row['跌幅']}</div>
+  <div style='font-size:12px'>{row['狀態']}</div>
+</div>""", unsafe_allow_html=True)
+
+        if avail_twd > 0:
+            st.info(f"💵 備用現金 NT$ {avail_twd:,} 可用於轉入上方標的（建議透過 Firstrade 碎股交易）")
+
+    # ── 操作記錄 ──────────────────────────────────
+    if log:
+        with st.expander(f"📋 提撥記錄（共 {len(log)} 筆）", expanded=False):
+            log_df = pd.DataFrame(log[::-1])
+            log_df.columns = ["時間","標的","階段","賣出股數","收回(NT$)"]
+            st.dataframe(log_df, use_container_width=True, hide_index=True)
+
 def _load_resale():
     try:
         with open(_RESALE_FILE, encoding="utf-8") as f:
@@ -2970,6 +3274,9 @@ with tab_invest:
     render_crypto_dashboard(cry_q, _exrate)
 
 with tab_invest:
+    st.divider()
+    with st.expander("⚖️ 動態減碼模組 — 兩階段提撥公式", expanded=True):
+        render_dynamic_extraction(exrate=_exrate)
     st.divider()
     render_daily_system()
 
