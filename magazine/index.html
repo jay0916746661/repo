@@ -578,6 +578,29 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .yt-inbox-item-reason { font-family: var(--sans); font-size: 10px; color: var(--ink-mute); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 .yt-inbox-done { font-size: 14px; color: var(--accent); padding: 4px; transition: transform 0.15s; }
 .yt-inbox-done:hover { transform: scale(1.2); }
+
+/* ========== 語音說書播放器 ========== */
+.voice-player-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(26,24,21,0.92); color: #F3EDE0; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 40px; padding: 10px 20px; display: flex; align-items: center; gap: 16px; z-index: 9999; box-shadow: 0 4px 24px rgba(0,0,0,0.3); animation: voiceBarIn 0.25s ease; white-space: nowrap; }
+@keyframes voiceBarIn { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.voice-pulse-dots { display: flex; gap: 3px; align-items: center; }
+.voice-pulse-dots span { width: 3px; height: 12px; background: #F3EDE0; border-radius: 2px; opacity: 0.35; }
+.voice-pulse-dots span.pulse { opacity: 1; animation: voicePulse 1s ease-in-out infinite; }
+.voice-pulse-dots span.pulse:nth-child(2) { animation-delay: 0.15s; }
+.voice-pulse-dots span.pulse:nth-child(3) { animation-delay: 0.3s; }
+@keyframes voicePulse { 0%, 100% { transform: scaleY(0.6); } 50% { transform: scaleY(1.4); } }
+.voice-player-label { font-size: 12px; font-family: var(--mono); opacity: 0.85; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+.voice-controls { display: flex; align-items: center; gap: 8px; }
+.voice-speed-group { display: flex; gap: 2px; }
+.voice-speed-btn { font-size: 10px; font-family: var(--mono); padding: 3px 7px; border-radius: 4px; border: 1px solid rgba(243,237,224,0.25); background: transparent; color: rgba(243,237,224,0.55); cursor: pointer; transition: all 0.15s; }
+.voice-speed-btn.active, .voice-speed-btn:hover { background: rgba(243,237,224,0.18); color: #F3EDE0; border-color: rgba(243,237,224,0.5); }
+.voice-ctrl-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(243,237,224,0.35); background: transparent; color: #F3EDE0; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
+.voice-ctrl-btn:hover { background: rgba(243,237,224,0.15); }
+.voice-stop-btn { font-size: 10px; }
+.btn-voice { display: inline-flex; align-items: center; gap: 4px; }
+.btn-voice-sm { font-size: 11px; opacity: 0.65; transition: opacity 0.15s; }
+.btn-voice-sm:hover { opacity: 1; }
+.quote-voice-btn { display: block; margin-top: 10px; font-size: 11px; font-family: var(--mono); opacity: 0.45; transition: opacity 0.15s; text-align: right; cursor: pointer; background: none; border: none; color: inherit; }
+.quote-voice-btn:hover { opacity: 1; }
 </style>
 </head>
 <body>
@@ -2459,6 +2482,63 @@ function ReadingModal({ book, chapter, chapterIndex, onClose, onPrev, onNext, on
 /* ──────────────────────────────────────────
    BookDetail 書籍詳情頁
    ────────────────────────────────────────── */
+function useVoiceReader() {
+  const [isReading, setIsReading] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [label, setLabel] = useState('');
+  const [rate, setRateState] = useState(1);
+  const rateRef = useRef(1);
+  const currentRef = useRef({ text: '', label: '' });
+
+  const doSpeak = (text, lbl) => {
+    window.speechSynthesis.cancel();
+    currentRef.current = { text, label: lbl };
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'zh-TW';
+    utter.rate = rateRef.current;
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang === 'zh-TW') || voices.find(v => v.lang.startsWith('zh'));
+    if (voice) utter.voice = voice;
+    utter.onend = () => { setIsReading(false); setIsPaused(false); setLabel(''); currentRef.current = { text: '', label: '' }; };
+    utter.onerror = () => { setIsReading(false); setIsPaused(false); setLabel(''); };
+    window.speechSynthesis.speak(utter);
+    setIsReading(true);
+    setIsPaused(false);
+    setLabel(lbl);
+  };
+
+  const speak = (text, lbl) => doSpeak(text, lbl);
+  const stop = () => { window.speechSynthesis.cancel(); currentRef.current = { text: '', label: '' }; setIsReading(false); setIsPaused(false); setLabel(''); };
+  const pause = () => { window.speechSynthesis.pause(); setIsPaused(true); };
+  const resume = () => { window.speechSynthesis.resume(); setIsPaused(false); };
+  const setRate = (r) => { rateRef.current = r; setRateState(r); if (currentRef.current.text) doSpeak(currentRef.current.text, currentRef.current.label); };
+
+  useEffect(() => () => window.speechSynthesis.cancel(), []);
+  return { isReading, isPaused, label, rate, speak, stop, pause, resume, setRate };
+}
+
+function VoicePlayerBar({ label, isPaused, rate, onPause, onResume, onStop, onRate }) {
+  return (
+    <div className="voice-player-bar">
+      <div className="voice-pulse-dots">
+        <span className={isPaused ? '' : 'pulse'}></span>
+        <span className={isPaused ? '' : 'pulse'}></span>
+        <span className={isPaused ? '' : 'pulse'}></span>
+      </div>
+      <div className="voice-player-label">{isPaused ? '⏸ 已暫停' : '🔊 正在朗讀'} · {label}</div>
+      <div className="voice-controls">
+        <div className="voice-speed-group">
+          {[0.8, 1, 1.5].map(r => (
+            <button key={r} className={`voice-speed-btn${rate === r ? ' active' : ''}`} onClick={() => onRate(r)}>{r}×</button>
+          ))}
+        </div>
+        <button className="voice-ctrl-btn" onClick={isPaused ? onResume : onPause} title={isPaused ? '繼續' : '暫停'}>{isPaused ? '▶' : '⏸'}</button>
+        <button className="voice-ctrl-btn voice-stop-btn" onClick={onStop} title="停止">■</button>
+      </div>
+    </div>
+  );
+}
+
 function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onToggleBookmark, onUpdateBook, onRemoveBook, readingProgress, onProgress }) {
   const [tab, setTab] = useState("chapters");
   const [openChapter, setOpenChapter] = useState(0);
@@ -2469,6 +2549,7 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
   const progress = readingProgress[book.id] || {};
   const remainingPages = getEstimatedRemainingPages(book, progress);
   const others = books.filter(b => b.id !== book.id && b.rawCategory === book.rawCategory).slice(0, 3);
+  const { isReading, isPaused, label, rate, speak, stop, pause, resume, setRate } = useVoiceReader();
 
   return (
     <div className="detail-page" data-theme={theme}>
@@ -2530,6 +2611,7 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
               {isBookmarked ? "★ 已加書籤" : "☆ 加入書籤"}
             </button>
             <button className="btn-ghost" onClick={() => setShowEdit(true)}>編輯 / 刪除</button>
+            <button className="btn-ghost btn-voice" onClick={() => speak(book.summary, '內容導讀')}>🔊 朗讀導言</button>
           </div>
           <div className="hero-tags">
             {book.tags.map(t => <span key={t} className="hero-tag">{t}</span>)}
@@ -2593,6 +2675,7 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
                       <button className="btn-link" onClick={e => { e.stopPropagation(); onToggleBookmark(book.id); }}>
                         {isBookmarked ? "★ 已加書籤" : "☆ 加入書籤"}
                       </button>
+                      <button className="btn-link btn-voice-sm" onClick={e => { e.stopPropagation(); speak(ch.desc, ch.title); }}>▶ 朗讀本章</button>
                     </div>
                   </div>
                 )}
@@ -2609,6 +2692,7 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
                 <div className="quote-mark">"</div>
                 <p className="quote-text">{q}</p>
                 <div className="quote-attr">—— 《{book.title}》</div>
+                <button className="quote-voice-btn" onClick={() => speak(q, `金句 ${i + 1}`)}>▶ 朗讀</button>
               </blockquote>
             ))}
           </div>
@@ -2654,6 +2738,17 @@ function BookDetail({ book, books, onBack, onOpenBook, onPreview, bookmarks, onT
         <div>Jim 書庫 · {book.category}</div>
         <div>{book.issue} / {books.length} 本</div>
       </footer>
+      {isReading && (
+        <VoicePlayerBar
+          label={label}
+          isPaused={isPaused}
+          rate={rate}
+          onPause={pause}
+          onResume={resume}
+          onStop={stop}
+          onRate={setRate}
+        />
+      )}
     </div>
   );
 }
