@@ -2335,39 +2335,178 @@ def _fetch_quote_with_52w(symbol: str) -> dict:
         return {"price": 0.0, "prev": 0.0, "high52": 0.0, "chg_pct": 0.0}
 
 def render_dynamic_extraction(exrate: float = 32.5):
+    # ── Apple 字型 & 共用樣式（注入一次）──────────────
+    st.markdown("""
+<style>
+.apx{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;color:#f5f5f7}
+.apx-hero{background:linear-gradient(160deg,#000 0%,#1d1d1f 100%);border-radius:24px;padding:56px 48px 48px;text-align:center;margin-bottom:8px}
+.apx-hero-chip{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 16px;font-size:11px;font-weight:600;letter-spacing:.1em;color:rgba(245,245,247,.55);text-transform:uppercase;margin-bottom:18px}
+.apx-hero-h1{font-size:52px;font-weight:700;letter-spacing:-.03em;line-height:1.05;color:#f5f5f7;margin-bottom:14px}
+.apx-hero-sub{font-size:18px;color:rgba(245,245,247,.6);font-weight:400;line-height:1.5}
+.apx-hero-rule{display:inline-flex;gap:28px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.apx-hero-pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:8px 20px;font-size:13px;font-weight:500;color:rgba(245,245,247,.8)}
+.apx-hero-pill span{color:#30d158;font-weight:700}
+.apx-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 8px}
+.apx-stat{background:#1d1d1f;border-radius:18px;padding:24px 20px;text-align:center}
+.apx-stat-val{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#f5f5f7;line-height:1}
+.apx-stat-lbl{font-size:11px;font-weight:500;color:rgba(245,245,247,.45);margin-top:6px;letter-spacing:.04em;text-transform:uppercase}
+.apx-stat-sub{font-size:11px;color:rgba(245,245,247,.3);margin-top:3px}
+.apx-section-hd{font-size:22px;font-weight:700;letter-spacing:-.01em;color:#f5f5f7;margin:28px 0 14px;padding-left:4px}
+.apx-section-sub{font-size:13px;color:rgba(245,245,247,.45);margin:-10px 0 14px;padding-left:4px}
+.apx-card{background:#1d1d1f;border-radius:20px;padding:24px 28px;margin-bottom:12px;position:relative;overflow:hidden}
+.apx-card-alert{background:#1a2500}
+.apx-card-fire{background:#221200}
+.apx-card-done{background:#001a0a}
+.apx-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.apx-sym{font-size:22px;font-weight:700;letter-spacing:-.01em;color:#f5f5f7}
+.apx-badge{border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:.04em}
+.apx-badge-watch{background:rgba(255,255,255,.08);color:rgba(245,245,247,.5)}
+.apx-badge-s1{background:rgba(48,209,88,.15);color:#30d158;border:1px solid rgba(48,209,88,.3)}
+.apx-badge-s2{background:rgba(255,159,10,.15);color:#ff9f0a;border:1px solid rgba(255,159,10,.3)}
+.apx-badge-done{background:rgba(94,92,230,.15);color:#5e5ce6;border:1px solid rgba(94,92,230,.3)}
+.apx-badge-s1done{background:rgba(10,132,255,.12);color:#0a84ff;border:1px solid rgba(10,132,255,.25)}
+.apx-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid rgba(255,255,255,.07);padding-top:14px}
+.apx-metric-item{padding:0 12px;border-right:1px solid rgba(255,255,255,.06)}
+.apx-metric-item:first-child{padding-left:0}
+.apx-metric-item:last-child{border-right:none}
+.apx-metric-lbl{font-size:10px;font-weight:500;color:rgba(245,245,247,.35);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.apx-metric-val{font-size:14px;font-weight:600;color:#f5f5f7;font-variant-numeric:tabular-nums}
+.apx-roi-pos{color:#30d158}
+.apx-roi-neg{color:#ff453a}
+.apx-roi-warm{color:#ff9f0a}
+.apx-roi-hot{color:#ffd60a}
+.apx-prog-wrap{margin-top:14px}
+.apx-prog-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(245,245,247,.3);margin-bottom:5px}
+.apx-prog-track{background:rgba(255,255,255,.08);border-radius:4px;height:4px;overflow:hidden;position:relative}
+.apx-prog-s1{position:absolute;height:100%;border-radius:4px}
+.apx-action-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px;margin-top:14px}
+.apx-action-title{font-size:13px;font-weight:600;color:#f5f5f7;margin-bottom:4px}
+.apx-action-desc{font-size:12px;color:rgba(245,245,247,.5);margin-bottom:0}
+.apx-radar-hd{display:grid;grid-template-columns:80px 90px 90px 1fr 90px;gap:8px;padding:8px 20px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,245,247,.3)}
+.apx-radar-row{display:grid;grid-template-columns:80px 90px 90px 1fr 90px;gap:8px;align-items:center;padding:12px 20px;border-top:1px solid rgba(255,255,255,.06);font-size:13px}
+.apx-radar-sym{font-size:15px;font-weight:700;color:#f5f5f7}
+.apx-radar-price{font-variant-numeric:tabular-nums;color:rgba(245,245,247,.7)}
+.apx-bar-track{background:rgba(255,255,255,.08);border-radius:3px;height:4px;overflow:hidden}
+.apx-bar-fill{height:100%;border-radius:3px}
+.apx-radar-pct{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.apx-radar-status{font-size:11px;font-weight:600;text-align:right}
+.apx-log-row{display:grid;grid-template-columns:160px 70px 80px 100px 1fr;gap:8px;padding:10px 16px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(245,245,247,.65)}
+.apx-log-hd{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,245,247,.3);background:rgba(255,255,255,.03);border-radius:10px 10px 0 0}
+.apx-cash-banner{background:linear-gradient(135deg,#002d00,#001f00);border:1px solid rgba(48,209,88,.2);border-radius:16px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin:12px 0}
+.apx-cash-val{font-size:32px;font-weight:700;color:#30d158;letter-spacing:-.02em}
+.apx-cash-lbl{font-size:11px;color:rgba(245,245,247,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.apx-cash-hint{font-size:12px;color:rgba(245,245,247,.4);max-width:260px}
+.apx-step{display:flex;align-items:center;gap:0;margin-bottom:14px}
+.apx-step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.apx-step-line{flex:1;height:2px;background:rgba(255,255,255,.1)}
+.apx-stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.apx-stage-card{border-radius:16px;padding:20px;text-align:center}
+.apx-stage-card-1{background:linear-gradient(135deg,#001a06,#00290a);border:1px solid rgba(48,209,88,.2)}
+.apx-stage-card-2{background:linear-gradient(135deg,#1a0f00,#2a1800);border:1px solid rgba(255,159,10,.2)}
+.apx-stage-num{font-size:36px;font-weight:700;letter-spacing:-.02em}
+.apx-stage-sub{font-size:11px;color:rgba(245,245,247,.45);margin-top:4px;letter-spacing:.03em}
+.apx-stage-desc{font-size:12px;color:rgba(245,245,247,.6);margin-top:8px;line-height:1.5}
+</style>""", unsafe_allow_html=True)
+
     ex_data   = _load_extraction_data()
     positions = ex_data.get("positions", [])
     avail_twd = ex_data.get("available_cash_twd", 0)
     watchlist = ex_data.get("watchlist", [])
     budget    = ex_data.get("total_budget_twd", 170000)
     log       = ex_data.get("extraction_log", [])
+    per_pos   = round(budget / 5) if budget else 34000
+    stage1_cnt= sum(1 for p in positions if p.get("stage",0) >= 1)
+    stage2_cnt= sum(1 for p in positions if p.get("stage",0) >= 2)
+    alert_cnt = sum(1 for p in positions
+                    if (p.get("stage",0)==0 and "_roi" in p) or
+                       (p.get("stage",0)==1 and "_roi" in p))
 
-    # ── 標題列 ──────────────────────────────────────
-    st.markdown("""
-<div style='background:linear-gradient(135deg,#1a2a1a,#1a1a2a);border:1px solid #2a3a2a;
-border-radius:12px;padding:20px 24px;margin-bottom:16px'>
-<div style='font-size:11px;letter-spacing:.15em;color:#6a8a6a;font-family:var(--mono);margin-bottom:6px'>
-DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
-<div style='font-size:18px;font-weight:700;color:#e9e9ec'>
-⚖️ 兩階段提撥公式&emsp;
-<span style='font-size:13px;font-weight:400;color:#6c6c78'>Stage 1 → ROI 20% 賣 10%｜Stage 2 → ROI 40% 賣 38%</span>
-</div>
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # HERO
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    st.markdown(f"""
+<div class="apx apx-hero">
+  <div class="apx-hero-chip">Dynamic Extraction System &nbsp;·&nbsp; 動態減碼</div>
+  <div class="apx-hero-h1">兩階段提撥公式</div>
+  <div class="apx-hero-sub">
+    防禦力與攻擊力兼具的甜蜜點<br>
+    穩健收回現金 · 黃金分割大收割
+  </div>
+  <div class="apx-hero-rule">
+    <div class="apx-hero-pill">Stage 1 &nbsp; ROI <span>≥ 20%</span> → 賣 10%</div>
+    <div class="apx-hero-pill">Stage 2 &nbsp; ROI <span>≥ 40%</span> → 賣 38%</div>
+    <div class="apx-hero-pill">總預算 <span>NT$ {budget:,}</span> · {len(positions)} 檔追蹤中</div>
+  </div>
 </div>""", unsafe_allow_html=True)
 
-    # ── 頂部四指標 ──────────────────────────────────
-    per_pos = round(budget / 5) if budget else 34000
-    stage1_count = sum(1 for p in positions if p.get("stage", 0) >= 1)
-    stage2_count = sum(1 for p in positions if p.get("stage", 0) >= 2)
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("💼 總預算", f"NT$ {budget:,}", help="17萬分5份，每份約NT$34,000")
-    m2.metric("💵 備用現金池", f"NT$ {avail_twd:,}", help="已提撥並等待再投入的資金")
-    m3.metric("📦 持倉追蹤數", f"{len(positions)} 檔", f"Stage1已觸: {stage1_count}")
-    m4.metric("🎯 每份目標", f"NT$ {per_pos:,}", f"= {budget//5//exrate:.0f} USD" if exrate else "")
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # STATS BAR
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    per_usd = f"≈ ${per_pos/exrate:,.0f}" if exrate else ""
+    st.markdown(f"""
+<div class="apx apx-stats">
+  <div class="apx-stat">
+    <div class="apx-stat-val">NT$ {budget//10000}萬</div>
+    <div class="apx-stat-lbl">Total Budget</div>
+    <div class="apx-stat-sub">5 份分散投入</div>
+  </div>
+  <div class="apx-stat">
+    <div class="apx-stat-val" style="color:#30d158">NT$ {avail_twd:,}</div>
+    <div class="apx-stat-lbl">備用現金池</div>
+    <div class="apx-stat-sub">可再投入資金</div>
+  </div>
+  <div class="apx-stat">
+    <div class="apx-stat-val">{len(positions)}</div>
+    <div class="apx-stat-lbl">持倉追蹤</div>
+    <div class="apx-stat-sub">Stage1已觸 {stage1_cnt} · Stage2已觸 {stage2_cnt}</div>
+  </div>
+  <div class="apx-stat">
+    <div class="apx-stat-val">NT$ {per_pos:,}</div>
+    <div class="apx-stat-lbl">每份目標</div>
+    <div class="apx-stat-sub">{per_usd} per position</div>
+  </div>
+</div>""", unsafe_allow_html=True)
 
-    st.divider()
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # STAGE SPEC CARDS
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    st.markdown(f"""
+<div class="apx apx-stage-grid">
+  <div class="apx-stage-card apx-stage-card-1">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:rgba(48,209,88,.7);text-transform:uppercase;margin-bottom:10px">Stage 1 · 穩健收回</div>
+    <div class="apx-stage-num" style="color:#30d158">10%</div>
+    <div class="apx-stage-sub">觸發條件：ROI ≥ 20%</div>
+    <div class="apx-stage-desc">
+      賣出當前總市值的 10%<br>
+      留倉比例仍大於初始本金<br>
+      心理壓力極小，繼續持有
+    </div>
+  </div>
+  <div class="apx-stage-card apx-stage-card-2">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:rgba(255,159,10,.7);text-transform:uppercase;margin-bottom:10px">Stage 2 · 黃金分割</div>
+    <div class="apx-stage-num" style="color:#ff9f0a">38%</div>
+    <div class="apx-stage-sub">觸發條件：ROI ≥ 40%</div>
+    <div class="apx-stage-desc">
+      賣出剩餘部位的 38%<br>
+      黃金比例大收割，資金<br>
+      足以建立全新標的倉位
+    </div>
+  </div>
+</div>""", unsafe_allow_html=True)
 
-    # ── 持股偵測 ──────────────────────────────────
-    if positions:
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # POSITIONS
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    st.markdown('<div class="apx apx-section-hd">持倉偵測</div>', unsafe_allow_html=True)
+
+    if not positions:
+        st.markdown("""
+<div class="apx" style="background:#1d1d1f;border-radius:20px;padding:48px;text-align:center">
+  <div style="font-size:32px;margin-bottom:12px">📊</div>
+  <div style="font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:8px">尚未新增追蹤持倉</div>
+  <div style="font-size:14px;color:rgba(245,245,247,.45)">使用下方「新增持倉」加入股票，系統將自動監控 ROI 並發出提撥提醒</div>
+</div>""", unsafe_allow_html=True)
+    else:
         any_alert = False
         for pos in positions:
             sym      = pos.get("symbol", "")
@@ -2378,46 +2517,98 @@ DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
 
             q        = _fetch_quote_with_52w(sym)
             price    = q["price"]
+            chg_pct  = q.get("chg_pct", 0.0)
             cost_tot = shares * avg_cost
             mkt_val  = shares * price
             roi      = (mkt_val - cost_tot) / cost_tot * 100 if cost_tot else 0
-            roi_str  = f"{roi:+.1f}%"
 
-            # 判斷觸發
             trigger_s1 = (roi >= 20.0 and stage == 0)
             trigger_s2 = (roi >= 40.0 and stage == 1)
             is_done    = (stage >= 2)
-
             if trigger_s1 or trigger_s2:
                 any_alert = True
 
-            # 顏色與 badge
-            if is_done:
-                border_c, badge_bg, badge_txt = "#2a3a2a", "#1a3a1a", "✅ 全完成"
-            elif trigger_s2:
-                border_c, badge_bg, badge_txt = "#c97a00", "#3a2a00", "🔥 Stage 2 觸發"
-            elif trigger_s1:
-                border_c, badge_bg, badge_txt = "#3a8a3a", "#1a2a1a", "🚨 Stage 1 觸發"
-            elif stage == 1:
-                border_c, badge_bg, badge_txt = "#1a4a6a", "#0a1a2a", "✅ Stage 1 完成"
-            else:
-                border_c, badge_bg, badge_txt = "#24242c", "#131317", "⏳ 觀察中"
+            # ROI 顏色
+            if roi >= 40:   roi_cls = "apx-roi-hot"
+            elif roi >= 20: roi_cls = "apx-roi-warm"
+            elif roi >= 0:  roi_cls = "apx-roi-pos"
+            else:           roi_cls = "apx-roi-neg"
 
-            roi_color = "#22c55e" if roi >= 20 else ("#f59e0b" if roi >= 10 else ("#ef4444" if roi < 0 else "#a8a8b2"))
+            # 卡片背景 & badge
+            if is_done:
+                card_cls  = "apx-card apx-card-done"
+                badge_cls = "apx-badge apx-badge-done"
+                badge_txt = "✓ 全完成"
+            elif trigger_s2:
+                card_cls  = "apx-card apx-card-fire"
+                badge_cls = "apx-badge apx-badge-s2"
+                badge_txt = "Stage 2 觸發"
+            elif trigger_s1:
+                card_cls  = "apx-card apx-card-alert"
+                badge_cls = "apx-badge apx-badge-s1"
+                badge_txt = "Stage 1 觸發"
+            elif stage == 1:
+                card_cls  = "apx-card"
+                badge_cls = "apx-badge apx-badge-s1done"
+                badge_txt = "Stage 1 完成"
+            else:
+                card_cls  = "apx-card"
+                badge_cls = "apx-badge apx-badge-watch"
+                badge_txt = "觀察中"
+
+            # 進度條
+            prog_pct  = min(roi, 50) / 50 * 100 if roi > 0 else 0
+            prog_col  = "#30d158" if roi < 20 else ("#ff9f0a" if roi < 40 else "#ffd60a")
+            s1_marker = 20 / 50 * 100   # 40%
+            s2_marker = 40 / 50 * 100   # 80%
+
+            # 今日漲跌
+            chg_col = "#30d158" if chg_pct >= 0 else "#ff453a"
+            chg_str = f"{chg_pct:+.2f}%"
 
             st.markdown(f"""
-<div style='background:#131317;border:1px solid {border_c};border-radius:10px;padding:16px 20px;margin-bottom:10px'>
-  <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px'>
-    <div style='font-size:15px;font-weight:700;font-family:var(--mono)'>{sym}</div>
-    <div style='background:{badge_bg};border:1px solid {border_c};border-radius:20px;
-      padding:3px 12px;font-size:11px;font-family:var(--mono)'>{badge_txt}</div>
+<div class="apx {card_cls}">
+  <div class="apx-card-hd">
+    <div>
+      <div class="apx-sym">{sym}</div>
+      <div style="font-size:12px;color:rgba(245,245,247,.4);margin-top:3px">
+        買入成本 ${avg_cost:.2f} &nbsp;·&nbsp; {shares:.4f} 股 &nbsp;·&nbsp; 今日 <span style="color:{chg_col}">{chg_str}</span>
+      </div>
+    </div>
+    <div class="{badge_cls}">{badge_txt}</div>
   </div>
-  <div style='display:grid;grid-template-columns:repeat(5,1fr);gap:12px;font-size:12px'>
-    <div><div style='color:#6c6c78;font-size:10px'>現價</div><div style='font-family:var(--mono);font-weight:600'>${price:.2f}</div></div>
-    <div><div style='color:#6c6c78;font-size:10px'>成本</div><div style='font-family:var(--mono)'>${avg_cost:.2f}</div></div>
-    <div><div style='color:#6c6c78;font-size:10px'>股數</div><div style='font-family:var(--mono)'>{shares:.4f}</div></div>
-    <div><div style='color:#6c6c78;font-size:10px'>市值</div><div style='font-family:var(--mono)'>NT$ {mkt_val*exrate:,.0f}</div></div>
-    <div><div style='color:#6c6c78;font-size:10px'>ROI</div><div style='font-family:var(--mono);font-weight:700;color:{roi_color}'>{roi_str}</div></div>
+  <div class="apx-metrics">
+    <div class="apx-metric-item">
+      <div class="apx-metric-lbl">現價</div>
+      <div class="apx-metric-val">${price:.2f}</div>
+    </div>
+    <div class="apx-metric-item">
+      <div class="apx-metric-lbl">市值</div>
+      <div class="apx-metric-val">NT$ {mkt_val*exrate:,.0f}</div>
+    </div>
+    <div class="apx-metric-item">
+      <div class="apx-metric-lbl">已提撥</div>
+      <div class="apx-metric-val">NT$ {cash_ex*exrate:,.0f}</div>
+    </div>
+    <div class="apx-metric-item">
+      <div class="apx-metric-lbl">Stage</div>
+      <div class="apx-metric-val">{stage} / 2</div>
+    </div>
+    <div class="apx-metric-item">
+      <div class="apx-metric-lbl">ROI</div>
+      <div class="apx-metric-val {roi_cls}">{roi:+.1f}%</div>
+    </div>
+  </div>
+  <div class="apx-prog-wrap">
+    <div class="apx-prog-labels">
+      <span>0%</span>
+      <span style="margin-left:{s1_marker:.0f}%">20% S1</span>
+      <span style="margin-left:{s2_marker-s1_marker:.0f}%">40% S2</span>
+      <span>50%+</span>
+    </div>
+    <div class="apx-prog-track">
+      <div class="apx-prog-s1" style="width:{prog_pct:.1f}%;background:{prog_col}"></div>
+    </div>
   </div>
 </div>""", unsafe_allow_html=True)
 
@@ -2426,65 +2617,89 @@ DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
                 sell_shares = shares * 0.10
                 sell_usd    = sell_shares * price
                 sell_twd    = sell_usd * exrate
-                st.warning(f"📢 **{sym} Stage 1 建議動作**：賣出 {sell_shares:.4f} 股（≈ ${sell_usd:.2f} / NT$ {sell_twd:,.0f}）→ 留倉 {shares*0.9:.4f} 股")
-                col_a, col_b = st.columns([2,1])
+                st.markdown(f"""
+<div class="apx apx-action-box" style="border-color:rgba(48,209,88,.25);background:rgba(48,209,88,.04);margin-top:-4px;margin-bottom:16px">
+  <div class="apx-action-title" style="color:#30d158">Stage 1 建議動作</div>
+  <div class="apx-action-desc">
+    賣出 <strong style="color:#f5f5f7">{sell_shares:.4f} 股</strong>（市值 10%）≈
+    <strong style="color:#f5f5f7">${sell_usd:.2f}</strong> / NT$ {sell_twd:,.0f} &nbsp;·&nbsp;
+    執行後留倉 <strong style="color:#f5f5f7">{shares*0.9:.4f} 股</strong>，仍大於初始本金，心理壓力極小
+  </div>
+</div>""", unsafe_allow_html=True)
+                col_a, col_b = st.columns([2, 1])
                 with col_a:
-                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} Stage 1）",
+                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} · Stage 1）",
                         value=int(sell_twd), step=100, key=f"s1_cash_{sym}")
                 with col_b:
-                    st.write("")
-                    st.write("")
-                    if st.button(f"✅ 確認執行 Stage 1", key=f"confirm_s1_{sym}", type="primary"):
-                        pos["shares"]            = shares * 0.9
-                        pos["stage"]             = 1
+                    st.write(""); st.write("")
+                    if st.button(f"確認執行 Stage 1", key=f"confirm_s1_{sym}", type="primary"):
+                        pos["shares"]             = shares * 0.9
+                        pos["stage"]              = 1
                         pos["cash_extracted_usd"] = cash_ex + sell_usd
                         ex_data["available_cash_twd"] = avail_twd + actual_twd
                         ex_data["extraction_log"].append({
                             "time": datetime.now().isoformat(),
                             "symbol": sym, "stage": 1,
-                            "shares_sold": round(sell_shares, 4),
-                            "cash_twd": actual_twd
+                            "shares_sold": round(sell_shares, 4), "cash_twd": actual_twd
                         })
                         _save_extraction_data(ex_data)
-                        st.success(f"✅ 已記錄 Stage 1 — 備用現金 +NT$ {actual_twd:,}")
-                        st.rerun()
+                        st.success(f"已記錄 Stage 1 ─ 備用現金 +NT$ {actual_twd:,}"); st.rerun()
 
             elif trigger_s2:
                 sell_shares = shares * 0.38
                 sell_usd    = sell_shares * price
                 sell_twd    = sell_usd * exrate
-                st.error(f"🔥 **{sym} Stage 2（黃金分割）建議**：賣出 {sell_shares:.4f} 股（≈ ${sell_usd:.2f} / NT$ {sell_twd:,.0f}）→ 留倉 {shares*0.62:.4f} 股")
-                col_a, col_b = st.columns([2,1])
+                st.markdown(f"""
+<div class="apx apx-action-box" style="border-color:rgba(255,159,10,.3);background:rgba(255,159,10,.05);margin-top:-4px;margin-bottom:16px">
+  <div class="apx-action-title" style="color:#ff9f0a">Stage 2 黃金分割大收割</div>
+  <div class="apx-action-desc">
+    賣出剩餘部位 38% = <strong style="color:#f5f5f7">{sell_shares:.4f} 股</strong> ≈
+    <strong style="color:#f5f5f7">${sell_usd:.2f}</strong> / NT$ {sell_twd:,.0f} &nbsp;·&nbsp;
+    執行後留倉 <strong style="color:#f5f5f7">{shares*0.62:.4f} 股</strong>，資金足以建立新倉位
+  </div>
+</div>""", unsafe_allow_html=True)
+                col_a, col_b = st.columns([2, 1])
                 with col_a:
-                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} Stage 2）",
+                    actual_twd = st.number_input(f"確認收回金額 NT$（{sym} · Stage 2）",
                         value=int(sell_twd), step=100, key=f"s2_cash_{sym}")
                 with col_b:
-                    st.write("")
-                    st.write("")
-                    if st.button(f"✅ 確認執行 Stage 2", key=f"confirm_s2_{sym}", type="primary"):
-                        pos["shares"]            = shares * 0.62
-                        pos["stage"]             = 2
+                    st.write(""); st.write("")
+                    if st.button(f"確認執行 Stage 2", key=f"confirm_s2_{sym}", type="primary"):
+                        pos["shares"]             = shares * 0.62
+                        pos["stage"]              = 2
                         pos["cash_extracted_usd"] = cash_ex + sell_usd
                         ex_data["available_cash_twd"] = avail_twd + actual_twd
                         ex_data["extraction_log"].append({
                             "time": datetime.now().isoformat(),
                             "symbol": sym, "stage": 2,
-                            "shares_sold": round(sell_shares, 4),
-                            "cash_twd": actual_twd
+                            "shares_sold": round(sell_shares, 4), "cash_twd": actual_twd
                         })
                         _save_extraction_data(ex_data)
-                        st.success(f"🔥 已記錄 Stage 2 — 備用現金 +NT$ {actual_twd:,}")
-                        st.rerun()
+                        st.success(f"已記錄 Stage 2 ─ 備用現金 +NT$ {actual_twd:,}"); st.rerun()
 
-        if not any_alert:
-            st.info("目前所有持倉均未達觸發條件，繼續觀察中…")
-    else:
-        st.info("尚未新增追蹤持倉，請使用下方「新增持倉」加入股票。")
+        if not any_alert and positions:
+            st.markdown("""
+<div class="apx" style="background:#1d1d1f;border-radius:16px;padding:20px 24px;color:rgba(245,245,247,.5);font-size:14px;text-align:center">
+  目前所有持倉均未達觸發條件　繼續持有，等待時機
+</div>""", unsafe_allow_html=True)
 
-    st.divider()
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 備用現金 Banner
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if avail_twd > 0:
+        st.markdown(f"""
+<div class="apx apx-cash-banner">
+  <div>
+    <div class="apx-cash-lbl">備用現金池 · Available Cash</div>
+    <div class="apx-cash-val">NT$ {avail_twd:,}</div>
+  </div>
+  <div class="apx-cash-hint">這筆資金已從高點安全提撥，隨時準備透過 Firstrade 碎股交易精準轉入低點標的</div>
+</div>""", unsafe_allow_html=True)
 
-    # ── 新增持倉 ──────────────────────────────────
-    with st.expander("➕ 新增追蹤持倉", expanded=(len(positions) == 0)):
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 新增持倉 & 管理
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    with st.expander("＋ 新增追蹤持倉", expanded=(len(positions) == 0)):
         nc1, nc2, nc3, nc4 = st.columns(4)
         with nc1:
             n_sym  = st.text_input("股票代碼", placeholder="NVDA", key="ex_sym").upper().strip()
@@ -2493,9 +2708,8 @@ DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
         with nc3:
             n_qty  = st.number_input("持有股數", min_value=0.0, step=0.0001, format="%.4f", key="ex_qty")
         with nc4:
-            st.write("")
-            st.write("")
-            if st.button("✅ 新增", type="primary", key="ex_add"):
+            st.write(""); st.write("")
+            if st.button("新增", type="primary", key="ex_add"):
                 if n_sym and n_cost > 0 and n_qty > 0:
                     positions.append({
                         "symbol": n_sym, "shares": n_qty,
@@ -2505,96 +2719,133 @@ DYNAMIC EXTRACTION MODULE · 動態減碼系統</div>
                     })
                     ex_data["positions"] = positions
                     _save_extraction_data(ex_data)
-                    st.success(f"✅ 已新增 {n_sym}"); st.rerun()
+                    st.success(f"已新增 {n_sym}"); st.rerun()
                 else:
                     st.warning("請填寫完整欄位")
 
-    # ── 刪除 / 重置持倉 ───────────────────────────
     if positions:
-        with st.expander("🗑️ 管理持倉（刪除 / 重置階段）", expanded=False):
+        with st.expander("管理持倉（刪除 / 重置階段）", expanded=False):
             for i, pos in enumerate(positions):
                 sym = pos.get("symbol", "")
                 ca, cb, cc = st.columns([3, 1, 1])
                 ca.write(f"**{sym}** — Stage {pos.get('stage',0)} | 股數 {pos.get('shares',0):.4f}")
                 with cb:
                     if st.button("重置", key=f"reset_{sym}_{i}"):
-                        pos["stage"] = 0
-                        _save_extraction_data(ex_data); st.rerun()
+                        pos["stage"] = 0; _save_extraction_data(ex_data); st.rerun()
                 with cc:
                     if st.button("刪除", key=f"del_{sym}_{i}"):
-                        ex_data["positions"] = [p for j, p in enumerate(positions) if j != i]
+                        ex_data["positions"] = [p for j,p in enumerate(positions) if j!=i]
                         _save_extraction_data(ex_data); st.rerun()
 
-    st.divider()
+    with st.expander("設定：預算 / 備用現金", expanded=False):
+        cb1, cb2 = st.columns(2)
+        with cb1:
+            new_budget = st.number_input("總預算 NT$", value=int(budget), step=10000, key="ex_budget")
+            if new_budget != budget:
+                ex_data["total_budget_twd"] = new_budget; _save_extraction_data(ex_data)
+        with cb2:
+            new_cash = st.number_input("手動調整備用現金 NT$", value=int(avail_twd), step=1000, key="ex_cash")
+            if st.button("更新現金", key="ex_cash_save"):
+                ex_data["available_cash_twd"] = new_cash; _save_extraction_data(ex_data); st.rerun()
 
-    # ── 備用現金設定 ──────────────────────────────
-    col_budget, col_cash = st.columns(2)
-    with col_budget:
-        new_budget = st.number_input("調整總預算 NT$", value=int(budget), step=10000, key="ex_budget")
-        if new_budget != budget:
-            ex_data["total_budget_twd"] = new_budget
-            _save_extraction_data(ex_data)
-    with col_cash:
-        new_cash = st.number_input("手動調整備用現金 NT$（已有現金）", value=int(avail_twd), step=1000, key="ex_cash")
-        if st.button("💾 更新現金", key="ex_cash_save"):
-            ex_data["available_cash_twd"] = new_cash
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 抄底雷達
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    st.markdown("""
+<div class="apx apx-section-hd" style="margin-top:32px">抄底雷達</div>
+<div class="apx apx-section-sub">距 52 週高點跌幅 ≥ 20%　自動標記「優先轉入」&nbsp;·&nbsp; Reinvestment Radar</div>
+""", unsafe_allow_html=True)
+
+    wl_c1, wl_c2 = st.columns([4, 1])
+    with wl_c1:
+        wl_input = st.text_input("觀察名單（空白分隔）",
+            value=" ".join(watchlist), key="ex_watchlist",
+            placeholder="NVDA TSLA AMZN MSFT META")
+    with wl_c2:
+        st.write(""); st.write("")
+        if st.button("更新名單", key="ex_wl_save"):
+            ex_data["watchlist"] = [s.strip().upper() for s in wl_input.split() if s.strip()]
             _save_extraction_data(ex_data); st.rerun()
-
-    st.divider()
-
-    # ── 抄底雷達 ─────────────────────────────────
-    st.markdown("### 📡 抄底雷達　Reinvestment Radar")
-    st.caption("監控觀察名單：距 52 週高點跌幅 ≥ 20% 自動標記為「優先轉入」")
-
-    wl_input = st.text_input("觀察名單（空白分隔）",
-        value=" ".join(watchlist), key="ex_watchlist",
-        placeholder="NVDA TSLA AMZN MSFT META")
-    if st.button("更新名單", key="ex_wl_save"):
-        ex_data["watchlist"] = [s.strip().upper() for s in wl_input.split() if s.strip()]
-        _save_extraction_data(ex_data); st.rerun()
 
     if watchlist:
         radar_rows = []
         for sym in watchlist:
-            q = _fetch_quote_with_52w(sym)
+            q      = _fetch_quote_with_52w(sym)
             price  = q["price"]
             high52 = q["high52"]
             drop   = (price - high52) / high52 * 100 if high52 else 0
-            is_target = drop <= -20.0
-            radar_rows.append({
-                "標的": sym,
-                "現價": f"${price:.2f}",
-                "52W高點": f"${high52:.2f}",
-                "跌幅": f"{drop:.1f}%",
-                "狀態": "🎯 優先轉入" if is_target else ("📊 觀察中" if drop > -10 else "⚠️ 注意"),
-                "_drop": drop
-            })
+            is_tgt = drop <= -20.0
+            is_warn= -20.0 < drop <= -10.0
+            radar_rows.append({"sym": sym, "price": price, "high52": high52,
+                                "drop": drop, "is_tgt": is_tgt, "is_warn": is_warn})
+        radar_rows.sort(key=lambda x: x["drop"])
 
-        radar_rows.sort(key=lambda x: x["_drop"])
-        for row in radar_rows:
-            drop_val = row["_drop"]
-            is_target = drop_val <= -20.0
-            bg = "#1a2a1a" if is_target else "#131317"
-            border = "#3a8a3a" if is_target else "#24242c"
-            st.markdown(f"""
-<div style='background:{bg};border:1px solid {border};border-radius:8px;padding:12px 16px;
-margin-bottom:6px;display:flex;justify-content:space-between;align-items:center'>
-  <div style='font-family:var(--mono);font-weight:700;font-size:14px'>{row['標的']}</div>
-  <div style='font-size:12px;color:#a8a8b2'>{row['現價']} / 52W高 {row['52W高點']}</div>
-  <div style='font-family:var(--mono);font-size:13px;font-weight:600;
-    color:{"#22c55e" if is_target else ("#f59e0b" if drop_val <= -10 else "#a8a8b2")}'>{row['跌幅']}</div>
-  <div style='font-size:12px'>{row['狀態']}</div>
+        # 標頭
+        st.markdown("""
+<div class="apx" style="background:#1d1d1f;border-radius:20px 20px 0 0;overflow:hidden">
+<div class="apx-radar-hd apx">
+  <span>標的</span><span>現價</span><span>52W 高點</span><span style="padding:0 8px">跌幅進度</span><span>跌幅 / 狀態</span>
 </div>""", unsafe_allow_html=True)
 
-        if avail_twd > 0:
-            st.info(f"💵 備用現金 NT$ {avail_twd:,} 可用於轉入上方標的（建議透過 Firstrade 碎股交易）")
+        for row in radar_rows:
+            drop_abs = abs(row["drop"])
+            bar_w    = min(drop_abs / 40 * 100, 100)
+            bar_col  = "#ff453a" if row["is_tgt"] else ("#ff9f0a" if row["is_warn"] else "#636366")
+            status_col = "#30d158" if row["is_tgt"] else ("#ff9f0a" if row["is_warn"] else "rgba(245,245,247,.4)")
+            status_txt = "🎯 優先轉入" if row["is_tgt"] else ("⚠️ 注意" if row["is_warn"] else "觀察中")
+            drop_col   = "#ff453a" if row["is_tgt"] else ("#ff9f0a" if row["is_warn"] else "rgba(245,245,247,.5)")
+            st.markdown(f"""
+<div class="apx-radar-row apx" style="background:{'rgba(255,69,58,.04)' if row['is_tgt'] else 'transparent'}">
+  <span class="apx-radar-sym">{row['sym']}</span>
+  <span class="apx-radar-price">${row['price']:.2f}</span>
+  <span class="apx-radar-price" style="color:rgba(245,245,247,.4)">${row['high52']:.2f}</span>
+  <div style="padding:0 8px">
+    <div class="apx-bar-track">
+      <div class="apx-bar-fill" style="width:{bar_w:.1f}%;background:{bar_col}"></div>
+    </div>
+  </div>
+  <div style="text-align:right">
+    <div class="apx-radar-pct" style="color:{drop_col}">{row['drop']:.1f}%</div>
+    <div class="apx-radar-status" style="color:{status_col}">{status_txt}</div>
+  </div>
+</div>""", unsafe_allow_html=True)
 
-    # ── 操作記錄 ──────────────────────────────────
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if avail_twd > 0:
+            targets = [r["sym"] for r in radar_rows if r["is_tgt"]]
+            if targets:
+                st.markdown(f"""
+<div class="apx" style="background:rgba(48,209,88,.06);border:1px solid rgba(48,209,88,.15);border-radius:12px;padding:14px 18px;margin-top:10px;font-size:13px;color:rgba(245,245,247,.7)">
+  💵 備用現金 <strong style="color:#30d158">NT$ {avail_twd:,}</strong> 已就位 &nbsp;·&nbsp;
+  優先標的：<strong style="color:#f5f5f7">{' · '.join(targets)}</strong> &nbsp;·&nbsp; 建議透過 Firstrade 碎股交易執行
+</div>""", unsafe_allow_html=True)
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 操作記錄
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     if log:
-        with st.expander(f"📋 提撥記錄（共 {len(log)} 筆）", expanded=False):
-            log_df = pd.DataFrame(log[::-1])
-            log_df.columns = ["時間","標的","階段","賣出股數","收回(NT$)"]
-            st.dataframe(log_df, use_container_width=True, hide_index=True)
+        st.markdown(f'<div class="apx apx-section-hd" style="margin-top:28px">操作記錄 <span style="font-size:14px;font-weight:400;color:rgba(245,245,247,.4)">共 {len(log)} 筆</span></div>', unsafe_allow_html=True)
+        st.markdown("""
+<div class="apx" style="background:#1d1d1f;border-radius:20px;overflow:hidden">
+<div class="apx-log-row apx-log-hd apx"><span>時間</span><span>標的</span><span>階段</span><span>賣出股數</span><span>收回 NT$</span></div>""",
+            unsafe_allow_html=True)
+        for entry in reversed(log[-20:]):
+            ts  = entry.get("time","")[:16].replace("T"," ")
+            s   = entry.get("symbol","")
+            stg = f"Stage {entry.get('stage','')}"
+            sh  = f"{entry.get('shares_sold',0):.4f}"
+            ca  = f"NT$ {entry.get('cash_twd',0):,.0f}"
+            stg_col = "#ff9f0a" if entry.get("stage")==2 else "#30d158"
+            st.markdown(f"""
+<div class="apx-log-row apx">
+  <span style="color:rgba(245,245,247,.35)">{ts}</span>
+  <span style="font-weight:700;color:#f5f5f7">{s}</span>
+  <span style="color:{stg_col}">{stg}</span>
+  <span>{sh}</span>
+  <span style="color:#30d158;font-weight:600">{ca}</span>
+</div>""", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 def _load_resale():
     try:
