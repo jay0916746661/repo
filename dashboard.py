@@ -3034,7 +3034,7 @@ Jim 的目標：2026年底存到 20 萬 TWD 可投資資金，目前專注美股
 # ════════════════════════════════════════════════════
 # 4 個核心分頁
 # ════════════════════════════════════════════════════
-tab_home, tab_ai, tab_invest, tab_biz = st.tabs(["🌅 今日總覽", "🧠 AI 練功場", "📈 投資", "💼 業務"])
+tab_home, tab_ai, tab_invest, tab_extract, tab_biz = st.tabs(["🌅 今日總覽", "🧠 AI 練功場", "📈 投資", "⚖️ 減碼系統", "💼 業務"])
 
 # ══════════════════════════════════════════
 # TAB — 今日總覽
@@ -3524,10 +3524,10 @@ with tab_invest:
     # ── 加密貨幣追蹤 ──────────────────────
     render_crypto_dashboard(cry_q, _exrate)
 
+with tab_extract:
+    render_dynamic_extraction(exrate=_exrate)
+
 with tab_invest:
-    st.divider()
-    with st.expander("⚖️ 動態減碼模組 — 兩階段提撥公式", expanded=True):
-        render_dynamic_extraction(exrate=_exrate)
     st.divider()
     render_daily_system()
 
